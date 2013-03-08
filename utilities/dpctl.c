@@ -2829,6 +2829,7 @@ set_table_features_match(struct vconn *vconn, int argc, char *argv[]) {
 
     /* Renumber tables to form multipart request */
     last_table = table_feat->table_features[table_feat->tables_num - 1]->table_id;
+    last_table++; /* Create an error. */
     t = 0;
     batch_table = table_feat->tables_num;
     while(t <= last_table) {
