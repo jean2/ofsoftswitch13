@@ -2837,7 +2837,7 @@ set_table_features_match(struct vconn *vconn, int argc, char *argv[]) {
       for(i = 0; i < batch_table; i++) {
 	table_feat->table_features[i]->table_id = t;
 	table_feat->table_features[i]->name[0] = '\0';
-	t++;
+	t+=4;
 	if(t > last_table) {
 	  i++;
 	  break;
