@@ -917,7 +917,7 @@ enum ofp_multipart_types {
     OFPMP_GROUP = 6,
     /* Group description statistics.
     * The request body is empty.
-    * The reply body is an array of struct ofp_group_desc_stats. */
+    * The reply body is an array of struct ofp_group_desc. */
     OFPMP_GROUP_DESC = 7,
     /* Group features.
     * The request body is empty.
@@ -1258,14 +1258,17 @@ struct ofp_group_stats {
 OFP_ASSERT(sizeof(struct ofp_group_stats) == 40);
 
 /* Body of reply to OFPMP_GROUP_DESC request. */
-struct ofp_group_desc_stats {
+struct ofp_group_desc {
 	uint16_t length;   /* Length of this entry. */
 	uint8_t type;      /* One of OFPGT_*. */
 	uint8_t pad;       /* Pad to 64 bits. */
 	uint32_t group_id; /* Group identifier. */
 	struct ofp_bucket buckets[0];
 };
-OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 8);
+OFP_ASSERT(sizeof(struct ofp_group_desc) == 8);
+
+/* Backward compatibility with 1.3.1 - avoid breaking the API. */
+#define ofp_group_desc_stats ofp_group_desc
 
 /* Body of reply to OFPMP_GROUP_FEATURES request. Group features. */
 struct ofp_group_features_stats {
