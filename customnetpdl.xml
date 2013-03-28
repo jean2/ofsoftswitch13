@@ -1147,9 +1147,12 @@
             Flags
             I-SID
 			-->
-			<field type="bit" name="prio" longname="Priority" mask="0xE000" size="2" showtemplate="FieldDec"/>
-			<field type="bit" name="dei" longname="Drop Eligibility" mask="0x1000" size="2" showtemplate="FieldDec"/>
-			<field type="bit" name="isid" longname="{0x8000 37} I-SID" mask="0x0FFF" size="2" showtemplate="FieldDec"/>
+			<block name="pbbflags" size="1" longname="PBB flags">
+				<field type="bit" name="prio" longname="Priority" mask="0xE0" size="1" showtemplate="FieldHex"/>
+				<field type="bit" name="dei" longname="Drop Eligibility" mask="0x10" size="1" showtemplate="FieldDec"/>
+				<field type="bit" name="uca" longname="Use Customer Addresses" mask="0x08" size="1" showtemplate="FieldDec"/>
+			</block>
+			<field type="fixed" name="isid" longname="{0x8000 37} I-SID" size="3" showtemplate="FieldDec"/>
 			
 			<field type="fixed" name="type" longname="{0x8000 5} Type" size="2" showtemplate="eth.typelength"/>
 		</fields>

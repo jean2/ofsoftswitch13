@@ -1532,6 +1532,16 @@ parse_match(char *str, struct ofl_match_header **match) {
             else ofl_structs_match_put16(m, OXM_OF_IPV6_EXTHDR, ext_hdr);
             continue;
         }
+	/* PBB UCA */
+        if (strncmp(token, MATCH_PBB_UCA KEY_VAL, strlen(MATCH_PBB_UCA KEY_VAL)) == 0) {
+            uint8_t pbb_uca;
+            if (parse8(token + strlen(MATCH_PBB_UCA KEY_VAL), NULL, 0, 0x1, &pbb_uca)) {
+                    ofp_fatal(0, "Error parsing pbb_uca: %s.", token);
+                }
+            else
+                ofl_structs_match_put8(m, OXM_OF_PBB_UCA, pbb_uca);
+            continue;
+        }
         ofp_fatal(0, "Error parsing match arg: %s.", token);
     }
 
@@ -1677,6 +1687,18 @@ parse_set_field(char *token, struct ofl_action_set_field *act) {
             act->field->header = OXM_OF_PBB_ISID;
             act->field->value = (uint8_t*) pbb_isid;
         }
+        return 0;
+    }
+    if (strncmp(token, MATCH_PBB_UCA KEY_VAL2, strlen(MATCH_PBB_UCA KEY_VAL2)) == 0) {
+        uint8_t *pbb_uca = (uint8_t*) malloc(sizeof(uint8_t));
+        if (parse8(token + strlen(MATCH_PBB_UCA KEY_VAL2), NULL, 0, 0x01, pbb_uca)) {
+             ofp_fatal(0, "Error parsing pbb_uca: %s.", token);
+        }
+        else {
+                act->field = (struct ofl_match_tlv*) malloc(sizeof(struct ofl_match_tlv));
+                act->field->header = OXM_OF_PBB_UCA;
+                act->field->value = pbb_uca;
+            }
         return 0;
     }
     if (strncmp(token, MATCH_MPLS_LABEL KEY_VAL2, strlen(MATCH_MPLS_LABEL KEY_VAL2)) == 0) {

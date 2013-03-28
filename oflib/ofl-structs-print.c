@@ -482,6 +482,12 @@ print_oxm_tlv(FILE *stream, struct ofl_match_tlv *f, size_t *size){
                             if (*size > 4)                                
                                 fprintf(stream, ", ");
                 }                 
+                else if (field == OFPXMT_OFB_PBB_UCA){
+                            fprintf(stream, "pbb_uca=\"%d\"", *f->value & 0xfe);
+                            *size -= 5;                                
+                            if (*size > 4)                                
+                                fprintf(stream, ", ");
+                }                  
                                 
 }
 

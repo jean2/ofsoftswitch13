@@ -101,5 +101,7 @@ DEFINE_FIELD    (OF_MPLS_BOS,        OXM_DL_MPLS,    0,              false)
 DEFINE_FIELD_M    (OF_PBB_ISID,       OXM_DL_PBB,      0,              true)
 DEFINE_FIELD_M    (OF_TUNNEL_ID,      OXM_DL_NONE,     0,              true)
 DEFINE_FIELD_M    (OF_IPV6_EXTHDR,    OXM_DL_IPV6,     0,              true)
+DEFINE_FIELD    (OF_RESERVED,       OXM_DL_NONE,     0,              false)
+DEFINE_FIELD    (OF_PBB_UCA,        OXM_DL_PBB,      0,              false)
 
 #undef DEFINE_FIELD

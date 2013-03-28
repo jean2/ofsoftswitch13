@@ -266,6 +266,7 @@ ofl_oxm_type_print(FILE *stream, uint32_t type){
     case OXM_OF_PBB_ISID:           {fprintf(stream, "pbb_isid"); return; }
     case OXM_OF_TUNNEL_ID:          {fprintf(stream, "tunnel_id"); return; }
     case OXM_OF_IPV6_EXTHDR:        {fprintf(stream, "ipv6_exthdr"); return; }
+    case OXM_OF_PBB_UCA:            {fprintf(stream, "pbb_uca"); return; }
     default: {                       fprintf(stream, "?(%d)", type); return; }    
     }
 

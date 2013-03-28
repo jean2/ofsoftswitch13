@@ -225,6 +225,10 @@
 #define OXM_OF_IPV6_EXTHDR  OXM_HEADER      (0x8000, 39, 2)
 #define OXM_OF_IPV6_EXTHDR_W  OXM_HEADER_W  (0x8000, 39, 2)
 
+#define OXM_OF_RESERVED OXM_HEADER       (0x8000, 40, 1)
+
+#define OXM_OF_PBB_UCA OXM_HEADER       (0x8000, 41, 1)
+
 /* ## ------------------------------- ## */
 /* ## IPv6 compatible fields. ## */
 /* ## ------------------------------- ## */

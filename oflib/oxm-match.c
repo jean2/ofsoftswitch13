@@ -419,6 +419,11 @@ parse_oxm_entry(struct ofl_match *match, const struct oxm_field *f,
         case OFI_OXM_OF_IPV6_EXTHDR_W:
             ofl_structs_match_put16m(match, f->header, ntohs(*((uint16_t*) value)),ntohs(*((uint16_t*) mask)));
             return 0;
+        case OFI_OXM_OF_PBB_UCA:{
+             uint8_t *v = (uint8_t*) value;
+             ofl_structs_match_put8(match, f->header, *v);
+             return 0;
+        }
         case N_OXM_FIELDS:
             NOT_REACHED();
     }

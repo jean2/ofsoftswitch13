@@ -407,6 +407,8 @@ extern "C" int nblink_packet_parse(struct ofpbuf * pktin,  struct hmap * pktout,
                 pkt_proto->pbb = (struct pbb_header *) ((uint8_t*) pktin->data + proto->Position);
                 PDMLReader->GetPDMLField(proto->Name, (char*) "isid", proto->FirstField, &field);
                 nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_PBB_ISID);
+                PDMLReader->GetPDMLField(proto->Name, (char*) "uca", proto->FirstField, &field);
+                nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_PBB_UCA);
                 PDMLReader->GetPDMLField(proto->Name, (char*) "type", proto->FirstField, &field);
                 nblink_extract_proto_fields(pktin, field, pktout, OXM_OF_ETH_TYPE);                
             }                                   
