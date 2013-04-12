@@ -145,11 +145,11 @@ ofl_utils_count_ofp_meter_bands(void *data, size_t data_len, size_t *count) {
     d = (uint8_t *)data;
     *count = 0;
 
-    while (data_len >= sizeof(struct ofp_bucket)) {
+    while (data_len >= sizeof(struct ofp_meter_band_header)) {
         mb = (struct ofp_meter_band_header *)d;
 
         if (data_len < ntohs(mb->len) || ntohs(mb->len) < sizeof(struct ofp_meter_band_header)) {
-            OFL_LOG_WARN(LOG_MODULE, "Received bucket has invalid length.");
+            OFL_LOG_WARN(LOG_MODULE, "Received meter band has invalid length.");
             return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
         }
         data_len -= ntohs(mb->len);
