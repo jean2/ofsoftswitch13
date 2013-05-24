@@ -764,12 +764,12 @@ ofl_structs_queue_prop_unpack(struct ofp_queue_desc_prop_header *src, size_t *le
 
     if (*len < sizeof(struct ofp_queue_desc_prop_header)) {
         OFL_LOG_WARN(LOG_MODULE, "Received queue property is too short (%zu).", *len);
-        return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
+        return ofl_error(OFPET_BAD_PROPERTY, OFPBPC_BAD_LEN);
     }
 
     if (*len < ntohs(src->length)) {
         OFL_LOG_WARN(LOG_MODULE, "Received queue property has invalid length (set to %u, but only %zu received).", ntohs(src->length), *len);
-        return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
+        return ofl_error(OFPET_BAD_PROPERTY, OFPBPC_BAD_LEN);
     }
 
     switch (ntohs(src->type)) {
@@ -779,7 +779,7 @@ ofl_structs_queue_prop_unpack(struct ofp_queue_desc_prop_header *src, size_t *le
 
             if (*len < sizeof(struct ofp_queue_desc_prop_min_rate)) {
                 OFL_LOG_WARN(LOG_MODULE, "Received MIN_RATE queue property has invalid length (%zu).", *len);
-                return ofl_error(OFPET_BAD_ACTION, OFPBRC_BAD_LEN);
+                return ofl_error(OFPET_BAD_PROPERTY, OFPBPC_BAD_LEN);
             }
             *len -= sizeof(*sp);
             dp->rate = ntohs(sp->rate);
@@ -793,7 +793,7 @@ ofl_structs_queue_prop_unpack(struct ofp_queue_desc_prop_header *src, size_t *le
             
             if (*len < sizeof(struct ofp_queue_desc_prop_max_rate)) {
                 OFL_LOG_WARN(LOG_MODULE, "Received MAX_RATE queue property has invalid length (%zu).", *len);
-                return ofl_error(OFPET_BAD_ACTION, OFPBRC_BAD_LEN);
+                return ofl_error(OFPET_BAD_PROPERTY, OFPBPC_BAD_LEN);
             }
             *len -= sizeof(*sp);
             dp->rate = ntohs(sp->rate);
@@ -808,7 +808,7 @@ ofl_structs_queue_prop_unpack(struct ofp_queue_desc_prop_header *src, size_t *le
             
             if (*len < sizeof(struct ofp_queue_desc_prop_experimenter)) {
                 OFL_LOG_WARN(LOG_MODULE, "Received EXPERIMENTER queue property has invalid length (%zu).", *len);
-                return ofl_error(OFPET_BAD_ACTION, OFPBRC_BAD_LEN);
+                return ofl_error(OFPET_BAD_PROPERTY, OFPBPC_BAD_LEN);
             }
             *len -= sizeof(*sp);
             dp->experimenter_data = sp->experimenter_data;
@@ -819,7 +819,7 @@ ofl_structs_queue_prop_unpack(struct ofp_queue_desc_prop_header *src, size_t *le
         }
         default: {
             OFL_LOG_WARN(LOG_MODULE, "Received unknown queue prop type.");
-            return ofl_error(OFPET_BAD_ACTION, OFPBRC_BAD_LEN);
+            return ofl_error(OFPET_BAD_PROPERTY, OFPBPC_BAD_TYPE);
         }
     }
 
