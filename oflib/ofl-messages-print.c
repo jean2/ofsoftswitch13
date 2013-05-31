@@ -427,7 +427,7 @@ ofl_msg_print_stats_reply_port(struct ofl_msg_multipart_reply_port *msg, FILE *s
 }
 
 static void
-ofl_msg_print_stats_reply_queue(struct ofl_msg_multipart_reply_queue *msg, FILE *stream) {
+ofl_msg_print_stats_reply_queue(struct ofl_msg_multipart_reply_queue_stats *msg, FILE *stream) {
     size_t i;
 
     fprintf(stream, ", stats=[");
@@ -625,7 +625,7 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             break;
         }
         case OFPMP_QUEUE_STATS: {
-            ofl_msg_print_stats_reply_queue((struct ofl_msg_multipart_reply_queue *)msg, stream);
+            ofl_msg_print_stats_reply_queue((struct ofl_msg_multipart_reply_queue_stats *)msg, stream);
             break;
         }
         case (OFPMP_GROUP): {
@@ -657,7 +657,7 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             break;
         }
         case OFPMP_QUEUE_DESC:{
-            ofl_msg_print_queue_desc_reply((struct ofl_msg_multipart_reply_port_desc*)msg, stream);
+            ofl_msg_print_queue_desc_reply((struct ofl_msg_multipart_reply_queue_desc*)msg, stream);
             break;
         }
         case OFPMP_EXPERIMENTER: {
