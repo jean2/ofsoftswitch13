@@ -111,6 +111,8 @@ ofl_msg_print_packet_in(struct ofl_msg_packet_in *msg, FILE *stream) {
     fprintf(stream, "\", table=\"");
     ofl_table_print(stream, msg->table_id);
     fprintf(stream, "\", dlen=\"%zu\"}", msg->data_length);
+    fprintf(stream, "\n");
+    ofl_hex_print(stream, msg->data, msg->data_length);
 }
 
 
