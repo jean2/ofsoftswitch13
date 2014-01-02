@@ -55,7 +55,7 @@ dp_execute_action_list(struct packet *pkt,
 
 /* Outputs the packet on the given port and queue. */
 void
-dp_actions_output_port(struct packet *pkt, uint32_t out_port, uint32_t out_queue, uint16_t max_len, uint64_t cookie);
+dp_actions_output_port(struct packet *pkt, uint32_t out_port, uint32_t out_queue, uint16_t max_len, uint64_t source, uint32_t reason);
 
 /* Returns true if the given list of actions has an output action to the port. */
 bool

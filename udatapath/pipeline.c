@@ -173,7 +173,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
                /* Cookie field is set 0xffffffffffffffff
                 because we cannot associate it to any
                 particular flow */
-                action_set_execute(pkt->action_set, pkt, 0xffffffffffffffff);
+                action_set_execute(pkt->action_set, pkt, entry->stats->cookie, OFPR_ACTION_SET);
                 packet_destroy(pkt);
                 return;
             }

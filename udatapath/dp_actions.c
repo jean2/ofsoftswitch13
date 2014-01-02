@@ -931,7 +931,7 @@ dp_execute_action_list(struct packet *pkt,
             pkt->out_port_max_len = 0;
             pkt->out_queue = 0;
             VLOG_DBG_RL(LOG_MODULE, &rl, "Port action; sending to port (%u).", port);
-            dp_actions_output_port(pkt, port, queue, max_len, cookie);
+            dp_actions_output_port(pkt, port, queue, max_len, OFPR_APPLY_ACTION, cookie);
         }
 
     }
@@ -939,7 +939,7 @@ dp_execute_action_list(struct packet *pkt,
 
 
 void
-dp_actions_output_port(struct packet *pkt, uint32_t out_port, uint32_t out_queue, uint16_t max_len, uint64_t cookie) {
+dp_actions_output_port(struct packet *pkt, uint32_t out_port, uint32_t out_queue, uint16_t max_len, uint64_t source, uint32_t reason) {
 
     switch (out_port) {
         case (OFPP_TABLE): {
@@ -957,13 +957,17 @@ dp_actions_output_port(struct packet *pkt, uint32_t out_port, uint32_t out_queue
             break;
         }
         case (OFPP_CONTROLLER): {
+	    if (reason == OFPR_APPLY_ACTION && pkt->handle_std->table_miss) {
+		reason = OFPR_TABLE_MISS;
+	    }
+
             struct ofl_msg_packet_in msg;
             msg.header.type = OFPT_PACKET_IN;
             msg.total_len   = pkt->buffer->size;
-            msg.reason      = pkt->handle_std->table_miss ? OFPR_TABLE_MISS : OFPR_APPLY_ACTION;
+            msg.reason      = reason;
             msg.table_id    = pkt->table_id;
             msg.data        = pkt->buffer->data;
-            msg.source      = cookie;
+            msg.source      = source;
 
             if (pkt->dp->config.miss_send_len != OFPCML_NO_BUFFER){
                 dp_buffers_save(pkt->dp->buffers, pkt);
