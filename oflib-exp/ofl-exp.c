@@ -34,11 +34,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ofl-exp.h"
+#include "ofl-exp-ericsson.h"
 #include "ofl-exp-nicira.h"
 #include "ofl-exp-openflow.h"
 #include "../oflib/ofl-messages.h"
 #include "../oflib/ofl-log.h"
 #include "openflow/openflow.h"
+#include "openflow/ericsson-ext.h"
 #include "openflow/nicira-ext.h"
 #include "openflow/openflow-ext.h"
 
@@ -52,6 +54,9 @@ ofl_exp_msg_pack(struct ofl_msg_experimenter *msg, uint8_t **buf, size_t *buf_le
     switch (msg->experimenter_id) {
         case (OPENFLOW_VENDOR_ID): {
             return ofl_exp_openflow_msg_pack(msg, buf, buf_len);
+        }
+        case (ERIC_EXPERIMENTER_ID): {
+            return ofl_exp_ericsson_msg_pack(msg, buf, buf_len);
         }
         case (NX_VENDOR_ID): {
             return ofl_exp_nicira_msg_pack(msg, buf, buf_len);
@@ -78,6 +83,9 @@ ofl_exp_msg_unpack(struct ofp_header *oh, size_t *len, struct ofl_msg_experiment
         case (OPENFLOW_VENDOR_ID): {
             return ofl_exp_openflow_msg_unpack(oh, len, msg);
         }
+        case (ERIC_EXPERIMENTER_ID): {
+            return ofl_exp_ericsson_msg_unpack(oh, len, msg);
+        }
         case (NX_VENDOR_ID): {
             return ofl_exp_nicira_msg_unpack(oh, len, msg);
         }
@@ -93,6 +101,9 @@ ofl_exp_msg_free(struct ofl_msg_experimenter *msg) {
     switch (msg->experimenter_id) {
         case (OPENFLOW_VENDOR_ID): {
             return ofl_exp_openflow_msg_free(msg);
+        }
+        case (ERIC_EXPERIMENTER_ID): {
+            return ofl_exp_ericsson_msg_free(msg);
         }
         case (NX_VENDOR_ID): {
             return ofl_exp_nicira_msg_free(msg);
@@ -110,6 +121,9 @@ ofl_exp_msg_to_string(struct ofl_msg_experimenter *msg) {
     switch (msg->experimenter_id) {
         case (OPENFLOW_VENDOR_ID): {
             return ofl_exp_openflow_msg_to_string(msg);
+        }
+        case (ERIC_EXPERIMENTER_ID): {
+            return ofl_exp_ericsson_msg_to_string(msg);
         }
         case (NX_VENDOR_ID): {
             return ofl_exp_nicira_msg_to_string(msg);
