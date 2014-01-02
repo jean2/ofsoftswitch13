@@ -152,7 +152,7 @@ ofl_msg_pack_packet_in(struct ofl_msg_packet_in *msg, uint8_t **buf, size_t *buf
     packet_in->total_len   = htons(msg->total_len);
     packet_in->reason      =       msg->reason;
     packet_in->table_id    =       msg->table_id;
-    packet_in->cookie      = hton64(msg->cookie);
+    packet_in->source      = hton64(msg->source);
 
     ptr = (*buf) + (sizeof(struct ofp_packet_in) - 4);
     ofl_structs_match_pack(msg->match,&(packet_in->match),ptr, NULL);

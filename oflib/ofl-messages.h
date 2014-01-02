@@ -138,7 +138,7 @@ struct ofl_msg_packet_in {
     uint16_t                    total_len;   /* Full length of frame. */
     enum ofp_packet_in_reason   reason;      /* Reason packet is being sent (one of OFPR_*) */
     uint8_t                     table_id;    /* ID of the table that was looked up */
-    uint64_t                    cookie;
+    uint64_t                    source;      /* Source of the packet_in message */
     struct ofl_match_header     *match;
     size_t     data_length;
     uint8_t   *data;

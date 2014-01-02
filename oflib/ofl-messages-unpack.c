@@ -249,7 +249,7 @@ ofl_msg_unpack_packet_in(struct ofp_header *src, uint8_t* buf, size_t *len, stru
     dp->total_len = ntohs(sp->total_len);
     dp->reason = (enum ofp_packet_in_reason)sp->reason;
     dp->table_id = sp->table_id;
-    dp->cookie = ntoh64(sp->cookie);
+    dp->source = ntoh64(sp->source);
     
     ptr = buf + (sizeof(struct ofp_packet_in)-4);
     ofl_structs_match_unpack(&(sp->match),ptr, len ,&(dp->match),NULL);

@@ -596,8 +596,13 @@ ofl_packet_in_reason_to_string(uint8_t reason) {
 void
 ofl_packet_in_reason_print(FILE *stream, uint8_t reason) {
     switch (reason) {
-        case (OFPR_NO_MATCH): { fprintf(stream, "no_match"); return; }
-        case (OFPR_ACTION): {   fprintf(stream, "action"); return; }
+
+        case (OFPR_TABLE_MISS): { fprintf(stream, "miss"); return; }
+        case (OFPR_APPLY_ACTION): { fprintf(stream, "apply"); return; }
+        case (OFPR_INVALID_TTL): { fprintf(stream, "ttl"); return; }
+        case (OFPR_ACTION_SET): { fprintf(stream, "actset"); return; }
+        case (OFPR_GROUP): { fprintf(stream, "group"); return; }
+        case (OFPR_PACKET_OUT): { fprintf(stream, "pktout"); return; }
         default: {              fprintf(stream, "?(%u)", reason); return; }
     }
 }

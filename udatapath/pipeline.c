@@ -94,8 +94,8 @@ send_packet_to_controller(struct pipeline *pl, struct packet *pkt, uint8_t table
     msg.total_len   = pkt->buffer->size;
     msg.reason      = reason;
     msg.table_id    = table_id;
-    msg.cookie      = 0xffffffffffffffff;
-    msg.data = pkt->buffer->data;
+    msg.source      = 0xffffffffffffffff;
+    msg.data        = pkt->buffer->data;
 
 
     /* A max_len of OFPCML_NO_BUFFER means that the complete

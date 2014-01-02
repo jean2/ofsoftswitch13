@@ -1419,7 +1419,7 @@ struct ofp_packet_in {
 	uint16_t total_len;     /* Full length of frame. */
 	uint8_t reason;         /* Reason packet is being sent (one of OFPR_*) */
 	uint8_t table_id;       /* ID of the table that was looked up */
-    uint64_t cookie;        /* Cookie of the flow entry that was looked up. */
+        uint64_t source;        /* Identifier of the source of this packet_in message. */
 	struct ofp_match match; /* Packet metadata. Variable size. */
 	/* Followed by:
 	* -Exactly 2 all-zero padding bytes,then
@@ -1434,9 +1434,12 @@ OFP_ASSERT(sizeof(struct ofp_packet_in) == 32);
 
 /* Why is this packet being sent to the controller? */
 enum ofp_packet_in_reason {
-    OFPR_NO_MATCH = 0,    /* No matching flow. */
-    OFPR_ACTION = 1,      /* Action explicitly output to controller. */
-    OFPR_INVALID_TTL = 2, /* Packet has invalid TTL */
+    OFPR_TABLE_MISS = 0,   /* Sent by table miss flow entry. */
+    OFPR_APPLY_ACTION = 1, /* Sent by a flow entry explicitly. */
+    OFPR_INVALID_TTL = 2,  /* Packet has invalid TTL */
+    OFPR_ACTION_SET = 3,   /* Sent by action set explicitly. */
+    OFPR_GROUP = 4,        /* Sent by a group explicitly. */
+    OFPR_PACKET_OUT = 5    /* Sent by a packet out. */
 };
 
 /* Flow removed (datapath -> controller). */

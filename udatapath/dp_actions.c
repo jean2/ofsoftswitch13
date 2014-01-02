@@ -960,10 +960,10 @@ dp_actions_output_port(struct packet *pkt, uint32_t out_port, uint32_t out_queue
             struct ofl_msg_packet_in msg;
             msg.header.type = OFPT_PACKET_IN;
             msg.total_len   = pkt->buffer->size;
-            msg.reason = pkt->handle_std->table_miss? OFPR_NO_MATCH:OFPR_ACTION;
-            msg.table_id = pkt->table_id;
+            msg.reason      = pkt->handle_std->table_miss ? OFPR_TABLE_MISS : OFPR_APPLY_ACTION;
+            msg.table_id    = pkt->table_id;
             msg.data        = pkt->buffer->data;
-            msg.cookie = cookie;
+            msg.source      = cookie;
 
             if (pkt->dp->config.miss_send_len != OFPCML_NO_BUFFER){
                 dp_buffers_save(pkt->dp->buffers, pkt);
