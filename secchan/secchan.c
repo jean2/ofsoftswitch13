@@ -59,6 +59,7 @@
 #include "poll-loop.h"
 #include "ratelimit.h"
 #include "rconn.h"
+#include "resync_proc.h"
 #include "stp-secchan.h"
 #include "status.h"
 #include "timeval.h"
@@ -116,6 +117,7 @@ main(int argc, char *argv[])
     struct relay *controller_relay;
     struct discovery *discovery;
     struct switch_status *switch_status;
+    struct resync_proc_state *resync_proc_state;
     struct port_watcher *pw;
     int i;
     int retval;
@@ -206,13 +208,18 @@ main(int argc, char *argv[])
 
     /* Set up hooks. */
     port_watcher_start(&secchan, local_rconn, remote_rconn, &pw);
+
+    resync_proc_start(&secchan, local_rconn, remote_rconn, &resync_proc_state);
+
     discovery = s.discovery ? discovery_init(&s, pw, switch_status) : NULL;
     if (s.enable_stp) {
         stp_start(&secchan, pw, local_rconn, remote_rconn);
     }
+
     if (s.in_band) {
         in_band_start(&secchan, &s, switch_status, pw, remote_rconn);
     }
+
     if (s.num_controllers > 1) {
         failover_start(&secchan, &s, switch_status, remote_rconn);
     }

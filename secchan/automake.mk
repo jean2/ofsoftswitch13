@@ -12,6 +12,8 @@ secchan_ofprotocol_SOURCES = \
 	secchan/port-watcher.h \
 	secchan/ratelimit.c \
 	secchan/ratelimit.h \
+	secchan/resync_proc.c \
+	secchan/resync_proc.h \
 	secchan/secchan.c \
 	secchan/secchan.h \
 	secchan/status.c \
