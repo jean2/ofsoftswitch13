@@ -226,15 +226,27 @@ meter_entry_apply(struct meter_entry *entry, struct packet **pkt){
 				break;
 			}
 			case OFPMBT_DSCP_REMARK:{
-				struct ofl_meter_band_dscp_remark *band_header = (struct ofl_meter_band_dscp_remark *)  entry->config->bands[b];
-                                // descrease dscp in ipv4 header
-				struct ip_header *ipv4 = (*pkt)->handle_std->proto->ipv4;
-				uint8_t new_dscp = (ipv4->ip_tos >> 5) - band_header->prec_level;
-				uint8_t new_tos = (new_dscp << 5 ) | (ipv4->ip_tos & 0x1f);
-				uint16_t old_val = htons((ipv4->ip_ihl_ver << 8) + ipv4->ip_tos);
-				uint16_t new_val = htons((ipv4->ip_ihl_ver << 8) + new_tos);
-				ipv4->ip_csum = recalc_csum16(ipv4->ip_csum, old_val, new_val);
-				ipv4->ip_tos = new_tos;
+                                /* Nothing prevent this band to be used for non-IP packets, so filter them out. Jean II */
+				if ((*pkt)->handle_std->proto->ipv4 != NULL) {
+                                    struct ofl_meter_band_dscp_remark *band_header = (struct ofl_meter_band_dscp_remark *)  entry->config->bands[b];
+				    // Fetch dscp in ipv4 header
+				    struct ip_header *ipv4 = (*pkt)->handle_std->proto->ipv4;
+				    uint8_t old_drop = ipv4->ip_tos & 0x1C;
+				    /* The spec says that we need to increase
+                                       the drop precedence of the packet.
+                                       We need a valid DSCP out of the process,
+                                       so we can only modify dscp if the
+                                       drop precedence is low (tos 0x***010**)
+                                       or medium (tos 0x***100**). Jean II */
+				    if (((old_drop == 0x8) && (band_header->prec_level <= 2)) || ((old_drop == 0x10) && (band_header->prec_level <= 1))) {
+                                        uint8_t new_drop = old_drop + (band_header->prec_level << 3);
+				        uint8_t new_tos = new_drop | (ipv4->ip_tos & 0xE3);
+				        uint16_t old_val = htons((ipv4->ip_ihl_ver << 8) + ipv4->ip_tos);
+				        uint16_t new_val = htons((ipv4->ip_ihl_ver << 8) + new_tos);
+				        ipv4->ip_csum = recalc_csum16(ipv4->ip_csum, old_val, new_val);
+				        ipv4->ip_tos = new_tos;
+				    }
+				}
 				break;
                         }
 			case OFPMBT_EXPERIMENTER:{
