@@ -776,6 +776,12 @@ ofl_msg_unpack_multipart_request_table_features(struct ofp_multipart_request *os
 
     for(i = 0; i < dm->tables_num; i++){
         error = ofl_structs_table_features_unpack((struct ofp_table_features*) features, len, &dm->table_features[i] , exp);
+        if (error) {
+            OFL_UTILS_FREE_ARR_FUN2(dm->table_features, i,
+                                    ofl_structs_free_table_features, exp);
+            free(dm);
+            return error;
+        }
         features += ntohs(((struct ofp_table_features*) features)->length); 
     }   
     *msg = (struct ofl_msg_header *)dm;
@@ -1244,6 +1250,12 @@ ofl_msg_unpack_multipart_reply_table_features(struct ofp_multipart_reply *src, s
 
     for(i = 0; i < dm->tables_num; i++){
         error = ofl_structs_table_features_unpack((struct ofp_table_features*) features, len, &dm->table_features[i] , exp);
+        if (error) {
+            OFL_UTILS_FREE_ARR_FUN2(dm->table_features, i,
+                                    ofl_structs_free_table_features, exp);
+            free(dm);
+            return error;
+        }
         features += ntohs(((struct ofp_table_features*) features)->length); 
     }   
     *msg = (struct ofl_msg_header *)dm;
