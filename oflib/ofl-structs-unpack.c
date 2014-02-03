@@ -310,6 +310,7 @@ ofl_structs_table_properties_unpack(struct ofp_table_feature_prop_header * src, 
 		    prop = (struct ofl_table_feature_prop_header*) dp;	
 			break;		
 		}
+#if 0
         case OFPTFPT_MATCH:
         case OFPTFPT_WILDCARDS:
         case OFPTFPT_WRITE_SETFIELD:
@@ -337,6 +338,7 @@ ofl_structs_table_properties_unpack(struct ofp_table_feature_prop_header * src, 
 
 			break;
 		}				
+#endif
 	default:
             OFL_LOG_WARN(LOG_MODULE, "The received property contained a unknown property (%zu).", ntohs(src->type));
             return ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_TYPE);
