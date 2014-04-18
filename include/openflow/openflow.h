@@ -872,7 +872,24 @@ OFP_ASSERT(sizeof(struct ofp_bundle_prop_header) == 4);
 /* Bundle property types. */
 enum ofp_bundle_prop_type {
     OFPBPT_EXPERIMENTER = 0xFFFF, /* Experimenter property. */
+    OFPBPT_TIME         = 1, /*Time property*/ //ORON
 };
+
+/*Time Format*/ //OORN
+struct ofp_time{
+	uint32_t seconds;
+	uint32_t nanoseconds;
+};
+OFP_ASSERT(sizeof(struct ofp_time)==8);//ORON
+
+struct ofp_bundle_prop_time{
+	uint16_t type; /*OFPBPT_TIME*/
+	uint16_t length; /*length in bytes =24 ? ORON TODO*/
+	uint8_t  pad[4];
+	struct ofp_time scheduled_time;
+};
+OFP_ASSERT(sizeof(struct ofp_bundle_prop_time)==16);//ORON
+
 
 enum ofp_bundle_ctrl_type {
     OFPBCT_OPEN_REQUEST = 0,
@@ -912,6 +929,7 @@ OFP_ASSERT(sizeof(struct ofp_bundle_add_msg) == 24);
 enum ofp_bundle_flags {
     OFPBF_ATOMIC  = 1 << 0,  /* Execute atomically. */
     OFPBF_ORDERED = 1 << 1,  /* Execute in specified order. */
+    OFPBF_TIME    = 1 << 2,  /* Execute in specified time. */ //ORON
 };
 
 
