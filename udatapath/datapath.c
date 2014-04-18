@@ -69,6 +69,8 @@
 
 #define LOG_MODULE VLM_dp
 
+struct bundle_time_ctl bundle_time_ctl;//ORON
+
 static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
 
 

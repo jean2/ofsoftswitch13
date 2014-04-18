@@ -54,6 +54,17 @@
 #include "timeval.h"
 #include "list.h"
 
+struct bundle_time_ctl {
+	struct ofp_bundle_prop_time *time_prop;
+	struct ofl_msg_bundle_control ctl;
+	struct bundle_table *table;
+
+    struct remote *remote;      /* The device that sent the message. */
+    uint8_t conn_id;            /* The connection that sent the message */
+    uint32_t xid;				/* The transmission id*/
+
+};
+
 
 struct rconn;
 struct pvconn;

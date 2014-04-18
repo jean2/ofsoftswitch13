@@ -40,6 +40,8 @@
 #include "dp_control.h"
 
 #include "vlog.h"
+
+extern struct bundle_time_ctl bundle_time_ctl;//ORON
 // TODO update for bundles, and change printf()-s to log API calls
 //#define LOG_MODULE VLM_bundle_t
 
@@ -384,6 +386,20 @@ bundle_handle_control(struct datapath *dp,
             return error;
         }
         case OFPBCT_COMMIT_REQUEST: {
+			if(ctl->flags==OFPBF_TIME){//ORON
+			printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg\n", ctl->bundle_id);
+			    bundle_time_ctl.ctl=*ctl; 
+                bundle_time_ctl.table = table;
+                bundle_time_ctl.remote=sender->remote;
+                bundle_time_ctl.conn_id=sender->conn_id;
+                bundle_time_ctl.xid=sender->xid;
+                //empty reply back TODO ORON : ask Tal
+                    reply.type =  OFPBCT_COMMIT_REPLY;
+                    reply.bundle_id = 999999999999666666666;
+                    dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
+                    ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);
+			return 0;	
+			}//ORON
             printf("Processing bundle commit of bundle ID %u\n", ctl->bundle_id);
             error = bundle_commit(dp, table, ctl->bundle_id, ctl->flags, sender);
             if(!error) {
