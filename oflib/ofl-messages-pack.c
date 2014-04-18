@@ -96,14 +96,50 @@ ofl_msg_pack_role_request(struct ofl_msg_role_request *msg, uint8_t **buf, size_
 static int
 ofl_msg_pack_bundle_control(struct ofl_msg_bundle_control *msg, uint8_t **buf, size_t *buf_len) {
         struct ofp_bundle_control *ctl;
+        struct ofp_bundle_prop_time *prop_time,*prop_time_aux;
+        uint8_t *ptr;
 
-        *buf_len = sizeof(struct ofp_bundle_control);
-        *buf     = (uint8_t *)malloc(*buf_len);
+        switch (msg->flags) {
+        	case OFPBF_TIME: {
+				*buf_len  = sizeof(struct ofp_bundle_control)+sizeof(struct ofp_bundle_prop_time);
+				*buf      = (uint8_t *)malloc(*buf_len);
+				
+				ctl = (struct ofp_bundle_control *)(*buf);
+				ctl->bundle_id =  htonl(msg->bundle_id);
+				ctl->type      =  htons(msg->type);
+				ctl->flags     =  htons(msg->flags);
+				
+				prop_time_aux = (struct ofp_bundle_prop_time *)*(msg->properties);
+				prop_time = (struct ofp_bundle_prop_time *)malloc(sizeof(struct ofp_bundle_prop_time));
+				prop_time->length = htons(prop_time_aux->length);
+				prop_time->type   = htons(prop_time_aux->type);
+				prop_time->pad[0] =0;
+				prop_time->pad[1] =0;
+				prop_time->pad[2] =0;
+				prop_time->pad[3] =0;
+				prop_time->scheduled_time.seconds=htonl(prop_time_aux->scheduled_time.seconds);
+				prop_time->scheduled_time.nanoseconds=htonl(prop_time_aux->scheduled_time.nanoseconds);
 
-        ctl = (struct ofp_bundle_control *)(*buf);
-        ctl->bundle_id =  htonl(msg->bundle_id);
-        ctl->type      =  htons(msg->type);
-        ctl->flags     =  htons(msg->flags);
+				ptr = (*buf) + sizeof(struct ofp_bundle_control);
+				memcpy(ctl->properties, prop_time ,sizeof(struct ofp_bundle_prop_time));
+				free(prop_time);
+				//printf("%d,%d,%d,%d",prop_time->length,prop_time->type,prop_time->scheduled_time.seconds,prop_time->scheduled_time.nanoseconds);
+			break;
+			}
+			default:{
+				*buf_len = sizeof(struct ofp_bundle_control);
+				*buf     = (uint8_t *)malloc(*buf_len);
+
+				ctl = (struct ofp_bundle_control *)(*buf);
+				ctl->bundle_id =  htonl(msg->bundle_id);
+				ctl->type      =  htons(msg->type);
+				ctl->flags     =  htons(msg->flags);
+			}
+			break;
+
+	    }
+
+
 
         /* TODO Add support for packing properties. */
 
