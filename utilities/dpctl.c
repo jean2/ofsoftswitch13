@@ -958,7 +958,7 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
             prop_time->scheduled_time.seconds    =bundle_time;
 
             req.properties = &prop_time;
-            printf("Dcptl send bundle commit in time = %d, flag = %d\n (make sure if T>0 then f=4)\n",bundle_time,bundle_flags);//ORON
+            printf("Dcptl send bundle commit in time = %d, flag = %d (make sure if T>0 then f=4)\n",bundle_time,bundle_flags);//ORON
         }
     } else if (strcmp(argv[0], "discard") == 0) {
         req.type = OFPBCT_DISCARD_REQUEST;

@@ -681,6 +681,8 @@ static ofl_err
 ofl_msg_unpack_bundle_control(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
     struct ofp_bundle_control *sm;
     struct ofl_msg_bundle_control *dm;
+    struct ofp_bundle_prop_time *prop_time;
+    struct ofp_bundle_prop_time *prop_time_aux;
 
     if (*len < sizeof(struct ofp_bundle_control)) {
         OFL_LOG_WARN(LOG_MODULE, "Received BUNDLE_CONTROL message has invalid length (%zu).", *len);
@@ -694,6 +696,21 @@ ofl_msg_unpack_bundle_control(struct ofp_header *src, size_t *len, struct ofl_ms
     dm->type = ntohs(sm->type);
     dm->flags = ntohs(sm->flags);
 
+    if(dm->flags==OFPBF_TIME)
+    {
+    	prop_time_aux = (struct ofp_bundle_prop_time*)malloc(sizeof(struct ofp_bundle_prop_time));
+    	memcpy(prop_time_aux,sm->properties,sizeof(struct ofp_bundle_prop_time));
+    	prop_time = (struct ofp_bundle_prop_time*)malloc(sizeof(struct ofp_bundle_prop_time));
+
+    	prop_time->length=ntohs(prop_time_aux->length);
+    	prop_time->type=ntohs(prop_time_aux->type);
+    	prop_time->scheduled_time.seconds=ntohl(prop_time_aux->scheduled_time.seconds);
+    	prop_time->scheduled_time.nanoseconds=ntohl(prop_time_aux->scheduled_time.nanoseconds);
+    	free(prop_time_aux);
+    	dm->properties=&(prop_time);
+    	*len -= sizeof(struct ofp_bundle_prop_time);
+
+    }
     *msg = (struct ofl_msg_header *)dm;
     return 0;
 }

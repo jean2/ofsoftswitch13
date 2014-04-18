@@ -117,8 +117,8 @@ ofl_msg_pack_bundle_control(struct ofl_msg_bundle_control *msg, uint8_t **buf, s
 				prop_time->pad[1] =0;
 				prop_time->pad[2] =0;
 				prop_time->pad[3] =0;
-				prop_time->scheduled_time.seconds=htonl(prop_time_aux->scheduled_time.seconds);
-				prop_time->scheduled_time.nanoseconds=htonl(prop_time_aux->scheduled_time.nanoseconds);
+				prop_time->scheduled_time.seconds      =htonl(prop_time_aux->scheduled_time.seconds);
+				prop_time->scheduled_time.nanoseconds  =htonl(prop_time_aux->scheduled_time.nanoseconds);
 
 				ptr = (*buf) + sizeof(struct ofp_bundle_control);
 				memcpy(ctl->properties, prop_time ,sizeof(struct ofp_bundle_prop_time));
