@@ -101,6 +101,7 @@ parse_options(int argc, char *argv[]);
 
 static uint32_t bundle_id = (uint32_t)-1;
 static uint16_t bundle_flags = 0;
+static uint32_t bundle_time = 0;//ORON
 
 static uint8_t mask_all[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
@@ -995,7 +996,7 @@ static struct command all_commands[] = {
 
     {"queue-mod", 3, 3, queue_mod},
     {"queue-del", 2, 2, queue_del},
-    {"bundle", 1, 1, bundle_control}
+    {"bundle", 1, 2, bundle_control}//ORON change nuber of min max arg 
 };
 
 
@@ -1064,6 +1065,7 @@ parse_options(int argc, char *argv[])
     static struct option long_options[] = {
         {"timeout", required_argument, 0, 't'},
         {"bundle", required_argument, 0, 'b'},
+        {"bundle_time" ,required_argument ,0,'T'},//ORON
         {"flags", required_argument, 0, 'f'},
         {"verbose", optional_argument, 0, 'v'},
         {"strict", no_argument, 0, OPT_STRICT},
@@ -1098,7 +1100,9 @@ parse_options(int argc, char *argv[])
         case 'b':
             bundle_id = strtoul(optarg, NULL, 10);
             break;
-
+        case 'T': //ORON
+            bundle_time = strtoul(optarg, NULL, 10);//ORON
+            break;//ORON
         case 'f':
             bundle_flags = strtoul(optarg, NULL, 10);
             // TODO permit comma separated list of identifiers
