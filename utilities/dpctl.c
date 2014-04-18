@@ -942,6 +942,7 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	     .bundle_id = 0,
 	     .type = 0,
 	     .flags = 0};
+    struct ofp_bundle_prop_time *prop_time; //ORON
 
     if (strcmp(argv[0], "open") == 0) {
         req.type = OFPBCT_OPEN_REQUEST;
