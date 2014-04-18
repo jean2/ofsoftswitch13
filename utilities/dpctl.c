@@ -950,6 +950,16 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
         req.type = OFPBCT_CLOSE_REQUEST;
     } else if (strcmp(argv[0], "commit") == 0) {
         req.type = OFPBCT_COMMIT_REQUEST;
+        if(bundle_flags==OFPBF_TIME){//ORON
+            prop_time = (struct ofp_bundle_prop_time *)malloc(sizeof(struct ofp_bundle_prop_time));
+            prop_time->type    = OFPBPT_TIME;
+            prop_time->length  = sizeof(struct ofp_bundle_prop_time);//TODO ORON ask TAL
+            prop_time->scheduled_time.nanoseconds=bundle_time;
+            prop_time->scheduled_time.seconds    =bundle_time;
+
+            req.properties = &prop_time;
+            printf("Dcptl send bundle commit in time = %d, flag = %d\n (Dcptl automatically adds time flag when -T>0)",bundle_time,req.flags);//ORON
+        }
     } else if (strcmp(argv[0], "discard") == 0) {
         req.type = OFPBCT_DISCARD_REQUEST;
     } else {
