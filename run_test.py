@@ -42,7 +42,12 @@ os.system("utilities/dpctl tcp:ubuntu:6635 stats-flow table=0")
 time.sleep(slp)
 print '********bundle commit***********'
 print
-os.system("utilities/dpctl tcp:ubuntu:6635 bundle commit -b 4 -f 4 -T 271828")
+
+a= time.time()+5
+print a
+commit_in_time = 'utilities/dpctl tcp:ubuntu:6635 bundle commit -b 4 -f 4 -T '+str(a)
+#os.system("utilities/dpctl tcp:ubuntu:6635 bundle commit -b 4 -f 4 -T 271828")
+os.system(commit_in_time)
 
 #Stats:shold be empty
 time.sleep(slp)
@@ -50,3 +55,11 @@ print '********showing stats***********'
 print
 
 os.system("utilities/dpctl tcp:ubuntu:6635 stats-flow table=0")
+
+#Stats:shold NOT be empty
+time.sleep(6)
+print '********showing stats***********'
+print
+
+os.system("utilities/dpctl tcp:ubuntu:6635 stats-flow table=0")
+

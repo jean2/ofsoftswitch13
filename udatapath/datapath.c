@@ -69,7 +69,11 @@
 
 #define LOG_MODULE VLM_dp
 
-struct bundle_time_ctl bundle_time_ctl;//ORON
+struct bundle_time_ctl bundle_time_ctl ={//ORON
+		.sched_max_future_ns=1000000000,
+		.sched_max_past_ns  =1000000000,
+		.ctl.flags=0,
+};
 
 static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
 
@@ -214,11 +218,25 @@ dp_run(struct datapath *dp) {
     time_t now = time_now();
     struct remote *r, *rn;
     size_t i;
+    time_t now2,sched;
+
 
     if (now != dp->last_timeout) {
         dp->last_timeout = now;
         meter_table_add_tokens(dp->meters);
         pipeline_timeout(dp->pipeline);
+    }
+
+    //now2  = time_msec();
+    now2 = time_now();
+    sched = (bundle_time_ctl.sched_time.nanoseconds);
+    if(bundle_time_ctl.ctl.flags!=0){
+    	if(now2 >sched ){
+				printf("Committing Bundle in time %lld",now2);
+				bundle_time_ctl.ctl.flags=0;
+				struct sender sender = {.remote = bundle_time_ctl.remote, .conn_id = bundle_time_ctl.conn_id , .xid = bundle_time_ctl.xid};
+				handle_control_msg(dp, &bundle_time_ctl.ctl, &sender);
+    		}
     }
 
     poll_timer_wait(1000);

@@ -342,6 +342,7 @@ bundle_handle_control(struct datapath *dp,
                       struct bundle_table *table,
                       struct ofl_msg_bundle_control *ctl,
                       const struct sender *sender) {
+	struct ofp_bundle_prop_time *prop_time;//ORON
     struct ofl_msg_bundle_control reply =
             {{.type = OFPT_BUNDLE_CONTROL}};
     ofl_err error;
@@ -388,6 +389,9 @@ bundle_handle_control(struct datapath *dp,
         case OFPBCT_COMMIT_REQUEST: {
 			if(ctl->flags==OFPBF_TIME){//ORON
 			printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg\n", ctl->bundle_id);
+				prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
+				bundle_time_ctl.sched_time.nanoseconds = prop_time->scheduled_time.nanoseconds;
+				bundle_time_ctl.sched_time.seconds     = prop_time->scheduled_time.seconds;
 			    bundle_time_ctl.ctl=*ctl; 
                 bundle_time_ctl.table = table;
                 bundle_time_ctl.remote=sender->remote;
