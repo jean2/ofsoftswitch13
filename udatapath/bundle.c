@@ -409,8 +409,10 @@ bundle_handle_control(struct datapath *dp,
 					if(!error) {
 						reply.type = OFPBCT_COMMIT_REPLY;
 						reply.bundle_id = ctl->bundle_id;
-						dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
-						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);
+						if(!bundle_time_ctl.commiting_now){//ORON
+							dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
+							ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);
+						}
 					}
 					return error;
         		}

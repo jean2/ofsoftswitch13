@@ -70,6 +70,7 @@
 #define LOG_MODULE VLM_dp
 
 struct bundle_time_ctl bundle_time_ctl ={//ORON
+		.commiting_now=0,
 		.sched_max_future_ns=1000000000,
 		.sched_max_past_ns  =1000000000,
 		.ctl.flags=0,
@@ -232,10 +233,12 @@ dp_run(struct datapath *dp) {
     sched = (bundle_time_ctl.sched_time.nanoseconds);
     if(bundle_time_ctl.ctl.flags!=0){
     	if(now2 >sched ){
-				printf("Committing Bundle in time %lld",now2);
-				bundle_time_ctl.ctl.flags=0;
-				struct sender sender = {.remote = bundle_time_ctl.remote, .conn_id = bundle_time_ctl.conn_id , .xid = bundle_time_ctl.xid};
-				handle_control_msg(dp, &bundle_time_ctl.ctl, &sender);
+				printf("Committing Bundle in time %d\n",now2);
+	    		bundle_time_ctl.commiting_now=1;
+					bundle_time_ctl.ctl.flags=0;
+					struct sender sender = {.remote = bundle_time_ctl.remote, .conn_id = bundle_time_ctl.conn_id , .xid = bundle_time_ctl.xid};
+					handle_control_msg(dp, &bundle_time_ctl.ctl, &sender);
+				bundle_time_ctl.commiting_now=0;
     		}
     }
 

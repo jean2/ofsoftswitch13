@@ -56,7 +56,7 @@
 
 struct bundle_time_ctl {//ORON
 
-	int i;
+	int    commiting_now;
 	struct ofl_msg_bundle_control ctl;
     struct ofp_time sched_time;
 	struct bundle_table *table;

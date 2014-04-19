@@ -322,20 +322,42 @@ dpctl_send(struct vconn *vconn, struct ofl_msg_header *msg) {
     if (error) {
         ofp_fatal(0, "Error packing request.");
     }
-    if(bundle_flags != OFPBF_TIME && bundle_time != 0){//ORON
-		if(bundle_id != (uint32_t)-1) {
-			struct ofl_msg_bundle_add_msg add_msg =
-				{{.type = OFPT_BUNDLE_ADD_MESSAGE},
-			 .bundle_id = bundle_id,
-			 .flags = bundle_flags,
-			 .message = (struct ofp_header *) buf};
+	if(bundle_id != (uint32_t)-1) {
+		struct ofl_msg_bundle_add_msg add_msg =
+			{{.type = OFPT_BUNDLE_ADD_MESSAGE},
+		 .bundle_id = bundle_id,
+		 .flags = bundle_flags,
+		 .message = (struct ofp_header *) buf};
 
-			error = ofl_msg_pack((struct ofl_msg_header *) &add_msg, global_xid, &buf, &buf_size, &dpctl_exp);
-			if (error) {
-				  ofp_fatal(0, "Error wrapping request into bundle.");
-			}
-			printf("Wrapped in bundle (ID=%u)\n", bundle_id);
+		error = ofl_msg_pack((struct ofl_msg_header *) &add_msg, global_xid, &buf, &buf_size, &dpctl_exp);
+		if (error) {
+			  ofp_fatal(0, "Error wrapping request into bundle.");
 		}
+		printf("Wrapped in bundle (ID=%u)\n", bundle_id);
+	}
+
+
+    ofpbuf = ofpbuf_new(0);
+    ofpbuf_use(ofpbuf, buf, buf_size);
+    ofpbuf_put_uninit(ofpbuf, buf_size);
+
+    error = vconn_send_block(vconn, ofpbuf);
+    if (error) {
+        ofp_fatal(0, "Error during transaction.");
+    }
+
+    dpctl_barrier(vconn);
+}
+
+dpctl_send_time_commit(struct vconn *vconn, struct ofl_msg_header *msg) {//ORON
+    struct ofpbuf *ofpbuf;
+    uint8_t *buf;
+    size_t buf_size;
+    int error;
+
+    error = ofl_msg_pack(msg, global_xid, &buf, &buf_size, &dpctl_exp);
+    if (error) {
+        ofp_fatal(0, "Error packing request.");
     }
 
     ofpbuf = ofpbuf_new(0);
@@ -966,7 +988,11 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
             /* Dump error messages with different XID */
             vconn_set_spurious_handler(vconn, &show_error_handler);
 
-            dpctl_send(vconn, (struct ofl_msg_header *)&req); //ORON don't wait for reply
+            char *str;
+            str = ofl_msg_to_string((struct ofl_msg_header *)&req, &dpctl_exp);
+            printf("\nSENDING (xid=0x%X):\n%s\n\n", global_xid, str);
+            free(str);
+            dpctl_send_time_commit(vconn, (struct ofl_msg_header *)&req); //ORON don't wait for reply
             return;
         }
     } else if (strcmp(argv[0], "discard") == 0) {

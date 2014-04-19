@@ -18,7 +18,7 @@ if [ "$1" = "open_bundle" ]; then
 fi
 
 if [ "$1" = "add" ]; then
-	utilities/dpctl -4 2 tcp:ubuntu:6635 flow-mod table=0,cmd=add ,in_port=1, apply:output=2
+	utilities/dpctl -b 4 tcp:ubuntu:6635 flow-mod table=0,cmd=add ,in_port=1, apply:output=2
 fi
 
 if [ "$1" = "commit" ]; then
