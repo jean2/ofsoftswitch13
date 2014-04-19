@@ -14,11 +14,11 @@ if [ "$1" = "stats" ]; then
 fi
 
 if [ "$1" = "open_bundle" ]; then
-	utilities/dpctl tcp:ubuntu:6635 bundle open -b 2
+	utilities/dpctl tcp:ubuntu:6635 bundle open -b 4
 fi
 
 if [ "$1" = "add" ]; then
-	utilities/dpctl -b 2 tcp:ubuntu:6635 flow-mod table=0,cmd=add ,in_port=1, apply:output=2
+	utilities/dpctl -4 2 tcp:ubuntu:6635 flow-mod table=0,cmd=add ,in_port=1, apply:output=2
 fi
 
 if [ "$1" = "commit" ]; then

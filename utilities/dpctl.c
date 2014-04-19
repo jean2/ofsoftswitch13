@@ -322,19 +322,20 @@ dpctl_send(struct vconn *vconn, struct ofl_msg_header *msg) {
     if (error) {
         ofp_fatal(0, "Error packing request.");
     }
+    if(bundle_flags != OFPBF_TIME && bundle_time != 0){//ORON
+		if(bundle_id != (uint32_t)-1) {
+			struct ofl_msg_bundle_add_msg add_msg =
+				{{.type = OFPT_BUNDLE_ADD_MESSAGE},
+			 .bundle_id = bundle_id,
+			 .flags = bundle_flags,
+			 .message = (struct ofp_header *) buf};
 
-    if(bundle_id != (uint32_t)-1) {
-        struct ofl_msg_bundle_add_msg add_msg =
-            {{.type = OFPT_BUNDLE_ADD_MESSAGE},
-	     .bundle_id = bundle_id,
-	     .flags = bundle_flags,
-	     .message = (struct ofp_header *) buf};
-
-        error = ofl_msg_pack((struct ofl_msg_header *) &add_msg, global_xid, &buf, &buf_size, &dpctl_exp);
-        if (error) {
-              ofp_fatal(0, "Error wrapping request into bundle.");
-        }
-        printf("Wrapped in bundle (ID=%u)\n", bundle_id);
+			error = ofl_msg_pack((struct ofl_msg_header *) &add_msg, global_xid, &buf, &buf_size, &dpctl_exp);
+			if (error) {
+				  ofp_fatal(0, "Error wrapping request into bundle.");
+			}
+			printf("Wrapped in bundle (ID=%u)\n", bundle_id);
+		}
     }
 
     ofpbuf = ofpbuf_new(0);
@@ -959,6 +960,14 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 
             req.properties = &prop_time;
             printf("Dcptl send bundle commit in time = %d, flag = %d (make sure if T>0 then f=4)\n",bundle_time,bundle_flags);//ORON
+            req.bundle_id = bundle_id;
+            req.flags = bundle_flags;
+
+            /* Dump error messages with different XID */
+            vconn_set_spurious_handler(vconn, &show_error_handler);
+
+            dpctl_send(vconn, (struct ofl_msg_header *)&req); //ORON don't wait for reply
+            return;
         }
     } else if (strcmp(argv[0], "discard") == 0) {
         req.type = OFPBCT_DISCARD_REQUEST;
