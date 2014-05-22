@@ -264,12 +264,14 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
         if (error) {
             return error;
         }
-	/* Table 63 is synchronised with table 62. */
-	if ((msg->table_id == 62) && (msg->command == OFPFC_ADD) && (flow != NULL)) {
+	/* Table 63 is synchronised with table 62.
+         * Table 61 is synchronised with itself. Jean II */
+	if (((msg->table_id == 62) || (msg->table_id == 61)) && (msg->command == OFPFC_ADD) && (flow != NULL)) {
 	    struct ofl_msg_flow_mod *slave_msg;
 	    struct flow_entry *slave_flow = NULL;
 	    bool slave_match_kept = false;
 	    bool slave_insts_kept = false;
+	    uint8_t target_table_id;
 
 	    /* Duplicate message to mess with it. */
 	    error = ofl_msg_clone((struct ofl_msg_header *) msg, (struct ofl_msg_header **) &slave_msg, pl->dp->exp);
@@ -283,25 +285,35 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
 	    if (!error) {
 	        struct ofl_match *slave_match = (struct ofl_match *) slave_msg->match;
 		size_t match_size = slave_match->header.length;
+		bool transposed = false;
 		/* Transpose the match. */
 		if (match_size) {
 		    struct ofl_match_tlv *oxm;
 		    HMAP_FOR_EACH(oxm, struct ofl_match_tlv, hmap_node, &slave_match->match_fields){                             
-		      if (oxm->header == OXM_OF_ETH_DST)
+		      if (oxm->header == OXM_OF_ETH_DST) {
 			oxm->header = OXM_OF_ETH_SRC;
-		      else if (oxm->header == OXM_OF_ETH_SRC)
+			transposed = true;
+		      } else if (oxm->header == OXM_OF_ETH_SRC) {
 			oxm->header = OXM_OF_ETH_DST;
+			transposed = true;
+		      }
 		    }
 		}
 
-		slave_msg->table_id = 63;
-	        error = flow_table_flow_mod(pl->tables[63], slave_msg, &slave_match_kept, &slave_insts_kept, &slave_flow);
+		target_table_id = (msg->table_id == 62) ? 63 : 61;
+		slave_msg->table_id = target_table_id;
+		if(transposed || (msg->table_id == 62))
+		  error = flow_table_flow_mod(pl->tables[target_table_id], slave_msg, &slave_match_kept, &slave_insts_kept, &slave_flow);
+		else
+		  error = ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_COMMAND);
 		ofl_msg_free_flow_mod(slave_msg, !slave_match_kept, !slave_insts_kept, pl->dp->exp);
 		if (!error) {
 		  slave_flow->sync_master = flow;
 		  flow->sync_slave = slave_flow;
 		}
 	    }
+	    /* Sync may fail, carry on with main flow-mod. */
+	    error = 0;
 	}
         if ((msg->command == OFPFC_ADD || msg->command == OFPFC_MODIFY || msg->command == OFPFC_MODIFY_STRICT) &&
                             msg->buffer_id != NO_BUFFER) {
