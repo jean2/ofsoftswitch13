@@ -101,7 +101,8 @@ parse_options(int argc, char *argv[]);
 
 static uint32_t bundle_id = (uint32_t)-1;
 static uint16_t bundle_flags = 0;
-static uint32_t bundle_time = 0;//ORON
+static uint32_t bundle_time_sec = 0;//ORON
+static uint32_t bundle_time_nsec = 0;//ORON
 
 static uint8_t mask_all[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
@@ -977,11 +978,11 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
             prop_time = (struct ofp_bundle_prop_time *)malloc(sizeof(struct ofp_bundle_prop_time));
             prop_time->type    = OFPBPT_TIME;
             prop_time->length  = sizeof(struct ofp_bundle_prop_time);//TODO ORON ask TAL
-            prop_time->scheduled_time.nanoseconds=bundle_time;
-            prop_time->scheduled_time.seconds    =bundle_time;
+            prop_time->scheduled_time.nanoseconds=bundle_time_nsec;
+            prop_time->scheduled_time.seconds    =bundle_time_sec;
 
             req.properties = &prop_time;
-            printf("Dcptl send bundle commit in time = %d, flag = %d (make sure if T>0 then f=4)\n",bundle_time,bundle_flags);//ORON
+            printf("Dcptl send bundle commit in time = %lu.%lu, flag = %d (make sure if T>0 then f=4)\n",bundle_time_sec,bundle_time_nsec,bundle_flags);//ORON
             req.bundle_id = bundle_id;
             req.flags = bundle_flags;
 
@@ -1111,7 +1112,8 @@ parse_options(int argc, char *argv[])
     static struct option long_options[] = {
         {"timeout", required_argument, 0, 't'},
         {"bundle", required_argument, 0, 'b'},
-        {"bundle_time" ,required_argument ,0,'T'},//ORON
+        {"bundle_time_sec" ,required_argument ,0,'T'},//ORON
+        {"bundle_time_nsec" ,required_argument ,0,'N'},//ORON
         {"flags", required_argument, 0, 'f'},
         {"verbose", optional_argument, 0, 'v'},
         {"strict", no_argument, 0, OPT_STRICT},
@@ -1147,8 +1149,11 @@ parse_options(int argc, char *argv[])
             bundle_id = strtoul(optarg, NULL, 10);
             break;
         case 'T': //ORON
-            bundle_time = strtoul(optarg, NULL, 10);//ORON
+            bundle_time_sec = strtoul(optarg, NULL, 10);
             break;//ORON
+        case 'N': //ORON
+        	bundle_time_nsec = strtoul(optarg, NULL, 10);
+        	break;//ORON
         case 'f':
             bundle_flags = strtoul(optarg, NULL, 10);
             // TODO permit comma separated list of identifiers

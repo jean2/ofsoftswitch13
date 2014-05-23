@@ -43,10 +43,12 @@ time.sleep(slp)
 print '********bundle commit***********'
 print
 
-a= time.time()+5
-print a
-commit_in_time = 'utilities/dpctl tcp:ubuntu:6635 bundle commit -b 4 -f 4 -T '+str(a)
-#os.system("utilities/dpctl tcp:ubuntu:6635 bundle commit -b 4 -f 4 -T 271828")
+commit_time = "%.9f" % time.time()
+commit_time = commit_time.split('.')
+delta_time  = 5
+commit_time[0] = str(int(commit_time[0])+delta_time)
+commit_in_time = 'utilities/dpctl tcp:ubuntu:6635 bundle commit -b 4 -f 4 -T '+commit_time[0]+' -N '+commit_time[1]
+print commit_in_time
 os.system(commit_in_time)
 
 #Stats:shold be empty
