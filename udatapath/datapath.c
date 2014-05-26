@@ -216,11 +216,11 @@ dp_add_pvconn(struct datapath *dp, struct pvconn *pvconn, struct pvconn *pvconn_
 
 void
 dp_run(struct datapath *dp) {
-    time_t now = time_now();
+    time_t now;
     struct remote *r, *rn;
     size_t i;
-    time_t now2,sched;
-
+    struct timeval time_check;
+    uint32_t sched_sec,sched_nsec;
 
     if (now != dp->last_timeout) {
         dp->last_timeout = now;
@@ -228,12 +228,14 @@ dp_run(struct datapath *dp) {
         pipeline_timeout(dp->pipeline);
     }
 
-    //now2  = time_msec();
-    now2 = time_now();
-    sched = (bundle_time_ctl.sched_time.nanoseconds);
+    //ORON
+    gettimeofday(&time_check, 0); //TODO ORON:may be very inefficient
     if(bundle_time_ctl.ctl.flags!=0){
-    	if(now2 >sched ){
-				printf("Committing Bundle in time %d\n",now2);
+    	sched_sec  = bundle_time_ctl.sched_time.seconds;
+        sched_nsec = bundle_time_ctl.sched_time.nanoseconds;
+
+    	if((time_check.tv_sec >sched_sec) || ((time_check.tv_sec == sched_sec) && ((time_check.tv_usec*1000) >= sched_nsec))){
+				printf("Committing Bundle in time %lu.%lu\n",time_check.tv_sec,time_check.tv_usec);
 	    		bundle_time_ctl.commiting_now=1;
 					bundle_time_ctl.ctl.flags=0;
 					struct sender sender = {.remote = bundle_time_ctl.remote, .conn_id = bundle_time_ctl.conn_id , .xid = bundle_time_ctl.xid};
