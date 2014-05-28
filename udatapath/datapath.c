@@ -235,6 +235,7 @@ dp_run(struct datapath *dp) {
         sched_nsec = bundle_time_ctl.sched_time.nanoseconds;
 
     	if((time_check.tv_sec >sched_sec) || ((time_check.tv_sec == sched_sec) && ((time_check.tv_usec*1000) >= sched_nsec))){
+    			printf("Commit sched time %lu.%lu\n",sched_sec,sched_nsec);
 				printf("Committing Bundle in time %lu.%lu\n",time_check.tv_sec,time_check.tv_usec);
 	    		bundle_time_ctl.commiting_now=1;
 					bundle_time_ctl.ctl.flags=0;
