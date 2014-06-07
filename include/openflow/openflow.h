@@ -1623,6 +1623,9 @@ enum ofp_flow_mod_failed_code {
                                  idle/hard timeout. */
     OFPFMFC_BAD_COMMAND = 6,  /* Unsupported or unknown command. */
     OFPFMFC_BAD_FLAGS = 7,    /* Unsupported or unknown flags. */
+    OFPFMFC_CANT_SYNC    = 8,   /* Problem in table synchronisation. */
+    OFPFMFC_BAD_PRIORITY = 9,   /* Unsupported priority value. */
+    OFPFMFC_IS_SYNC      = 10,  /* Synchronised flow entry is read only. */
 };
 
 /* ofp_error_msg ’code’ values for OFPET_GROUP_MOD_FAILED. ’data’ contains

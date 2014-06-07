@@ -312,8 +312,15 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
 		  flow->sync_slave = slave_flow;
 		}
 	    }
-	    /* Sync may fail, carry on with main flow-mod. */
-	    error = 0;
+	    /* Check for errors. */
+	    if (error) {
+	      error = ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_CANT_SYNC);
+	      flow_entry_remove(flow, 0xFF);
+	      /* Instructions were consumed by flow-entry. */
+	      msg->instructions_num = 0;
+	      msg->instructions = NULL;
+	      return error;
+	    }
 	}
         if ((msg->command == OFPFC_ADD || msg->command == OFPFC_MODIFY || msg->command == OFPFC_MODIFY_STRICT) &&
                             msg->buffer_id != NO_BUFFER) {

@@ -443,6 +443,10 @@ ofl_error_code_print(FILE *stream, uint16_t type, uint16_t code) {
                 case (OFPFMFC_EPERM) :        { fprintf(stream, "EPERM"); return; }
                 case (OFPFMFC_BAD_TIMEOUT) :  { fprintf(stream, "BAD_TIMEOUT"); return; }
                 case (OFPFMFC_BAD_COMMAND) :  { fprintf(stream, "BAD_COMMAND"); return; }
+                case (OFPFMFC_BAD_FLAGS) :    { fprintf(stream, "BAD_FLAGS"); return; }
+                case (OFPFMFC_CANT_SYNC) :    { fprintf(stream, "CANT_SYNC"); return; }
+                case (OFPFMFC_BAD_PRIORITY) : { fprintf(stream, "BAD_PRIORITY"); return; }
+                case (OFPFMFC_IS_SYNC) :  { fprintf(stream, "IS_SYNC"); return; }
             }
             break;
         }
