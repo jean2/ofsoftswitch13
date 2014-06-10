@@ -260,6 +260,11 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
     } else {
         struct flow_entry *flow = NULL;
 
+	/* Table 63 is synchronised, so we can't change anything in it. */
+	if (msg->table_id == 63) {
+            return ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_IS_SYNC);
+	}
+
         error = flow_table_flow_mod(pl->tables[msg->table_id], msg, &match_kept, &insts_kept, &flow);
         if (error) {
             return error;
