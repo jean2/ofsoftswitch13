@@ -281,6 +281,7 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
 		    }
 		}
 
+		slave_msg->table_id = 63;
 	        error = flow_table_flow_mod(pl->tables[63], slave_msg, &slave_match_kept, &slave_insts_kept, &slave_flow);
 		ofl_msg_free_flow_mod(slave_msg, !slave_match_kept, !slave_insts_kept, pl->dp->exp);
 		if (!error) {
