@@ -372,14 +372,14 @@ flow_table_features(struct ofl_table_features *features){
         VLOG_WARN(LOG_MODULE, "Invalid number of table features, %d instead of %d.", j, TABLE_FEATURES_NUM);
         abort();
     }
-    /* Table 63 and 61 are special ! */
-    if((features->table_id == 63) || (features->table_id == 61)) {
+    /* Table 63, 62 and 61 are special ! */
+    if((features->table_id == 63) || (features->table_id == 62) || (features->table_id == 61)) {
       struct ofl_table_feature_prop_tables *tbl_sync;
       tbl_sync = xmalloc(sizeof(struct ofl_table_feature_prop_tables));
       tbl_sync->header.type = OFPTFPT_TABLE_SYNC_FROM;
       tbl_sync->table_num = 1 ;
       tbl_sync->table_ids = xmalloc(sizeof(uint8_t) * tbl_sync->table_num);
-      tbl_sync->table_ids[0] = (features->table_id == 63) ? 62 : 61;
+      tbl_sync->table_ids[0] = (features->table_id == 63) ? 62 : ((features->table_id == 62) ? 63 : 61);
       tbl_sync->header.length = ofl_structs_table_features_properties_ofp_len(&tbl_sync->header, NULL); 
       features->properties[j] = (struct ofl_table_feature_prop_header*) tbl_sync;
       j++;

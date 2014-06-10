@@ -265,8 +265,9 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
             return error;
         }
 	/* Table 63 is synchronised with table 62.
+	 * Table 62 is synchronised with table 63 (i.e. bidirectional).
          * Table 61 is synchronised with itself. Jean II */
-	if (((msg->table_id == 62) || (msg->table_id == 61)) && (msg->command == OFPFC_ADD) && (flow != NULL)) {
+	if (((msg->table_id == 62) || (msg->table_id == 63) || (msg->table_id == 61)) && (msg->command == OFPFC_ADD) && (flow != NULL)) {
 	    struct ofl_msg_flow_mod *slave_msg;
 	    struct flow_entry *slave_flow = NULL;
 	    bool slave_match_kept = false;
@@ -300,9 +301,9 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
 		    }
 		}
 
-		target_table_id = (msg->table_id == 62) ? 63 : 61;
+		target_table_id = (msg->table_id == 62) ? 63 : ((msg->table_id == 63) ? 62 : 61);
 		slave_msg->table_id = target_table_id;
-		if(transposed || (msg->table_id == 62))
+		if(transposed || (msg->table_id != 61))
 		  error = flow_table_flow_mod(pl->tables[target_table_id], slave_msg, &slave_match_kept, &slave_insts_kept, &slave_flow);
 		else
 		  error = ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_COMMAND);
