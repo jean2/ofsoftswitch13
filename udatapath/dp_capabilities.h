@@ -47,9 +47,11 @@
                                | OFPC_PORT_STATS           \
                                | OFPC_GROUP_STATS          \
                             /* | OFPC_IP_REASM       */    \
-                               | OFPC_QUEUE_STATS          )
-                               /*| OFPC_PORT_BLOCKED */   
-    
+                               | OFPC_QUEUE_STATS          \
+                            /* | OFPC_PORT_BLOCKED */      \
+                               | OFPC_BUNDLES              \
+                            /* | OFPC_FLOW_MONITORING */ )
+
 #define DP_SUPPORTED_ACTIONS ( (1 << OFPAT_OUTPUT)          \
                              | (2 << OFPAT_COPY_TTL_OUT)    \
                              | (3 << OFPAT_COPY_TTL_IN)     \

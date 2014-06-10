@@ -584,7 +584,9 @@ enum ofp_capabilities {
     OFPC_GROUP_STATS = 1 << 3, /* Group statistics. */
     OFPC_IP_REASM = 1 << 5,    /* Can reassemble IP fragments. */
     OFPC_QUEUE_STATS = 1 << 6, /* Queue statistics. */
-    OFPC_PORT_BLOCKED = 1 << 8 /* Switch will block looping ports. */
+    OFPC_PORT_BLOCKED   = 1 << 8,  /* Switch will block looping ports. */
+    OFPC_BUNDLES        = 1 << 9,  /* Switch supports bundles. */
+    OFPC_FLOW_MONITORING = 1 << 10,  /* Switch supports flow monitoring. */
 };
 
 /* Switch configuration. */
