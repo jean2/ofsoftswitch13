@@ -336,10 +336,10 @@ ofl_msg_free_group_mod(struct ofl_msg_group_mod *msg, bool with_buckets, struct 
 
 int
 ofl_msg_free_flow_mod(struct ofl_msg_flow_mod *msg, bool with_match, bool with_instructions, struct ofl_exp *exp) {
-    if (with_match) {
+    if (with_match && msg->match) {
         ofl_structs_free_match(msg->match, exp);
     }
-    if (with_instructions) {
+    if (with_instructions && msg->instructions_num) {
         OFL_UTILS_FREE_ARR_FUN2(msg->instructions, msg->instructions_num,
                                 ofl_structs_free_instruction, exp);
     }
