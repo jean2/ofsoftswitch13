@@ -319,11 +319,12 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
 	    }
 	    /* Check for errors. */
 	    if (error) {
-	      error = ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_CANT_SYNC);
-	      flow_entry_remove(flow, 0xFF);
 	      /* Instructions were consumed by flow-entry. */
 	      msg->instructions_num = 0;
 	      msg->instructions = NULL;
+	      msg->match = NULL;
+	      flow_entry_remove(flow, 0xFF);
+	      error = ofl_error(OFPET_FLOW_MOD_FAILED, OFPFMFC_CANT_SYNC);
 	      return error;
 	    }
 	}
