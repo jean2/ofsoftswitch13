@@ -395,7 +395,7 @@ ofl_structs_free_instruction(struct ofl_instruction_header *inst, struct ofl_exp
         }
         case OFPIT_EXPERIMENTER: {
             if (exp == NULL || exp->inst == NULL || exp->inst->free == NULL) {
-                OFL_LOG_WARN(LOG_MODULE, "Trying to free experimented instruction, but no callback was given.");
+                OFL_LOG_WARN(LOG_MODULE, "Trying to free experimenter instruction, but no callback was given.");
             } else {
                 exp->inst->free(inst);
                 return;
@@ -534,7 +534,7 @@ ofl_structs_free_match(struct ofl_match_header *match, struct ofl_exp *exp) {
         }
         default: {
             if (exp == NULL || exp->match == NULL || exp->match->free == NULL) {
-                OFL_LOG_WARN(LOG_MODULE, "Trying to free experimented instruction, but no callback was given.");
+                OFL_LOG_WARN(LOG_MODULE, "Trying to free experimenter match, but no callback was given.");
                 free(match);
             } else {
                 exp->match->free(match);
