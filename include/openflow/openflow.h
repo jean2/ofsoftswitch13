@@ -359,6 +359,41 @@ struct ofp_oxm_experimenter_header {
 };
 OFP_ASSERT(sizeof(struct ofp_oxm_experimenter_header) == 8);
 
+/* Flow statistics structure - list of statistic fields. */
+struct ofp_stats {
+    uint16_t reserved;         /* Reserved for future use. */
+    uint16_t length;           /* Length of ofp_stats (excluding padding) */
+    /* Followed by:
+     *   - Exactly (length - 4) (possibly 0) bytes containing OXS TLVs, then
+     *   - Exactly ((length + 7)/8*8 - length) (between 0 and 7) bytes of
+     *     all-zero bytes
+     * In summary, ofp_stats is padded as needed, to make its overall size
+     * a multiple of 8, to preserve alignement in structures using it.
+     */
+    uint8_t oxs_fields[0];     /* 0 or more OXS stat fields */
+    uint8_t pad[4];            /* Zero bytes - see above for sizing */
+};
+OFP_ASSERT(sizeof(struct ofp_stats) == 8);
+
+/* OXS Class IDs.
+ * The high order bit differentiate reserved classes from member classes.
+ * Classes 0x0000 to 0x7FFF are member classes, allocated by ONF.
+ * Classes 0x8000 to 0xFFFE are reserved classes, reserved for standardisation.
+ */
+enum ofp_oxs_class {
+    OFPXSC_OPENFLOW_BASIC = 0x8002,    /* Basic stats class for OpenFlow */
+    OFPXSC_EXPERIMENTER   = 0xFFFF,    /* Experimenter class */
+};
+
+/* OXS flow stat field types for OpenFlow basic class. */
+enum oxs_ofb_stat_fields {
+    OFPXST_OFB_DURATION        = 0,  /* Time flow entry has been alive. */
+    OFPXST_OFB_IDLE_TIME       = 1,  /* Time flow entry has been idle. */
+    OFPXST_OFB_FLOW_COUNT      = 3,  /* Number of aggregated flow entries. */
+    OFPXST_OFB_PACKET_COUNT    = 4,  /* Number of packets in flow entry. */
+    OFPXST_OFB_BYTE_COUNT      = 5,  /* Number of bytes in flow entry. */
+};
+
 enum ofp_instruction_type {
     OFPIT_GOTO_TABLE = 1,       /* Setup the next table in the lookup */
     OFPIT_WRITE_METADATA = 2,   /* Setup the metadata field for use later in

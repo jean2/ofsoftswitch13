@@ -35,6 +35,7 @@
 
 #include "include/openflow/openflow.h"
 #include "oxm-match.h"
+#include "oxs-stats.h"
 #include "ofl.h"
 #include "ofl-actions.h"
 #include "ofl-structs.h"
@@ -42,6 +43,7 @@
 #include "ofl-log.h"
 #include "ofl-packets.h"
 
+#define UNUSED __attribute__((__unused__))
 
 #define LOG_MODULE ofl_str_p
 OFL_LOG_INIT(LOG_MODULE)
@@ -951,5 +953,34 @@ ofl_structs_match_pack(struct ofl_match_header *src, struct ofp_match *dst, uint
             return exp->match->pack(src, dst);
         }
     }
+}
+
+#if 0
+size_t
+ofl_structs_stats_ofp_len(struct ofl_stats_header *stats, struct ofl_exp *exp) {
+            if (exp == NULL || exp->stats == NULL || exp->stats->ofp_len == NULL) {
+                OFL_LOG_WARN(LOG_MODULE, "Trying to len experimenter stats, but no callback was given.");
+                return 0;
+            }
+            return exp->stats->ofp_len(stats);
+}
+#endif
+
+size_t
+ofl_structs_stats_pack(struct ofl_stats_header *src, struct ofp_stats *dst, uint8_t* oxs_fields, struct ofl_exp *exp UNUSED) {
+
+            struct ofl_stats *m = (struct ofl_stats *)src;
+            struct ofpbuf *b = ofpbuf_new(0);
+            int oxs_len;
+            oxs_fields = (uint8_t*) &dst->oxs_fields;
+            dst->length = htons(sizeof(struct ofp_stats) - 4);
+            if (src->length){
+                oxs_len = oxs_put_stats(b, m);
+                memcpy(oxs_fields, (uint8_t*) ofpbuf_pull(b,oxs_len), oxs_len);
+                dst->length = htons(oxs_len + ((sizeof(struct ofp_stats )-4)));
+                ofpbuf_delete(b);
+                return ntohs(dst->length);
+            }
+            else return 0;
 }
 

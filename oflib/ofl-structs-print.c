@@ -38,6 +38,7 @@
 #include <inttypes.h>
 #include <netinet/in.h>
 #include "oxm-match.h"
+#include "oxs-stats.h"
 #include "openflow/openflow.h"
 
 #include "ofl.h"
@@ -423,6 +424,110 @@ ofl_structs_oxm_tlv_print(FILE *stream, struct ofl_match_tlv *f)
 				fprintf(stream, ", ext_hdr_mask=\"0x%x\"", *((uint16_t*)(f->value+4)));
 			}
 			break;
+		default:
+			fprintf(stream, "unknown type %d", field);
+	}
+}
+
+
+char *
+ofl_structs_stats_to_string(struct ofl_stats_header *stats, struct ofl_exp *exp) {
+    char *str;
+    size_t str_size;
+    FILE *stream = open_memstream(&str, &str_size);
+    ofl_structs_stats_print(stream, stats, exp);
+    fclose(stream);
+    return str;
+}
+
+void
+ofl_structs_stats_print(FILE *stream, struct ofl_stats_header *stats, struct ofl_exp *exp) {
+
+            struct ofl_stats *m = (struct ofl_stats*) stats;
+            ofl_structs_oxs_stats_print(stream, m);
+}
+
+
+char *
+ofl_structs_oxs_stats_to_string(struct ofl_stats *m) {
+    char *str;
+    size_t str_size;
+    FILE *stream = open_memstream(&str, &str_size);
+
+    ofl_structs_oxs_stats_print(stream, m);
+    fclose(stream);
+    return str;
+}
+
+
+void
+ofl_structs_oxs_stats_print(FILE *stream, const struct ofl_stats *omt) {
+	struct ofl_stats_tlv   *f;
+	int 					i;
+	size_t 					size;
+	
+	if(omt->header.length > 4)
+	    size = hmap_count(&omt->stats_fields);
+	else size = 0;
+	
+	fprintf(stream, "oxs{");
+	if (size) {
+		/* Iterate over all possible OXS fields in their natural order */
+		for (i = 0; i<NUM_OXS_FIELDS; i++) {
+			f = oxs_stats_lookup(all_stats_fields[i].header, omt);
+			if (f != NULL) {
+				/* Field present: print it */
+				ofl_structs_oxs_tlv_print(stream, f);
+				if (--size > 0) fprintf(stream, ", ");
+			}
+		}
+	}
+	else {
+		fprintf(stream, "empty stats");
+	}
+	fprintf(stream, "}");
+}
+
+
+char *
+ofl_structs_oxs_tlv_to_string(struct ofl_stats_tlv *f) {
+    char *str;
+    size_t str_size;
+    FILE *stream = open_memstream(&str, &str_size);
+
+    ofl_structs_oxs_tlv_print(stream, f);
+    fclose(stream);
+    return str;
+}
+
+
+void
+ofl_structs_oxs_tlv_print(FILE *stream, struct ofl_stats_tlv *f)
+{
+	uint8_t field = OXS_FIELD(f->header);
+
+	switch (field) {
+
+		case OFPXST_OFB_DURATION:
+			fprintf(stream, "duration=\"0x%llx\"", *((uint64_t*) f->value));
+			break;
+
+		case OFPXST_OFB_IDLE_TIME:
+			fprintf(stream, "idle_time=\"0x%llx\"", *((uint64_t*) f->value));
+			break;
+
+		case OFPXST_OFB_FLOW_COUNT:
+			fprintf(stream, "flow_count=\"%d\"", *((uint32_t*) f->value));
+			break;
+
+		case OFPXST_OFB_PACKET_COUNT:
+			fprintf(stream, "packet_count=\"0x%llx\"", *((uint64_t*) f->value));
+			break;
+
+		case OFPXST_OFB_BYTE_COUNT:
+			fprintf(stream, "byte_count=\"0x%llx\"", *((uint64_t*) f->value));
+			break;
+
 		default:
 			fprintf(stream, "unknown type %d", field);
 	}

@@ -104,8 +104,10 @@ lib_libopenflow_a_LIBADD = oflib/ofl-actions.o \
 			               oflib/ofl-structs-match.o \
                            oflib/ofl-structs-pack.o \
                            oflib/ofl-structs-print.o \
+			               oflib/ofl-structs-stats.o \
                            oflib/ofl-structs-unpack.o \
                            oflib/oxm-match.o \
+                           oflib/oxs-stats.o \
                            oflib/ofl-print.o \
                            oflib-exp/ofl-exp.o \
                            oflib-exp/ofl-exp-nicira.o \

@@ -542,4 +542,19 @@ ofl_structs_free_match(struct ofl_match_header *match, struct ofl_exp *exp) {
     }
 }
 
+void
+ofl_structs_free_stats(struct ofl_stats_header *stats, struct ofl_exp *exp) {
+
+            if (stats->length > sizeof(struct ofp_stats)){
+                struct ofl_stats *m = (struct ofl_stats*) stats;
+                struct ofl_stats_tlv *tlv, *next;
+                HMAP_FOR_EACH_SAFE(tlv, next, struct ofl_stats_tlv, hmap_node, &m->stats_fields){
+                    free(tlv->value);
+                    free(tlv);
+                }
+                hmap_destroy(&m->stats_fields);
+                free(m);
+            }
+            else free(stats);
+}
 

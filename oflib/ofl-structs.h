@@ -240,6 +240,22 @@ struct ofl_match_tlv{
     uint8_t *value;     /* TLV value */
 };
 
+struct ofl_stats_header {
+    uint16_t   length;           /* Stats length */
+};
+
+struct ofl_stats {
+    struct ofl_stats_header   header; /* Stats header */
+    struct hmap stats_fields;         /* Stats fields. Contain OXS TLV's  */
+};
+
+struct ofl_stats_tlv{
+
+    struct hmap_node hmap_node;
+    uint32_t header;    /* TLV header */
+    uint8_t *value;     /* TLV value */
+};
+
 
 /* Common header for all meter bands */
 struct ofl_meter_band_header {
@@ -453,6 +469,35 @@ ofl_structs_match_ofp_total_len(struct ofl_match *match);
 
 
 /****************************************************************************
+ * Utility functions to stats structure
+ ****************************************************************************/
+void
+ofl_structs_stats_init(struct ofl_stats *stats);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void
+ofl_structs_stats_put8(struct ofl_stats *stats, uint32_t header, uint8_t value);
+
+void
+ofl_structs_stats_put16(struct ofl_stats *stats, uint32_t header, uint16_t value);
+
+void
+ofl_structs_stats_put32(struct ofl_stats *stats, uint32_t header, uint32_t value);
+
+void
+ofl_structs_stats_put64(struct ofl_stats *stats, uint32_t header, uint64_t value);
+
+#ifdef __cplusplus
+}
+#endif
+
+int
+ofl_structs_stats_ofp_total_len(struct ofl_stats *stats);
+
+
+/****************************************************************************
  * Functions for (un)packing structures
  ****************************************************************************/
 
@@ -512,6 +557,9 @@ ofl_structs_bucket_counter_pack(struct ofl_bucket_counter *src, struct ofp_bucke
 size_t
 ofl_structs_match_pack(struct ofl_match_header *src, struct ofp_match *dst, uint8_t* oxm_fields, struct ofl_exp *exp);
 
+size_t
+ofl_structs_stats_pack(struct ofl_stats_header *src, struct ofp_stats *dst, uint8_t* oxs_fields, struct ofl_exp *exp);
+
 ofl_err
 ofl_structs_instructions_unpack(struct ofp_instruction *src, size_t *len, struct ofl_instruction_header **dst, struct ofl_exp *exp);
 
@@ -558,6 +606,9 @@ ofl_err
 ofl_structs_match_unpack(struct ofp_match *src,uint8_t *buf, size_t *len, struct ofl_match_header **dst, struct ofl_exp *exp);
 
 ofl_err
+ofl_structs_stats_unpack(struct ofp_stats *src,uint8_t *buf, size_t *len, struct ofl_stats_header **dst, struct ofl_exp *exp);
+
+ofl_err
 ofl_structs_meter_band_stats_unpack(struct ofp_meter_band_stats *src, size_t *len, struct ofl_meter_band_stats **dst);
 
 ofl_err
@@ -599,6 +650,9 @@ ofl_structs_free_group_desc_stats(struct ofl_group_desc_stats *stats, struct ofl
 
 void
 ofl_structs_free_match(struct ofl_match_header *match, struct ofl_exp *exp);
+
+void
+ofl_structs_free_stats(struct ofl_stats_header *stats, struct ofl_exp *exp);
 
 void
 ofl_structs_free_meter_band_stats(struct ofl_meter_band_stats* s);
@@ -735,6 +789,11 @@ ofl_structs_packet_queue_ofp_len(struct ofl_packet_queue *queue);
 size_t
 ofl_structs_match_ofp_len(struct ofl_match_header *match, struct ofl_exp *exp);
 
+#if 0
+size_t
+ofl_structs_stats_ofp_len(struct ofl_stats_header *stats, struct ofl_exp *exp);
+#endif
+
 size_t
 ofl_structs_meter_stats_ofp_total_len(struct ofl_meter_stats **stats, size_t stats_num);
 
@@ -785,6 +844,24 @@ ofl_structs_oxm_match_to_string(struct ofl_match *m);
 
 void
 ofl_structs_oxm_match_print(FILE *stream, const struct ofl_match *omt);
+
+char *
+ofl_structs_stats_to_string(struct ofl_stats_header *stats, struct ofl_exp *exp);
+
+void
+ofl_structs_stats_print(FILE *stream, struct ofl_stats_header *stats, struct ofl_exp *exp);
+
+char *
+ofl_structs_oxs_tlv_to_string(struct ofl_stats_tlv *f);
+
+void
+ofl_structs_oxs_tlv_print(FILE *stream, struct ofl_stats_tlv *f);
+
+char *
+ofl_structs_oxs_stats_to_string(struct ofl_stats *m);
+
+void
+ofl_structs_oxs_stats_print(FILE *stream, const struct ofl_stats *omt);
 
 char *
 ofl_structs_config_to_string(struct ofl_config *c);

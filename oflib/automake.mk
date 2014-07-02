@@ -14,6 +14,8 @@ oflib_liboflib_a_SOURCES = \
 	oflib/ofl-messages-unpack.c \
 	oflib/oxm-match.c \
 	oflib/oxm-match.h \
+	oflib/oxs-stats.c \
+	oflib/oxs-stats.h \
 	oflib/ofl-print.c \
 	oflib/ofl-print.h \
 	oflib/ofl-structs.c \
@@ -21,6 +23,7 @@ oflib_liboflib_a_SOURCES = \
 	oflib/ofl-structs-match.c \
 	oflib/ofl-structs-pack.c \
 	oflib/ofl-structs-print.c \
+	oflib/ofl-structs-stats.c \
 	oflib/ofl-structs-unpack.c \
 	oflib/ofl-utils.h
 

@@ -40,7 +40,10 @@
 #include "ofl-packets.h"
 #include "ofl-log.h"
 #include "oxm-match.h"
+#include "oxs-stats.h"
 #include "openflow/openflow.h"
+
+#define UNUSED __attribute__((__unused__))
 
 #define LOG_MODULE ofl_str_u
 OFL_LOG_INIT(LOG_MODULE)
@@ -1172,4 +1175,31 @@ ofl_structs_match_unpack(struct ofp_match *src,uint8_t * buf, size_t *len, struc
             return exp->match->unpack(src, len, dst);
         }
     }
+}
+
+static ofl_err
+ofl_structs_oxs_stats_unpack(struct ofp_stats* src, uint8_t* buf, size_t *len, struct ofl_stats **dst){
+
+     int error = 0;
+     struct ofpbuf *b = ofpbuf_new(0);
+     struct ofl_stats *m = (struct ofl_stats *) malloc(sizeof(struct ofl_stats));
+    *len -= ROUND_UP(ntohs(src->length),8);
+     if(ntohs(src->length) > sizeof(struct ofp_stats)){
+         ofpbuf_put(b, buf, ntohs(src->length) - (sizeof(struct ofp_stats) -4)); 
+         error = oxs_pull_stats(b, m, ntohs(src->length) - (sizeof(struct ofp_stats) -4));
+         m->header.length = ntohs(src->length) - 4;
+     }
+    else {
+		 m->header.length = 0;
+         m->stats_fields = (struct hmap) HMAP_INITIALIZER(&m->stats_fields);	
+	}
+    ofpbuf_delete(b);    
+    *dst = m;
+    return error;
+}
+
+ofl_err
+ofl_structs_stats_unpack(struct ofp_stats *src,uint8_t * buf, size_t *len, struct ofl_stats_header **dst, struct ofl_exp *exp UNUSED) {
+
+             return ofl_structs_oxs_stats_unpack(src, buf, len, (struct ofl_stats**) dst );               
 }
