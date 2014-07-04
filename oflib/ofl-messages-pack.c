@@ -37,6 +37,7 @@
 #include "ofl-structs.h"
 #include "ofl-log.h"
 #include "ofl-utils.h"
+#include "oxs-stats.h"
 #include "openflow/openflow.h"
 
 #define UNUSED __attribute__((__unused__))
@@ -622,17 +623,21 @@ ofl_msg_pack_multipart_reply_flow_desc(struct ofl_msg_multipart_reply_flow_desc 
 static int
 ofl_msg_pack_multipart_reply_aggregate(struct ofl_msg_multipart_reply_aggregate *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_multipart_reply *resp;
-    struct ofp_aggregate_stats_reply *stats;
+    struct ofp_aggregate_stats_reply *aggr;
+    struct ofl_stats *ols = xmalloc(sizeof(struct ofl_stats));
 
-    *buf_len = sizeof(struct ofp_multipart_reply) + sizeof(struct ofp_aggregate_stats_reply);
+    ofl_structs_stats_init(ols);
+    ofl_structs_stats_put32(ols, OXS_OF_FLOW_COUNT, msg->flow_count);
+    ofl_structs_stats_put64(ols, OXS_OF_PACKET_COUNT, msg->packet_count);
+    ofl_structs_stats_put64(ols, OXS_OF_BYTE_COUNT, msg->byte_count);
+
+    *buf_len = sizeof(struct ofp_multipart_reply) + ROUND_UP(sizeof(struct ofp_aggregate_stats_reply) - 4 + ols->header.length ,8);
     *buf     = (uint8_t *)malloc(*buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
-    stats = (struct ofp_aggregate_stats_reply *)resp->body;
-    stats->packet_count = hton64(msg->packet_count);
-    stats->byte_count   = hton64(msg->byte_count);
-    stats->flow_count   = htonl( msg->flow_count);
-    memset(stats->pad, 0x00, 4);
+    aggr = (struct ofp_aggregate_stats_reply *)resp->body;
+    ofl_structs_stats_pack((struct ofl_stats_header *) ols, &aggr->stats, (uint8_t *) aggr->stats.oxs_fields, NULL);
+    ofl_structs_free_stats((struct ofl_stats_header *) ols, NULL);
 
     return 0;
 }

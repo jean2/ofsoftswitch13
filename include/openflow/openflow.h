@@ -1066,12 +1066,9 @@ OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 40);
 
 /* Body of reply to OFPMP_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
-	uint64_t packet_count; /* Number of packets in flows. */
-	uint64_t byte_count;   /* Number of bytes in flows. */
-	uint32_t flow_count;   /* Number of flows. */
-	uint8_t pad[4];        /* Align to 64 bits. */
+    struct ofp_stats stats;   /* Aggregated statistics list. Variable size. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
+OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 8);
 
 /* Body of reply to OFPMP_TABLE request. */
 struct ofp_table_stats {

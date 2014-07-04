@@ -38,6 +38,7 @@
 #include "ofl-utils.h"
 #include "ofl-print.h"
 #include "ofl-log.h"
+#include "oxs-stats.h"
 #include "openflow/openflow.h"
 
 #define UNUSED __attribute__((__unused__))
@@ -1029,6 +1030,9 @@ static ofl_err
 ofl_msg_unpack_multipart_reply_aggregate(struct ofp_multipart_reply *os, size_t *len, struct ofl_msg_header **msg) {
     struct ofp_aggregate_stats_reply *sm;
     struct ofl_msg_multipart_reply_aggregate *dm;
+    struct ofl_stats *stats;
+    struct ofl_stats_tlv *oft;
+    ofl_err error;
 
     // ofp_multipart_reply was already checked and subtracted in unpack_multipart_reply
 
@@ -1036,14 +1040,41 @@ ofl_msg_unpack_multipart_reply_aggregate(struct ofp_multipart_reply *os, size_t 
         OFL_LOG_WARN(LOG_MODULE, "Received AGGREGATE stats reply has invalid length (%zu).", *len);
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
-    *len -= sizeof(struct ofp_aggregate_stats_reply);
+    *len -= sizeof(struct ofp_aggregate_stats_reply) - sizeof(struct ofp_stats);
 
     sm = (struct ofp_aggregate_stats_reply *)os->body;
+    error = ofl_structs_stats_unpack(&sm->stats, (uint8_t *) sm->stats.oxs_fields, len, (struct ofl_stats_header **) &stats, NULL);
+    if (error) {
+        return error;
+    }
+
     dm = (struct ofl_msg_multipart_reply_aggregate *) malloc(sizeof(struct ofl_msg_multipart_reply_aggregate));
 
-    dm->packet_count = ntoh64(sm->packet_count);
-    dm->byte_count =   ntoh64(sm->byte_count);
-    dm->flow_count =   ntohl( sm->flow_count);
+    /* Loop through all OXS fields */
+    HMAP_FOR_EACH(oft, struct ofl_stats_tlv, hmap_node, &stats->stats_fields){
+
+            switch (oft->header){
+                case OXS_OF_FLOW_COUNT:{
+                    uint32_t v = *((uint32_t*) oft->value);
+		    dm->flow_count = v;
+                    break;
+                  }
+                case OXS_OF_PACKET_COUNT:{
+                    uint64_t v = *((uint64_t*) oft->value);
+		    dm->packet_count = v;
+                    break;
+                  }
+                case OXS_OF_BYTE_COUNT:{
+                    uint64_t v = *((uint64_t*) oft->value);
+		    dm->byte_count = v;
+                    break;
+                  }
+                default:
+                    OFL_LOG_WARN(LOG_MODULE, "Trying to unpack unknow OXS field.");
+                    break;
+            }
+    }
+    ofl_structs_free_stats((struct ofl_stats_header *) stats, NULL);
 
     *msg = (struct ofl_msg_header *)dm;
     return 0;
