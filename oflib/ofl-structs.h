@@ -144,10 +144,13 @@ struct ofl_bucket {
     struct ofl_action_header **actions;
 };
 
-struct ofl_flow_stats {
+struct ofl_flow_desc {
     uint8_t                         table_id;      /* ID of table flow came from. */
     uint32_t                        duration_sec;  /* Time flow has been alive in secs. */
     uint32_t                        duration_nsec; /* Time flow has been alive in nsecs
+                                                     beyond duration_sec. */
+    uint32_t                        idle_sec;      /* Time flow has been idle in secs. */
+    uint32_t                        idle_nsec;     /* Time flow has been idle in nsecs
                                                      beyond duration_sec. */
     uint16_t                        priority;      /* Priority of the entry. Only meaningful
                                                      when this is not an exact-match entry. */
@@ -523,7 +526,7 @@ size_t
 ofl_structs_bucket_pack(struct ofl_bucket *src, struct ofp_bucket *dst, struct ofl_exp *exp);
 
 size_t
-ofl_structs_flow_stats_pack(struct ofl_flow_stats *src, uint8_t *dst, struct ofl_exp *exp);
+ofl_structs_flow_desc_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_exp *exp);
 
 size_t
 ofl_structs_group_stats_pack(struct ofl_group_stats *src, struct ofp_group_stats *dst);
@@ -570,7 +573,7 @@ ofl_err
 ofl_structs_bucket_unpack(struct ofp_bucket *src, size_t *len, uint8_t gtype, struct ofl_bucket **dst, struct ofl_exp *exp);
 
 ofl_err
-ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src,uint8_t *buf, size_t *len, struct ofl_flow_stats **dst, struct ofl_exp *exp);
+ofl_structs_flow_desc_unpack(struct ofp_flow_desc *src,uint8_t *buf, size_t *len, struct ofl_flow_desc **dst, struct ofl_exp *exp);
 
 ofl_err
 ofl_structs_queue_prop_unpack(struct ofp_queue_prop_header *src, size_t *len, struct ofl_queue_prop_header **dst);
@@ -637,7 +640,7 @@ void
 ofl_structs_free_bucket(struct ofl_bucket *bucket, struct ofl_exp *exp);
 
 void
-ofl_structs_free_flow_stats(struct ofl_flow_stats *stats, struct ofl_exp *exp);
+ofl_structs_free_flow_desc(struct ofl_flow_desc *stats, struct ofl_exp *exp);
 
 void
 ofl_structs_free_port(struct ofl_port *port);
@@ -689,7 +692,7 @@ ofl_err
 ofl_utils_count_ofp_ports(void *data, size_t data_len, size_t *count);
 
 ofl_err
-ofl_utils_count_ofp_flow_stats(void *data, size_t data_len, size_t *count);
+ofl_utils_count_ofp_flow_desc(void *data, size_t data_len, size_t *count);
 
 ofl_err
 ofl_utils_count_ofp_group_stats(void *data, size_t data_len, size_t *count);
@@ -749,10 +752,10 @@ size_t
 ofl_structs_buckets_ofp_len(struct ofl_bucket *bucket, struct ofl_exp *exp);
 
 size_t
-ofl_structs_flow_stats_ofp_total_len(struct ofl_flow_stats ** stats, size_t stats_num, struct ofl_exp *exp);
+ofl_structs_flow_desc_ofp_total_len(struct ofl_flow_desc ** stats, size_t stats_num, struct ofl_exp *exp);
 
 size_t
-ofl_structs_flow_stats_ofp_len(struct ofl_flow_stats *stats, struct ofl_exp *exp);
+ofl_structs_flow_desc_ofp_len(struct ofl_flow_desc *stats, struct ofl_exp *exp);
 
 size_t
 ofl_structs_group_stats_ofp_total_len(struct ofl_group_stats ** stats, size_t stats_num);
@@ -888,10 +891,10 @@ void
 ofl_structs_queue_prop_print(FILE *stream, struct ofl_queue_prop_header *p);
 
 char *
-ofl_structs_flow_stats_to_string(struct ofl_flow_stats *s, struct ofl_exp *exp);
+ofl_structs_flow_desc_to_string(struct ofl_flow_desc *s, struct ofl_exp *exp);
 
 void
-ofl_structs_flow_stats_print(FILE *stream, struct ofl_flow_stats *s, struct ofl_exp *exp);
+ofl_structs_flow_desc_print(FILE *stream, struct ofl_flow_desc *s, struct ofl_exp *exp);
 
 char *
 ofl_structs_bucket_counter_to_string(struct ofl_bucket_counter *s);

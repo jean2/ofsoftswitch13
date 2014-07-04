@@ -80,7 +80,7 @@ pipeline_create(struct datapath *dp) {
 static bool
 is_table_miss(struct flow_entry *entry){
 
-    return ((entry->stats->priority) == 0 && (entry->match->length <= 4));
+    return ((entry->desc->priority) == 0 && (entry->match->length <= 4));
 
 }
 
@@ -159,7 +159,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
         entry = flow_table_lookup(table, pkt);
         if (entry != NULL) {
 	        if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
-                char *m = ofl_structs_flow_stats_to_string(entry->stats, pkt->dp->exp);
+                char *m = ofl_structs_flow_desc_to_string(entry->desc, pkt->dp->exp);
                 VLOG_DBG_RL(LOG_MODULE, &rl, "found matching entry: %s.", m);
                 free(m);
             }
@@ -303,11 +303,11 @@ pipeline_handle_table_mod(struct pipeline *pl,
 }
 
 ofl_err
-pipeline_handle_stats_request_flow(struct pipeline *pl,
-                                   struct ofl_msg_multipart_request_flow *msg,
-                                   const struct sender *sender) {
+pipeline_handle_stats_request_flow_desc(struct pipeline *pl,
+                                        struct ofl_msg_multipart_request_flow *msg,
+                                        const struct sender *sender) {
 
-    struct ofl_flow_stats **stats = xmalloc(sizeof(struct ofl_flow_stats *));
+    struct ofl_flow_desc **stats = xmalloc(sizeof(struct ofl_flow_desc *));
     size_t stats_size = 1;
     size_t stats_num = 0;
 
@@ -321,9 +321,9 @@ pipeline_handle_stats_request_flow(struct pipeline *pl,
     }
 
     {
-        struct ofl_msg_multipart_reply_flow reply =
+        struct ofl_msg_multipart_reply_flow_desc reply =
                 {{{.type = OFPT_MULTIPART_REPLY},
-                  .type = OFPMP_FLOW, .flags = 0x0000},
+                  .type = OFPMP_FLOW_DESC, .flags = 0x0000},
                  .stats     = stats,
                  .stats_num = stats_num
                 };
@@ -477,14 +477,14 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
     size_t i;
     struct ofl_instruction_header *inst;
 
-    for (i=0; i < entry->stats->instructions_num; i++) {
+    for (i=0; i < entry->desc->instructions_num; i++) {
         /*Packet was dropped by some instruction or action*/
 
         if(!(*pkt)){
             return;
         }
 
-        inst = entry->stats->instructions[i];
+        inst = entry->desc->instructions[i];
         switch (inst->type) {
             case OFPIT_GOTO_TABLE: {
                 struct ofl_instruction_goto_table *gi = (struct ofl_instruction_goto_table *)inst;
@@ -515,7 +515,7 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
             }
             case OFPIT_APPLY_ACTIONS: {
                 struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)inst;
-                dp_execute_action_list((*pkt), ia->actions_num, ia->actions, entry->stats->cookie);
+                dp_execute_action_list((*pkt), ia->actions_num, ia->actions, entry->desc->cookie);
                 break;
             }
             case OFPIT_CLEAR_ACTIONS: {

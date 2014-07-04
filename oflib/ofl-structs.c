@@ -192,16 +192,16 @@ ofl_utils_count_ofp_packet_queues(void *data, size_t data_len, size_t *count) {
 }
 
 ofl_err
-ofl_utils_count_ofp_flow_stats(void *data, size_t data_len, size_t *count) {
-    struct ofp_flow_stats *stat;
+ofl_utils_count_ofp_flow_desc(void *data, size_t data_len, size_t *count) {
+    struct ofp_flow_desc *stat;
     uint8_t *d;
 
     d = (uint8_t *)data;
     *count = 0;
-    while (data_len >= sizeof(struct ofp_flow_stats)) {
-        stat = (struct ofp_flow_stats *)d;
-        if (data_len < ntohs(stat->length) || ntohs(stat->length) < sizeof(struct ofp_flow_stats)) {
-            OFL_LOG_WARN(LOG_MODULE, "Received flow stat has invalid length.");
+    while (data_len >= sizeof(struct ofp_flow_desc)) {
+        stat = (struct ofp_flow_desc *)d;
+        if (data_len < ntohs(stat->length) || ntohs(stat->length) < sizeof(struct ofp_flow_desc)) {
+            OFL_LOG_WARN(LOG_MODULE, "Received flow desc has invalid length.");
             return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
         }
         data_len -= ntohs(stat->length);
@@ -442,7 +442,7 @@ ofl_structs_free_bucket(struct ofl_bucket *bucket, struct ofl_exp *exp) {
 
 
 void
-ofl_structs_free_flow_stats(struct ofl_flow_stats *stats, struct ofl_exp *exp) {
+ofl_structs_free_flow_desc(struct ofl_flow_desc *stats, struct ofl_exp *exp) {
     OFL_UTILS_FREE_ARR_FUN2(stats->instructions, stats->instructions_num,
                             ofl_structs_free_instruction, exp);
     ofl_structs_free_match(stats->match, exp);
@@ -543,7 +543,7 @@ ofl_structs_free_match(struct ofl_match_header *match, struct ofl_exp *exp) {
 }
 
 void
-ofl_structs_free_stats(struct ofl_stats_header *stats, struct ofl_exp *exp) {
+ofl_structs_free_stats(struct ofl_stats_header *stats, struct ofl_exp *exp UNUSED) {
 
             if (stats->length > sizeof(struct ofp_stats)){
                 struct ofl_stats *m = (struct ofl_stats*) stats;

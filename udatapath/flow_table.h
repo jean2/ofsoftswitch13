@@ -88,7 +88,7 @@ flow_table_destroy(struct flow_table *table);
 /* Collects statistics of the flow entries of the table. */
 void
 flow_table_stats(struct flow_table *table, struct ofl_msg_multipart_request_flow *msg,
-                 struct ofl_flow_stats ***stats, size_t *stats_size, size_t *stats_num);
+                 struct ofl_flow_desc ***stats, size_t *stats_size, size_t *stats_num);
 
 /* Collects aggregate statistics of the flow entries of the table. */
 void

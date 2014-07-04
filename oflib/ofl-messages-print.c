@@ -119,7 +119,7 @@ ofl_msg_print_flow_removed(struct ofl_msg_flow_removed *msg, FILE *stream, struc
     fprintf(stream, "{reas=\"");
     ofl_flow_removed_reason_print(stream, msg->reason);
     fprintf(stream, "\", stats=");
-    ofl_structs_flow_stats_print(stream, msg->stats, exp);
+    ofl_structs_flow_desc_print(stream, msg->stats, exp);
     fprintf(stream, "}");
 }
 
@@ -320,7 +320,7 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
         case OFPMP_DESC: {
             break;
         }
-        case OFPMP_FLOW:
+        case OFPMP_FLOW_DESC:
         case OFPMP_AGGREGATE: {
             ofl_msg_print_stats_request_flow((struct ofl_msg_multipart_request_flow *)msg, stream, exp);
             break;
@@ -375,13 +375,13 @@ ofl_msg_print_stats_reply_desc(struct ofl_msg_reply_desc *msg, FILE *stream) {
 }
 
 static void
-ofl_msg_print_stats_reply_flow(struct ofl_msg_multipart_reply_flow *msg, FILE *stream, struct ofl_exp *exp) {
+ofl_msg_print_stats_reply_flow_desc(struct ofl_msg_multipart_reply_flow_desc *msg, FILE *stream, struct ofl_exp *exp) {
     size_t i;
 
-    fprintf(stream, ", stats=[");
+    fprintf(stream, ", desc=[");
 
     for (i=0; i<msg->stats_num; i++) {
-        ofl_structs_flow_stats_print(stream, msg->stats[i], exp);
+        ofl_structs_flow_desc_print(stream, msg->stats[i], exp);
         if (i < msg->stats_num - 1) { fprintf(stream, ", "); };
     }
 
@@ -588,8 +588,8 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             ofl_msg_print_stats_reply_desc((struct ofl_msg_reply_desc *)msg, stream);
             break;
         }
-        case (OFPMP_FLOW): {
-            ofl_msg_print_stats_reply_flow((struct ofl_msg_multipart_reply_flow *)msg, stream, exp);
+        case (OFPMP_FLOW_DESC): {
+            ofl_msg_print_stats_reply_flow_desc((struct ofl_msg_multipart_reply_flow_desc *)msg, stream, exp);
             break;
         }
         case OFPMP_AGGREGATE: {

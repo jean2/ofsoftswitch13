@@ -504,7 +504,7 @@ ofl_msg_pack_multipart_request(struct ofl_msg_multipart_request_header *msg, uin
         error = ofl_msg_pack_multipart_request_empty(msg, buf, buf_len);
         break;
     }
-    case OFPMP_FLOW:
+    case OFPMP_FLOW_DESC:
     case OFPMP_AGGREGATE: {
         error = ofl_msg_pack_multipart_request_flow((struct ofl_msg_multipart_request_flow *)msg, buf, buf_len, exp);
         break;
@@ -604,17 +604,17 @@ ofl_msg_pack_multipart_reply_desc(struct ofl_msg_reply_desc *msg UNUSED, uint8_t
 }
 
 static int
-ofl_msg_pack_multipart_reply_flow(struct ofl_msg_multipart_reply_flow *msg, uint8_t **buf, size_t *buf_len, struct ofl_exp *exp) {
+ofl_msg_pack_multipart_reply_flow_desc(struct ofl_msg_multipart_reply_flow_desc *msg, uint8_t **buf, size_t *buf_len, struct ofl_exp *exp) {
     struct ofp_multipart_reply *resp;
     size_t i;
     uint8_t * data;
 
-    *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_flow_stats_ofp_total_len(msg->stats, msg->stats_num, exp);
+    *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_flow_desc_ofp_total_len(msg->stats, msg->stats_num, exp);
     *buf     = (uint8_t *)malloc(*buf_len);
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t*) resp->body;
     for (i=0; i<msg->stats_num; i++) {
-        data += ofl_structs_flow_stats_pack(msg->stats[i], data, exp);
+        data += ofl_structs_flow_desc_pack(msg->stats[i], data, exp);
     }
     return 0;
 }
@@ -854,8 +854,8 @@ ofl_msg_pack_multipart_reply(struct ofl_msg_multipart_reply_header *msg, uint8_t
             error = ofl_msg_pack_multipart_reply_desc((struct ofl_msg_reply_desc *)msg, buf, buf_len);
             break;
         }
-        case OFPMP_FLOW: {
-            error = ofl_msg_pack_multipart_reply_flow((struct ofl_msg_multipart_reply_flow *)msg, buf, buf_len, exp);
+        case OFPMP_FLOW_DESC: {
+            error = ofl_msg_pack_multipart_reply_flow_desc((struct ofl_msg_multipart_reply_flow_desc *)msg, buf, buf_len, exp);
             break;
         }
         case OFPMP_AGGREGATE: {

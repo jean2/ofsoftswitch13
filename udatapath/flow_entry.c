@@ -77,10 +77,10 @@ bool
 flow_entry_has_out_port(struct flow_entry *entry, uint32_t port) {
     size_t i;
 
-    for (i=0; i<entry->stats->instructions_num; i++) {
-        if (entry->stats->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
-            entry->stats->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
-            struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)entry->stats->instructions[i];
+    for (i=0; i<entry->desc->instructions_num; i++) {
+        if (entry->desc->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
+            entry->desc->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
+            struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)entry->desc->instructions[i];
             if (dp_actions_list_has_out_port(ia->actions_num, ia->actions, port)) {
                 return true;
             }
@@ -94,10 +94,10 @@ bool
 flow_entry_has_out_group(struct flow_entry *entry, uint32_t group) {
     size_t i;
 
-    for (i=0; i<entry->stats->instructions_num; i++) {
-        if (entry->stats->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
-            entry->stats->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
-            struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)entry->stats->instructions[i];
+    for (i=0; i<entry->desc->instructions_num; i++) {
+        if (entry->desc->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
+            entry->desc->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
+            struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)entry->desc->instructions[i];
             if (dp_actions_list_has_out_group(ia->actions_num, ia->actions, group)) {
                 return true;
             }
@@ -109,26 +109,26 @@ flow_entry_has_out_group(struct flow_entry *entry, uint32_t group) {
 
 bool
 flow_entry_matches(struct flow_entry *entry, struct ofl_msg_flow_mod *mod, bool strict, bool check_cookie) {
-	if (check_cookie && ((entry->stats->cookie & mod->cookie_mask) != (mod->cookie & mod->cookie_mask))) {
+	if (check_cookie && ((entry->desc->cookie & mod->cookie_mask) != (mod->cookie & mod->cookie_mask))) {
 		return false;
 	}
     
     if (strict) {
-        return ( (entry->stats->priority == mod->priority) &&
+        return ( (entry->desc->priority == mod->priority) &&
                  match_std_strict((struct ofl_match *)mod->match,
-                                (struct ofl_match *)entry->stats->match));
+                                (struct ofl_match *)entry->desc->match));
     } else {
         return match_std_nonstrict((struct ofl_match *)mod->match,
-                                   (struct ofl_match *)entry->stats->match);
+                                   (struct ofl_match *)entry->desc->match);
     }
 }
 
 bool
 flow_entry_overlaps(struct flow_entry *entry, struct ofl_msg_flow_mod *mod) {
-        return (entry->stats->priority == mod->priority &&
+        return (entry->desc->priority == mod->priority &&
             (mod->out_port == OFPP_ANY || flow_entry_has_out_port(entry, mod->out_port)) &&
             (mod->out_group == OFPG_ANY || flow_entry_has_out_group(entry, mod->out_group)) &&
-            match_std_overlap((struct ofl_match *)entry->stats->match,
+            match_std_overlap((struct ofl_match *)entry->desc->match,
                                             (struct ofl_match *)mod->match));
 }
 
@@ -141,11 +141,11 @@ flow_entry_replace_instructions(struct flow_entry *entry,
     /* TODO Zoltan: could be done more efficiently, but... */
     del_group_refs(entry);
 
-    OFL_UTILS_FREE_ARR_FUN2(entry->stats->instructions, entry->stats->instructions_num,
+    OFL_UTILS_FREE_ARR_FUN2(entry->desc->instructions, entry->desc->instructions_num,
                             ofl_structs_free_instruction, entry->dp->exp);
 
-    entry->stats->instructions_num = instructions_num;
-    entry->stats->instructions     = instructions;
+    entry->desc->instructions_num = instructions_num;
+    entry->desc->instructions     = instructions;
 
     init_group_refs(entry);
 }
@@ -154,8 +154,8 @@ bool
 flow_entry_idle_timeout(struct flow_entry *entry) {
     bool timeout;
 
-    timeout = (entry->stats->idle_timeout != 0) &&
-              (time_msec() > entry->last_used + entry->stats->idle_timeout * 1000);
+    timeout = (entry->desc->idle_timeout != 0) &&
+              (time_msec() > entry->last_used + entry->desc->idle_timeout * 1000);
 
     if (timeout) {
         flow_entry_remove(entry, OFPRR_IDLE_TIMEOUT);
@@ -177,8 +177,10 @@ flow_entry_hard_timeout(struct flow_entry *entry) {
 
 void
 flow_entry_update(struct flow_entry *entry) {
-    entry->stats->duration_sec  =  (time_msec() - entry->created) / 1000;
-    entry->stats->duration_nsec = ((time_msec() - entry->created) % 1000) * 1000;
+    entry->desc->duration_sec  =  (time_msec() - entry->created) / 1000;
+    entry->desc->duration_nsec = ((time_msec() - entry->created) % 1000) * 1000;
+    entry->desc->idle_sec  =  (time_msec() - entry->last_used) / 1000;
+    entry->desc->idle_nsec = ((time_msec() - entry->last_used) % 1000) * 1000;
 }
 
 /* Returns true if the flow entry has a reference to the given group. */
@@ -200,10 +202,10 @@ init_group_refs(struct flow_entry *entry) {
     struct group_ref_entry *e;
     size_t i,j;
 
-    for (i=0; i<entry->stats->instructions_num; i++) {
-        if (entry->stats->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
-            entry->stats->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
-            struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)entry->stats->instructions[i];
+    for (i=0; i<entry->desc->instructions_num; i++) {
+        if (entry->desc->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
+            entry->desc->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
+            struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)entry->desc->instructions[i];
 
             for (j=0; j < ia->actions_num; j++) {
                 if (ia->actions[j]->type == OFPAT_GROUP) {
@@ -268,9 +270,9 @@ init_meter_refs(struct flow_entry *entry) {
     struct meter_ref_entry *e;
     size_t i;
 
-    for (i=0; i<entry->stats->instructions_num; i++) {
-        if (entry->stats->instructions[i]->type == OFPIT_METER ) {
-            struct ofl_instruction_meter *ia = (struct ofl_instruction_meter *)entry->stats->instructions[i];
+    for (i=0; i<entry->desc->instructions_num; i++) {
+        if (entry->desc->instructions[i]->type == OFPIT_METER ) {
+            struct ofl_instruction_meter *ia = (struct ofl_instruction_meter *)entry->desc->instructions[i];
 
 			if (!has_meter_ref(entry, ia->meter_id)) {
 				struct meter_ref_entry *mre = xmalloc(sizeof(struct meter_ref_entry));
@@ -323,29 +325,31 @@ flow_entry_create(struct datapath *dp, struct flow_table *table, struct ofl_msg_
     entry->dp    = dp;
     entry->table = table;
 
-    entry->stats = xmalloc(sizeof(struct ofl_flow_stats));
+    entry->desc = xmalloc(sizeof(struct ofl_flow_desc));
 
-    entry->stats->table_id         = mod->table_id;
-    entry->stats->duration_sec     = 0;
-    entry->stats->duration_nsec    = 0;
-    entry->stats->priority         = mod->priority;
-    entry->stats->idle_timeout     = mod->idle_timeout;
-    entry->stats->hard_timeout     = mod->hard_timeout;
-    entry->stats->cookie           = mod->cookie;
+    entry->desc->table_id         = mod->table_id;
+    entry->desc->duration_sec     = 0;
+    entry->desc->duration_nsec    = 0;
+    entry->desc->idle_sec         = 0;
+    entry->desc->idle_nsec        = 0;
+    entry->desc->priority         = mod->priority;
+    entry->desc->idle_timeout     = mod->idle_timeout;
+    entry->desc->hard_timeout     = mod->hard_timeout;
+    entry->desc->cookie           = mod->cookie;
     entry->no_pkt_count = ((mod->flags & OFPFF_NO_PKT_COUNTS) != 0 );
     entry->no_byt_count = ((mod->flags & OFPFF_NO_BYT_COUNTS) != 0 ); 
     if (entry->no_pkt_count)
-        entry->stats->packet_count     = 0xffffffffffffffff;
+        entry->desc->packet_count     = 0xffffffffffffffff;
     else 
-        entry->stats->packet_count     = 0;
+        entry->desc->packet_count     = 0;
     if (entry->no_byt_count)
-        entry->stats->byte_count       = 0xffffffffffffffff;
+        entry->desc->byte_count       = 0xffffffffffffffff;
     else 
-        entry->stats->byte_count       = 0;
+        entry->desc->byte_count       = 0;
 
-    entry->stats->match            = mod->match;
-    entry->stats->instructions_num = mod->instructions_num;
-    entry->stats->instructions     = mod->instructions;
+    entry->desc->match            = mod->match;
+    entry->desc->instructions_num = mod->instructions_num;
+    entry->desc->instructions     = mod->instructions;
 
     entry->match = mod->match; /* TODO: MOD MATCH? */
 
@@ -373,7 +377,7 @@ flow_entry_destroy(struct flow_entry *entry) {
     //       flow; but it won't be a problem.
     del_group_refs(entry);
     del_meter_refs(entry);
-    ofl_structs_free_flow_stats(entry->stats, entry->dp->exp);
+    ofl_structs_free_flow_desc(entry->desc, entry->dp->exp);
     // assumes it is a standard match
     //free(entry->match);
     free(entry);
@@ -387,7 +391,7 @@ flow_entry_remove(struct flow_entry *entry, uint8_t reason) {
             struct ofl_msg_flow_removed msg =
                     {{.type = OFPT_FLOW_REMOVED},
                      .reason = reason,
-                     .stats  = entry->stats};
+                     .stats  = entry->desc};
 
             dp_send_message(entry->dp, (struct ofl_msg_header *)&msg, NULL);
         }

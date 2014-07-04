@@ -930,8 +930,8 @@ enum ofp_multipart_types {
     OFPMP_DESC = 0,
     /* Individual flow statistics.
     * The request body is struct ofp_flow_multipart_request.
-    * The reply body is an array of struct ofp_flow_stats. */
-    OFPMP_FLOW = 1,
+    * The reply body is an array of struct ofp_flow_desc. */
+    OFPMP_FLOW_DESC = 1,
     /* Aggregate flow statistics.
     * The request body is struct ofp_aggregate_stats_request.
     * The reply body is struct ofp_aggregate_stats_reply. */
@@ -1003,9 +1003,9 @@ struct ofp_desc {
 };
 OFP_ASSERT(sizeof(struct ofp_desc) == 1056);
 
-/* Body for ofp_multipart_request of type OFPMP_FLOW. */
+/* Body for ofp_multipart_request of type OFPMP_FLOW_DESC & OFPMP_FLOW_STATS. */
 struct ofp_flow_stats_request {
-	uint8_t table_id;       /* ID of table to read (from ofp_table_stats),
+	uint8_t table_id;       /* ID of table to read (from ofp_table_desc),
                                OFPTT_ALL for all tables. */
 	uint8_t pad[3];         /* Align to 32 bits. */
 	uint32_t out_port;      /* Require matching entries to include this
@@ -1024,25 +1024,24 @@ struct ofp_flow_stats_request {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 40);
 
-/* Body of reply to OFPMP_FLOW request. */
-struct ofp_flow_stats {
-	uint16_t length;        /* Length of this entry. */
-	uint8_t table_id;       /* ID of table flow came from. */
-	uint8_t pad;
-	uint32_t duration_sec;  /* Time flow has been alive in seconds. */
-	uint32_t duration_nsec; /* Time flow has been alive in nanoseconds beyond
-                               duration_sec. */
-	uint16_t priority;      /* Priority of the entry. */
-	uint16_t idle_timeout;  /* Number of seconds idle before expiration. */
-	uint16_t hard_timeout;  /* Number of seconds before expiration. */
-	uint8_t pad2[6];        /* Align to 64-bits. */
-	uint64_t cookie;        /* Opaque controller-issued identifier. */
-	uint64_t packet_count;  /* Number of packets in flow. */
-	uint64_t byte_count;    /* Number of bytes in flow. */
-	struct ofp_match match; /* Description of fields. Variable size. */
-    //struct ofp_instruction instructions[0]; /* Instruction set. */
+/* Body of reply to OFPMP_FLOW_DESC request. */
+struct ofp_flow_desc {
+    uint16_t length;          /* Length of this entry. */
+    uint8_t pad2[2];          /* Align to 64-bits. */
+    uint8_t table_id;         /* ID of table flow came from. */
+    uint8_t pad;
+    uint16_t priority;        /* Priority of the entry. */
+    uint16_t idle_timeout;    /* Number of seconds idle before expiration. */
+    uint16_t hard_timeout;    /* Number of seconds before expiration. */
+    uint16_t flags;           /* Bitmap of OFPFF_* flags. */
+    uint16_t importance;      /* Eviction precedence. */
+    uint64_t cookie;          /* Opaque controller-issued identifier. */
+    struct ofp_match match;   /* Description of fields. Variable size. */
+    //struct ofp_stats stats; /* Statistics list. Variable size. */
+    //struct ofp_instruction_header instructions[0];
+                              /* Instruction set - 0 or more. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats) == 56);
+OFP_ASSERT(sizeof(struct ofp_flow_desc) == 32);
 
 /* Body for ofp_multipart_request of type OFPMP_AGGREGATE. */
 struct ofp_aggregate_stats_request {

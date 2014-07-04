@@ -147,7 +147,7 @@ struct ofl_msg_packet_in {
 struct ofl_msg_flow_removed {
     struct ofl_msg_header   header; /* OFPT_FLOW_REMOVED */
 
-    struct ofl_flow_stats         *stats;
+    struct ofl_flow_desc         *stats;
     enum ofp_flow_removed_reason   reason;   /* One of OFPRR_*. */
 };
 
@@ -347,11 +347,11 @@ struct ofl_msg_reply_desc {
                                          datapath. Max DESC_STR_LEN */
 };
 
-struct ofl_msg_multipart_reply_flow {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_FLOW */
+struct ofl_msg_multipart_reply_flow_desc {
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_FLOW_DESC */
 
     size_t                  stats_num;
-    struct ofl_flow_stats **stats;
+    struct ofl_flow_desc  **stats;
 };
 
 struct ofl_msg_multipart_reply_aggregate {
@@ -547,8 +547,8 @@ ofl_msg_merge_multipart_request_table_features(struct ofl_msg_multipart_request_
 /* Merges two flow stats reply messages. Returns true if the merged message was
  * the last in a series of multi-messages. */
 bool
-ofl_msg_merge_multipart_reply_flow(struct ofl_msg_multipart_reply_flow *orig,
-                               struct ofl_msg_multipart_reply_flow *merge);
+ofl_msg_merge_multipart_reply_flow_desc(struct ofl_msg_multipart_reply_flow_desc *orig,
+                               struct ofl_msg_multipart_reply_flow_desc *merge);
 
 /* Merges two table stats reply messages. Returns true if the merged message
  * was the last in a series of multi-messages. */

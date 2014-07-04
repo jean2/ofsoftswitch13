@@ -292,7 +292,7 @@ ofl_msg_unpack_flow_removed(struct ofp_header *src,uint8_t *buf, size_t *len, st
     dr = (struct ofl_msg_flow_removed *)malloc(sizeof(struct ofl_msg_flow_removed));
     dr->reason = (enum ofp_flow_removed_reason)sr->reason;
 
-    dr->stats = (struct ofl_flow_stats *)malloc(sizeof(struct ofl_flow_stats));
+    dr->stats = (struct ofl_flow_desc *)malloc(sizeof(struct ofl_flow_desc));
     dr->stats->table_id         =        sr->table_id;
     dr->stats->duration_sec     = ntohl( sr->duration_sec);
     dr->stats->duration_nsec    = ntohl( sr->duration_nsec);
@@ -891,7 +891,7 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             error = ofl_msg_unpack_multipart_request_empty(os, len, msg);
             break;
         }
-        case OFPMP_FLOW:
+        case OFPMP_FLOW_DESC:
         case OFPMP_AGGREGATE: {
             error = ofl_msg_unpack_multipart_request_flow(os,buf, len, msg, exp);
             break;
@@ -988,37 +988,37 @@ ofl_msg_unpack_reply_desc(struct ofp_multipart_reply *os, size_t *len, struct of
 
 
 static ofl_err
-ofl_msg_unpack_multipart_reply_flow(struct ofp_multipart_reply *os, uint8_t *buf, size_t *len, struct ofl_msg_header **msg, struct ofl_exp *exp) {
-    struct ofp_flow_stats *stat;
-    struct ofl_msg_multipart_reply_flow *dm;
+ofl_msg_unpack_multipart_reply_flow_desc(struct ofp_multipart_reply *os, uint8_t *buf, size_t *len, struct ofl_msg_header **msg, struct ofl_exp *exp) {
+    struct ofp_flow_desc *stat;
+    struct ofl_msg_multipart_reply_flow_desc *dm;
     ofl_err error;
     size_t i, ini_len;
     uint8_t *ptr;
 
     // ofp_multipart_reply was already checked and subtracted in unpack_multipart_reply
-    stat = (struct ofp_flow_stats *)os->body;
-    dm = (struct ofl_msg_multipart_reply_flow *)malloc(sizeof(struct ofl_msg_multipart_reply_flow));
+    stat = (struct ofp_flow_desc *)os->body;
+    dm = (struct ofl_msg_multipart_reply_flow_desc *)malloc(sizeof(struct ofl_msg_multipart_reply_flow_desc));
 
-    error = ofl_utils_count_ofp_flow_stats(stat, *len, &dm->stats_num);
+    error = ofl_utils_count_ofp_flow_desc(stat, *len, &dm->stats_num);
     if (error) {
         free(dm);
         return error;
     }
-    dm->stats = (struct ofl_flow_stats **)malloc(dm->stats_num * sizeof(struct ofl_flow_stats *));
+    dm->stats = (struct ofl_flow_desc **)malloc(dm->stats_num * sizeof(struct ofl_flow_desc *));
 
     ini_len = *len;
     ptr = buf + sizeof(struct ofp_multipart_reply);
     for (i = 0; i < dm->stats_num; i++) {
-        error = ofl_structs_flow_stats_unpack(stat, ptr, len, &(dm->stats[i]), exp);
+        error = ofl_structs_flow_desc_unpack(stat, ptr, len, &(dm->stats[i]), exp);
         ptr += ini_len - *len;
         ini_len = *len;
         if (error) {
             OFL_UTILS_FREE_ARR_FUN2(dm->stats, i,
-                                    ofl_structs_free_flow_stats, exp);
+                                    ofl_structs_free_flow_desc, exp);
             free (dm);
             return error;
         }
-        stat = (struct ofp_flow_stats *)((uint8_t *)stat + ntohs(stat->length));
+        stat = (struct ofp_flow_desc *)((uint8_t *)stat + ntohs(stat->length));
     }
 
     *msg = (struct ofl_msg_header *)dm;
@@ -1406,8 +1406,8 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_reply_desc(os, len, msg);
             break;
         }
-        case OFPMP_FLOW: {
-            error = ofl_msg_unpack_multipart_reply_flow(os,buf, len, msg, exp);
+        case OFPMP_FLOW_DESC: {
+            error = ofl_msg_unpack_multipart_reply_flow_desc(os,buf, len, msg, exp);
             break;
         }
         case OFPMP_AGGREGATE: {

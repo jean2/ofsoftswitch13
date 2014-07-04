@@ -451,7 +451,7 @@ static void
 stats_flow(struct vconn *vconn, int argc, char *argv[]) {
     struct ofl_msg_multipart_request_flow req =
             {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_FLOW, .flags = 0x0000},
+              .type = OFPMP_FLOW_DESC, .flags = 0x0000},
              .cookie = 0x0000000000000000ULL,
              .cookie_mask = 0x0000000000000000ULL,
              .table_id = 0xff,

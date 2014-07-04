@@ -83,7 +83,7 @@ struct ofl_action_header actions[] = { {OFPAT_OUTPUT, 4},
  * hard and idle timeout entries, if appropriate. */
 static void
 add_to_timeout_lists(struct flow_table *table, struct flow_entry *entry) {
-    if (entry->stats->idle_timeout > 0) {
+    if (entry->desc->idle_timeout > 0) {
         list_insert(&table->idle_entries, &entry->idle_node);
     }
 
@@ -127,7 +127,7 @@ flow_table_add(struct flow_table *table, struct ofl_msg_flow_mod *mod, bool chec
             return 0;
         }
 
-        if (mod->priority > entry->stats->priority) {
+        if (mod->priority > entry->desc->priority) {
             break;
         }
     }
@@ -215,7 +215,7 @@ flow_table_lookup(struct flow_table *table, struct packet *pkt) {
     LIST_FOR_EACH(entry, struct flow_entry, match_node, &table->match_entries) {
         struct ofl_match_header *m;
 
-        m = entry->match == NULL ? entry->stats->match : entry->match;
+        m = entry->match == NULL ? entry->desc->match : entry->match;
 
         /* select appropriate handler, based on match type of flow entry. */
         switch (m->type) {
@@ -223,9 +223,9 @@ flow_table_lookup(struct flow_table *table, struct packet *pkt) {
                if (packet_handle_std_match(pkt->handle_std,
                                             (struct ofl_match *)m)) {
                     if (!entry->no_byt_count)                                            
-                        entry->stats->byte_count += pkt->buffer->size;
+                        entry->desc->byte_count += pkt->buffer->size;
                     if (!entry->no_pkt_count)
-                        entry->stats->packet_count++;
+                        entry->desc->packet_count++;
                     entry->last_used = time_msec();
 
                     table->stats->matched_count++;
@@ -409,21 +409,21 @@ flow_table_destroy(struct flow_table *table) {
 
 void
 flow_table_stats(struct flow_table *table, struct ofl_msg_multipart_request_flow *msg,
-                 struct ofl_flow_stats ***stats, size_t *stats_size, size_t *stats_num) {
+                 struct ofl_flow_desc ***stats, size_t *stats_size, size_t *stats_num) {
     struct flow_entry *entry;
 
     LIST_FOR_EACH(entry, struct flow_entry, match_node, &table->match_entries) {
         if ((msg->out_port == OFPP_ANY || flow_entry_has_out_port(entry, msg->out_port)) &&
             (msg->out_group == OFPG_ANY || flow_entry_has_out_group(entry, msg->out_group)) &&
             match_std_nonstrict((struct ofl_match *)msg->match,
-                                (struct ofl_match *)entry->stats->match)) {
+                                (struct ofl_match *)entry->desc->match)) {
 
             flow_entry_update(entry);
             if ((*stats_size) == (*stats_num)) {
-                (*stats) = xrealloc(*stats, (sizeof(struct ofl_flow_stats *)) * (*stats_size) * 2);
+                (*stats) = xrealloc(*stats, (sizeof(struct ofl_flow_desc *)) * (*stats_size) * 2);
                 *stats_size *= 2;
             }
-            (*stats)[(*stats_num)] = entry->stats;
+            (*stats)[(*stats_num)] = entry->desc;
             (*stats_num)++;
         }
     }
@@ -439,9 +439,9 @@ flow_table_aggregate_stats(struct flow_table *table, struct ofl_msg_multipart_re
             (msg->out_group == OFPG_ANY || flow_entry_has_out_group(entry, msg->out_group))) {
 			
 			if (!entry->no_pkt_count)
-            	(*packet_count) += entry->stats->packet_count;
+            	(*packet_count) += entry->desc->packet_count;
 			if (!entry->no_byt_count)            
-				(*byte_count)   += entry->stats->byte_count;
+				(*byte_count)   += entry->desc->byte_count;
             (*flow_count)++;
         }
     }

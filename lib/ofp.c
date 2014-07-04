@@ -533,24 +533,24 @@ check_ofp_packet_out(const struct ofp_header *oh, struct ofpbuf *data,
     return 0;
 }
 
-/*const struct ofp_flow_stats */
-const struct ofp_flow_stats *
-flow_stats_first(struct flow_stats_iterator *iter,
+/*const struct ofp_flow_desc */
+const struct ofp_flow_desc *
+flow_desc_first(struct flow_desc_iterator *iter,
                  const struct ofp_multipart_reply *osr)
 {
     iter->pos = osr->body;
     iter->end = osr->body + (ntohs(osr->header.length)
                              - offsetof(struct ofp_multipart_reply, body));
-    return flow_stats_next(iter);
+    return flow_desc_next(iter);
 }
 
-/*const struct ofp_flow_stats */
-const struct ofp_flow_stats *
-flow_stats_next(struct flow_stats_iterator *iter)
+/*const struct ofp_flow_desc */
+const struct ofp_flow_desc *
+flow_desc_next(struct flow_desc_iterator *iter)
 {
     static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
     ptrdiff_t bytes_left = iter->end - iter->pos;
-    const struct ofp_flow_stats *fs;
+    const struct ofp_flow_desc *fs;
     size_t length;
 
     if (bytes_left < sizeof *fs) {

@@ -60,7 +60,7 @@ ofl_msg_free_multipart_request(struct ofl_msg_multipart_request_header *msg, str
         case OFPMP_DESC: {
             break;
         }
-        case OFPMP_FLOW:
+        case OFPMP_FLOW_DESC:
         case OFPMP_AGGREGATE: {
             ofl_structs_free_match(((struct ofl_msg_multipart_request_flow *)msg)->match, exp);
             break;
@@ -114,10 +114,10 @@ ofl_msg_free_multipart_reply(struct ofl_msg_multipart_reply_header *msg, struct 
             free(stat->dp_desc);
             break;
         }
-        case OFPMP_FLOW: {
-            struct ofl_msg_multipart_reply_flow *stat = (struct ofl_msg_multipart_reply_flow *)msg;
+        case OFPMP_FLOW_DESC: {
+            struct ofl_msg_multipart_reply_flow_desc *stat = (struct ofl_msg_multipart_reply_flow_desc *)msg;
             OFL_UTILS_FREE_ARR_FUN2(stat->stats, stat->stats_num,
-                                    ofl_structs_free_flow_stats, exp);
+                                    ofl_structs_free_flow_desc, exp);
         }
         case OFPMP_AGGREGATE: {
             break;
@@ -352,7 +352,7 @@ ofl_msg_free_flow_mod(struct ofl_msg_flow_mod *msg, bool with_match, bool with_i
 int
 ofl_msg_free_flow_removed(struct ofl_msg_flow_removed *msg, bool with_stats, struct ofl_exp *exp) {
     if (with_stats) {
-        ofl_structs_free_flow_stats(msg->stats, exp);
+        ofl_structs_free_flow_desc(msg->stats, exp);
     }
     free(msg);
     return 0;
@@ -361,18 +361,18 @@ ofl_msg_free_flow_removed(struct ofl_msg_flow_removed *msg, bool with_stats, str
 
 
 bool
-ofl_msg_merge_multipart_reply_flow(struct ofl_msg_multipart_reply_flow *orig, struct ofl_msg_multipart_reply_flow *merge) {
+ofl_msg_merge_multipart_reply_flow_desc(struct ofl_msg_multipart_reply_flow_desc *orig, struct ofl_msg_multipart_reply_flow_desc *merge) {
     uint32_t new_stats_num;
     size_t i, j;
 
     new_stats_num = orig->stats_num + merge->stats_num;
 
-    orig->stats = (struct ofl_flow_stats ** )realloc(orig->stats, new_stats_num * sizeof(struct ofl_flow_stats *));
+    orig->stats = (struct ofl_flow_desc ** )realloc(orig->stats, new_stats_num * sizeof(struct ofl_flow_desc *));
 
     for (i=0; i < merge->stats_num; i++) {
         j = orig->stats_num + i;
-        orig->stats[j] = (struct ofl_flow_stats *)malloc(sizeof(struct ofl_flow_stats));
-        memcpy(orig->stats[j], merge->stats[i], sizeof(struct ofl_flow_stats));
+        orig->stats[j] = (struct ofl_flow_desc *)malloc(sizeof(struct ofl_flow_desc));
+        memcpy(orig->stats[j], merge->stats[i], sizeof(struct ofl_flow_desc));
     }
 
     orig->stats_num = new_stats_num;

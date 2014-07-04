@@ -188,8 +188,8 @@ handle_control_stats_request(struct datapath *dp,
         case (OFPMP_DESC): {
             return handle_control_stats_request_desc(dp, msg, sender);
         }
-        case (OFPMP_FLOW): {
-            return pipeline_handle_stats_request_flow(dp->pipeline, (struct ofl_msg_multipart_request_flow *)msg, sender);
+        case (OFPMP_FLOW_DESC): {
+            return pipeline_handle_stats_request_flow_desc(dp->pipeline, (struct ofl_msg_multipart_request_flow *)msg, sender);
         }
         case (OFPMP_AGGREGATE): {
             return pipeline_handle_stats_request_aggregate(dp->pipeline, (struct ofl_msg_multipart_request_flow *)msg, sender);

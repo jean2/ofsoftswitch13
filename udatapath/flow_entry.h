@@ -51,8 +51,8 @@ struct flow_entry {
 
     struct datapath         *dp;
     struct flow_table       *table;
-    struct ofl_flow_stats   *stats;
-    struct ofl_match_header *match; /* Original match structure is stored in stats;
+    struct ofl_flow_desc    *desc;
+    struct ofl_match_header *match; /* Original match structure is stored in desc;
                                        this one is a modified version, which reflects
                                        1.2 matching rules. */
     uint64_t                 created;  /* time the entry was created at. */

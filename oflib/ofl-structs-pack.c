@@ -508,51 +508,74 @@ ofl_structs_bucket_pack(struct ofl_bucket *src, struct ofp_bucket *dst, struct o
 
 
 size_t
-ofl_structs_flow_stats_ofp_len(struct ofl_flow_stats *stats, struct ofl_exp *exp) {
+ofl_structs_flow_desc_ofp_len(struct ofl_flow_desc *stats, struct ofl_exp *exp) {
 
-    return ROUND_UP((sizeof(struct ofp_flow_stats) - 4) + stats->match->length,8) +
+    return ROUND_UP((sizeof(struct ofp_flow_desc) - 4) + stats->match->length,8) +
+           ROUND_UP(sizeof(struct ofp_stats) - 4 + 48, 8) +
            ofl_structs_instructions_ofp_total_len(stats->instructions, stats->instructions_num, exp);
 }
 
 size_t
-ofl_structs_flow_stats_ofp_total_len(struct ofl_flow_stats ** stats, size_t stats_num, struct ofl_exp *exp) {
+ofl_structs_flow_desc_ofp_total_len(struct ofl_flow_desc ** stats, size_t stats_num, struct ofl_exp *exp) {
     size_t sum;
     OFL_UTILS_SUM_ARR_FUN2(sum, stats, stats_num,
-            ofl_structs_flow_stats_ofp_len, exp);
+            ofl_structs_flow_desc_ofp_len, exp);
     return sum;
 }
 
 
+static struct ofl_stats_header *
+ofl_structs_flow_desc_to_ofl_stats(struct ofl_flow_desc *flow_desc) {
+
+    struct ofl_stats *s = xmalloc(sizeof(struct ofl_stats));
+    uint64_t time;
+    ofl_structs_stats_init(s);
+
+    time = flow_desc->duration_sec;
+    time = time << 32 | flow_desc->duration_nsec;
+    ofl_structs_stats_put64(s, OXS_OF_DURATION, time);
+    time = flow_desc->idle_sec;
+    time = time << 32 | flow_desc->idle_nsec;
+    ofl_structs_stats_put64(s, OXS_OF_IDLE_TIME, time);
+    ofl_structs_stats_put64(s, OXS_OF_PACKET_COUNT, flow_desc->packet_count);
+    ofl_structs_stats_put64(s, OXS_OF_BYTE_COUNT, flow_desc->byte_count);
+    
+    return (struct ofl_stats_header *) s;
+}
 
 size_t
-ofl_structs_flow_stats_pack(struct ofl_flow_stats *src, uint8_t *dst, struct ofl_exp *exp) {
+ofl_structs_flow_desc_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_exp *exp) {
 
-    struct ofp_flow_stats *flow_stats;
+    struct ofp_flow_desc *flow_desc;
     size_t total_len;
     uint8_t *data;
+    struct ofl_stats_header *stats;
     size_t  i;
 
-    total_len = ROUND_UP(sizeof(struct ofp_flow_stats) -4 + src->match->length,8) +
+    stats = ofl_structs_flow_desc_to_ofl_stats(src);
+
+    total_len = ROUND_UP(sizeof(struct ofp_flow_desc) -4 + src->match->length,8) +
+                ROUND_UP(sizeof(struct ofp_stats) - 4 + stats->length, 8) +
                 ofl_structs_instructions_ofp_total_len(src->instructions, src->instructions_num, exp);
 
-    flow_stats = (struct ofp_flow_stats*) dst;
+    flow_desc = (struct ofp_flow_desc*) dst;
 
-    flow_stats->length = htons(total_len);
-    flow_stats->table_id = src->table_id;
-    flow_stats->pad = 0x00;
-    flow_stats->duration_sec = htonl(src->duration_sec);
-    flow_stats->duration_nsec = htonl(src->duration_nsec);
-    flow_stats->priority = htons(src->priority);
-    flow_stats->idle_timeout = htons(src->idle_timeout);
-    flow_stats->hard_timeout = htons(src->hard_timeout);
-    memset(flow_stats->pad2, 0x00, 6);
-    flow_stats->cookie = hton64(src->cookie);
-    flow_stats->packet_count = hton64(src->packet_count);
-    flow_stats->byte_count = hton64(src->byte_count);
-    data = (dst) + sizeof(struct ofp_flow_stats) - 4;
+    flow_desc->length = htons(total_len);
+    memset(flow_desc->pad2, 0x00, 2);
+    flow_desc->table_id = src->table_id;
+    flow_desc->pad = 0x00;
+    flow_desc->priority = htons(src->priority);
+    flow_desc->idle_timeout = htons(src->idle_timeout);
+    flow_desc->hard_timeout = htons(src->hard_timeout);
+    flow_desc->cookie = hton64(src->cookie);
+    data = (dst) + sizeof(struct ofp_flow_desc) - 4;
 
-    ofl_structs_match_pack(src->match, &(flow_stats->match), data, exp);
-    data = (dst) + ROUND_UP(sizeof(struct ofp_flow_stats) -4 + src->match->length, 8);
+    ofl_structs_match_pack(src->match, &(flow_desc->match), data, exp);
+    data = (dst) + ROUND_UP(sizeof(struct ofp_flow_desc) -4 + src->match->length, 8);
+
+    ofl_structs_stats_pack(stats, (struct ofp_stats *) data, data + 4, exp);
+    data += ROUND_UP(sizeof(struct ofp_stats) - 4 + stats->length, 8);
+    ofl_structs_free_stats(stats, exp);
 
     for (i=0; i < src->instructions_num; i++) {
         data += ofl_structs_instructions_pack(src->instructions[i], (struct ofp_instruction *) data, exp);

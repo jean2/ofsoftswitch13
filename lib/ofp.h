@@ -105,12 +105,12 @@ int check_ofp_message_array(const struct ofp_header *, uint8_t type,
 int check_ofp_packet_out(const struct ofp_header *, struct ofpbuf *data,
                          int *n_actions, int max_ports);
 
-struct flow_stats_iterator {
+struct flow_desc_iterator {
     const uint8_t *pos, *end;
 };
-const struct ofp_flow_stats *flow_stats_first(struct flow_stats_iterator *,
+const struct ofp_flow_desc *flow_desc_first(struct flow_desc_iterator *,
                                               const struct ofp_multipart_reply *);
-const struct ofp_flow_stats *flow_stats_next(struct flow_stats_iterator *);
+const struct ofp_flow_desc *flow_desc_next(struct flow_desc_iterator *);
 
 struct actions_iterator {
     const union ofp_action *pos, *end;

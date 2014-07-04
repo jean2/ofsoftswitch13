@@ -484,16 +484,56 @@ ofl_structs_bucket_unpack(struct ofp_bucket *src, size_t *len, uint8_t gtype, st
     return 0;
 }
 
+static void
+ofl_structs_flow_desc_from_ofl_stats(struct ofl_flow_desc *flow_desc, struct ofl_stats *omt) {
+
+    struct ofl_stats_tlv *oft;
+
+    /* Loop through all fields */
+    HMAP_FOR_EACH(oft, struct ofl_stats_tlv, hmap_node, &omt->stats_fields){
+
+            switch (oft->header){
+                case OXS_OF_DURATION:{
+                    uint64_t v = *((uint64_t*) oft->value);
+		    flow_desc->duration_sec = v >> 32;
+		    flow_desc->duration_nsec = v & 0xffffffff;
+                    break;
+                  }
+                case OXS_OF_IDLE_TIME:{
+                    uint64_t v = *((uint64_t*) oft->value);
+		    flow_desc->idle_sec = v >> 32;
+		    flow_desc->idle_nsec = v & 0xffffffff;
+                    break;
+                  }
+                case OXS_OF_PACKET_COUNT:{
+                    uint64_t v = *((uint64_t*) oft->value);
+		    flow_desc->packet_count = v;
+                    break;
+                  }
+                case OXS_OF_BYTE_COUNT:{
+                    uint64_t v = *((uint64_t*) oft->value);
+		    flow_desc->byte_count = v;
+                    break;
+                  }
+                default:
+                    OFL_LOG_WARN(LOG_MODULE, "Trying to unpack unknow OXS field.");
+                    break;
+            }
+    }
+}
 
 ofl_err
-ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *len, struct ofl_flow_stats **dst, struct ofl_exp *exp) {
-    struct ofl_flow_stats *s;
+ofl_structs_flow_desc_unpack(struct ofp_flow_desc *src, uint8_t *buf, size_t *len, struct ofl_flow_desc **dst, struct ofl_exp *exp) {
+    struct ofl_flow_desc *s;
+    struct ofl_stats_header *stats;
     struct ofp_instruction *inst;
     ofl_err error;
     size_t slen;
     size_t i;
     int match_pos;
-    if (*len < ( (sizeof(struct ofp_flow_stats) - sizeof(struct ofp_match)) + ROUND_UP(ntohs(src->match.length),8))) {
+    int stats_pos;
+
+    if (*len < ( (sizeof(struct ofp_flow_desc) - sizeof(struct ofp_match)) + ROUND_UP(ntohs(src->match.length),8))) {
         OFL_LOG_WARN(LOG_MODULE, "Received flow stats has invalid length (%zu).", *len);
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
@@ -512,27 +552,35 @@ ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
     }
 
-    slen = ntohs(src->length) - (sizeof(struct ofp_flow_stats) - sizeof(struct ofp_match));
+    slen = ntohs(src->length) - (sizeof(struct ofp_flow_desc) - sizeof(struct ofp_match));
 
-    s = (struct ofl_flow_stats *)malloc(sizeof(struct ofl_flow_stats));
+    s = (struct ofl_flow_desc *)malloc(sizeof(struct ofl_flow_desc));
     s->table_id =             src->table_id;
-    s->duration_sec =  ntohl( src->duration_sec);
-    s->duration_nsec = ntohl( src->duration_nsec);
     s->priority =      ntohs( src->priority);
     s->idle_timeout =  ntohs( src->idle_timeout);
     s->hard_timeout =  ntohs( src->hard_timeout);
     s->cookie =        ntoh64(src->cookie);
-    s->packet_count =  ntoh64(src->packet_count);
-    s->byte_count =    ntoh64(src->byte_count);
 
-    match_pos = sizeof(struct ofp_flow_stats) - 4;
+    match_pos = sizeof(struct ofp_flow_desc) - 4;
 
     error = ofl_structs_match_unpack(&(src->match),buf + match_pos , &slen, &(s->match), exp);
     if (error) {
         free(s);
         return error;
     }
-    error = ofl_utils_count_ofp_instructions((struct ofp_instruction *) (buf + ROUND_UP(match_pos + s->match->length,8)), 
+
+    stats_pos = ROUND_UP(match_pos + s->match->length, 8);
+    error = ofl_structs_stats_unpack((struct ofp_stats *) (buf + stats_pos), buf + stats_pos + 4, &slen, &stats, exp);
+    if (error) {
+        ofl_structs_free_match(s->match, exp);
+        free(s);
+        return error;
+    }
+    ofl_structs_flow_desc_from_ofl_stats(s, (struct ofl_stats *) stats);
+    stats_pos += ROUND_UP(sizeof(struct ofp_stats) - 4 + stats->length, 8);
+    ofl_structs_free_stats(stats, exp);
+
+    error = ofl_utils_count_ofp_instructions((struct ofp_instruction *) (buf + stats_pos), 
                                             slen, &s->instructions_num);
     
     if (error) {
@@ -542,7 +590,7 @@ ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *
     }
    s->instructions = (struct ofl_instruction_header **)malloc(s->instructions_num * sizeof(struct ofl_instruction_header *));
 
-   inst = (struct ofp_instruction *) (buf + ROUND_UP(match_pos + s->match->length,8));
+   inst = (struct ofp_instruction *) (buf + stats_pos);
    for (i = 0; i < s->instructions_num; i++) {
         error = ofl_structs_instructions_unpack(inst, &slen, &(s->instructions[i]), exp);
         if (error) {
@@ -557,7 +605,7 @@ ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *
     if (slen != 0) {
         *len = *len - ntohs(src->length) + slen;
         OFL_LOG_WARN(LOG_MODULE, "The received flow stats contained extra bytes (%zu).", slen);
-        ofl_structs_free_flow_stats(s, exp);
+        ofl_structs_free_flow_desc(s, exp);
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
     *len -= ntohs(src->length);
