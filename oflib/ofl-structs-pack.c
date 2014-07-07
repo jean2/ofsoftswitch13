@@ -524,7 +524,7 @@ ofl_structs_flow_desc_ofp_total_len(struct ofl_flow_desc ** stats, size_t stats_
 }
 
 
-static struct ofl_stats_header *
+struct ofl_stats_header *
 ofl_structs_flow_desc_to_ofl_stats(struct ofl_flow_desc *flow_desc) {
 
     struct ofl_stats *s = xmalloc(sizeof(struct ofl_stats));

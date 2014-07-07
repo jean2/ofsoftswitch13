@@ -499,6 +499,11 @@ ofl_structs_stats_put64(struct ofl_stats *stats, uint32_t header, uint64_t value
 int
 ofl_structs_stats_ofp_total_len(struct ofl_stats *stats);
 
+struct ofl_stats_header *
+ofl_structs_flow_desc_to_ofl_stats(struct ofl_flow_desc *flow_desc);
+
+void
+ofl_structs_flow_desc_from_ofl_stats(struct ofl_flow_desc *flow_desc, struct ofl_stats *omt);
 
 /****************************************************************************
  * Functions for (un)packing structures

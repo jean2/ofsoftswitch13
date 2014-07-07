@@ -1472,21 +1472,17 @@ enum ofp_packet_in_reason {
 
 /* Flow removed (datapath -> controller). */
 struct ofp_flow_removed {
-	struct ofp_header header;
-	uint64_t cookie;        /* Opaque controller-issued identifier. */
-	uint16_t priority;      /* Priority level of flow entry. */
-	uint8_t reason;         /* One of OFPRR_*. */
-	uint8_t table_id;       /* ID of the table */
-	uint32_t duration_sec;  /* Time flow was alive in seconds. */
-	uint32_t duration_nsec; /* Time flow was alive in nanoseconds beyond
-                               duration_sec. */
-	uint16_t idle_timeout;  /* Idle timeout from original flow mod. */
-	uint16_t hard_timeout;  /* Hard timeout from original flow mod. */
-	uint64_t packet_count;
-	uint64_t byte_count;
-	struct ofp_match match; /* Description of fields. Variable size. */
+    struct ofp_header header;
+    uint8_t table_id;         /* ID of the table */
+    uint8_t reason;           /* One of OFPRR_*. */
+    uint16_t priority;        /* Priority level of flow entry. */
+    uint16_t idle_timeout;    /* Idle timeout from original flow mod. */
+    uint16_t hard_timeout;    /* Hard timeout from original flow mod. */
+    uint64_t cookie;          /* Opaque controller-issued identifier. */
+    struct ofp_match match;   /* Description of fields. Variable size. */
+    //struct ofp_stats stats; /* Statistics list. Variable size. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_removed) == 56);
+OFP_ASSERT(sizeof(struct ofp_flow_removed) == 32);
 
 /* Why was this flow removed? */
 enum ofp_flow_removed_reason {

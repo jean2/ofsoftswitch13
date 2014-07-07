@@ -272,6 +272,8 @@ ofl_msg_unpack_flow_removed(struct ofp_header *src,uint8_t *buf, size_t *len, st
     struct ofl_msg_flow_removed *dr;
     ofl_err error;
     int match_pos;
+    int stats_pos;
+    struct ofl_stats_header *ols;
 
     if (*len < (sizeof(struct ofp_flow_removed) - sizeof(struct ofp_match))) {
         OFL_LOG_WARN(LOG_MODULE, "Received FLOW_REMOVED message has invalid length (%zu).", *len);
@@ -295,14 +297,10 @@ ofl_msg_unpack_flow_removed(struct ofp_header *src,uint8_t *buf, size_t *len, st
 
     dr->stats = (struct ofl_flow_desc *)malloc(sizeof(struct ofl_flow_desc));
     dr->stats->table_id         =        sr->table_id;
-    dr->stats->duration_sec     = ntohl( sr->duration_sec);
-    dr->stats->duration_nsec    = ntohl( sr->duration_nsec);
     dr->stats->priority         = ntohs(sr->priority);
     dr->stats->idle_timeout     = ntohs( sr->idle_timeout);
     dr->stats->hard_timeout     = 0;
     dr->stats->cookie           = ntoh64(sr->cookie);
-    dr->stats->packet_count     = ntoh64(sr->packet_count);
-    dr->stats->byte_count       = ntoh64(sr->byte_count);
     dr->stats->instructions_num = 0;
     dr->stats->instructions     = NULL;
 
@@ -314,6 +312,18 @@ ofl_msg_unpack_flow_removed(struct ofp_header *src,uint8_t *buf, size_t *len, st
         free(dr);
         return error;
     }
+
+    stats_pos = ROUND_UP(match_pos + dr->stats->match->length, 8);
+    error = ofl_structs_stats_unpack((struct ofp_stats *) (buf + stats_pos), buf + stats_pos + 4, len, &ols, exp);
+    if (error) {
+        ofl_structs_free_match(dr->stats->match, exp);
+        free(dr->stats);
+        free(dr);
+        return error;
+    }
+    ofl_structs_flow_desc_from_ofl_stats(dr->stats, (struct ofl_stats *) ols);
+    ofl_structs_free_stats(ols, exp);
+
     *msg = (struct ofl_msg_header *)dr;
     return 0;
 }

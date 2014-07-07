@@ -484,7 +484,7 @@ ofl_structs_bucket_unpack(struct ofp_bucket *src, size_t *len, uint8_t gtype, st
     return 0;
 }
 
-static void
+void
 ofl_structs_flow_desc_from_ofl_stats(struct ofl_flow_desc *flow_desc, struct ofl_stats *omt) {
 
     struct ofl_stats_tlv *oft;

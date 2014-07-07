@@ -172,9 +172,13 @@ ofl_msg_pack_packet_in(struct ofl_msg_packet_in *msg, uint8_t **buf, size_t *buf
 static int
 ofl_msg_pack_flow_removed(struct ofl_msg_flow_removed *msg, uint8_t **buf, size_t *buf_len, struct ofl_exp *exp) {
     struct ofp_flow_removed *ofr;
-
     uint8_t *ptr;
-    *buf_len = ROUND_UP((sizeof(struct ofp_flow_removed) -4) + msg->stats->match->length ,8);
+    struct ofl_stats_header *ols;
+
+    ols = ofl_structs_flow_desc_to_ofl_stats(msg->stats);
+
+    *buf_len = ROUND_UP((sizeof(struct ofp_flow_removed) - 4) + msg->stats->match->length ,8) +
+               ROUND_UP((sizeof(struct ofp_stats) - 4) + ols->length, 8);
     *buf     = (uint8_t *)malloc(*buf_len);
 
     ofr = (struct ofp_flow_removed *)(*buf);
@@ -182,15 +186,16 @@ ofl_msg_pack_flow_removed(struct ofl_msg_flow_removed *msg, uint8_t **buf, size_
     ofr->priority      = htons(msg->stats->priority);
     ofr->reason        =        msg->reason;
     ofr->table_id      =        msg->stats->table_id;
-    ofr->duration_sec  = htonl( msg->stats->duration_sec);
-    ofr->duration_nsec = htonl( msg->stats->duration_nsec);
     ofr->idle_timeout  = htons( msg->stats->idle_timeout);
-    ofr->packet_count  = hton64(msg->stats->packet_count);
-    ofr->byte_count    = hton64(msg->stats->byte_count);
+    ofr->hard_timeout  = htons( msg->stats->hard_timeout);
 
     ptr = (*buf) + (sizeof(struct ofp_flow_removed) - 4);
 
     ofl_structs_match_pack(msg->stats->match, &(ofr->match),ptr, exp);
+
+    ptr = (*buf) + ROUND_UP((sizeof(struct ofp_flow_removed) - 4) + msg->stats->match->length ,8);
+    ofl_structs_stats_pack(ols, (struct ofp_stats *) ptr, ptr + 4, exp);
+    ofl_structs_free_stats(ols, exp);
 
     return 0;
 }
