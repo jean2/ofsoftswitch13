@@ -471,6 +471,29 @@ stats_flow(struct vconn *vconn, int argc, char *argv[]) {
 }
 
 static void
+stats_flow_only(struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_flow req =
+            {{{.type = OFPT_MULTIPART_REQUEST},
+              .type = OFPMP_FLOW_STATS, .flags = 0x0000},
+             .cookie = 0x0000000000000000ULL,
+             .cookie_mask = 0x0000000000000000ULL,
+             .table_id = 0xff,
+             .out_port = OFPP_ANY,
+             .out_group = OFPG_ANY,
+             .match = NULL};
+    if (argc > 0) {
+        parse_flow_stat_args(argv[0], &req);
+    }
+    if (argc > 1) {
+        parse_match(argv[1], &(req.match));
+    } else {
+        make_all_match(&(req.match));
+    }
+
+    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+}
+
+static void
 stats_aggr(struct vconn *vconn, int argc, char *argv[]) {
     struct ofl_msg_multipart_request_flow req =
             {{{.type = OFPT_MULTIPART_REQUEST},
@@ -906,6 +929,7 @@ static struct command all_commands[] = {
     {"meter-features", 0, 0, meter_features},
     {"stats-desc", 0, 0, stats_desc },
     {"stats-flow", 0, 2, stats_flow},
+    {"stats-flow-only", 0, 2, stats_flow_only},
     {"stats-aggr", 0, 2, stats_aggr},
     {"stats-table", 0, 0, stats_table },
     {"stats-port", 0, 1, stats_port },

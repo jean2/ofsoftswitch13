@@ -903,6 +903,7 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             break;
         }
         case OFPMP_FLOW_DESC:
+        case OFPMP_FLOW_STATS:
         case OFPMP_AGGREGATE: {
             error = ofl_msg_unpack_multipart_request_flow(os,buf, len, msg, exp);
             break;
@@ -1030,6 +1031,44 @@ ofl_msg_unpack_multipart_reply_flow_desc(struct ofp_multipart_reply *os, uint8_t
             return error;
         }
         stat = (struct ofp_flow_desc *)((uint8_t *)stat + ntohs(stat->length));
+    }
+
+    *msg = (struct ofl_msg_header *)dm;
+    return 0;
+}
+
+static ofl_err
+ofl_msg_unpack_multipart_reply_flow_stats(struct ofp_multipart_reply *os, uint8_t *buf, size_t *len, struct ofl_msg_header **msg, struct ofl_exp *exp) {
+    struct ofp_flow_stats *stat;
+    struct ofl_msg_multipart_reply_flow_stats *dm;
+    ofl_err error;
+    size_t i, ini_len;
+    uint8_t *ptr;
+
+    // ofp_multipart_reply was already checked and subtracted in unpack_multipart_reply
+    stat = (struct ofp_flow_stats *)os->body;
+    dm = (struct ofl_msg_multipart_reply_flow_stats *)malloc(sizeof(struct ofl_msg_multipart_reply_flow_stats));
+
+    error = ofl_utils_count_ofp_flow_stats(stat, *len, &dm->stats_num);
+    if (error) {
+        free(dm);
+        return error;
+    }
+    dm->stats = (struct ofl_flow_desc **)malloc(dm->stats_num * sizeof(struct ofl_flow_desc *));
+
+    ini_len = *len;
+    ptr = buf + sizeof(struct ofp_multipart_reply);
+    for (i = 0; i < dm->stats_num; i++) {
+        error = ofl_structs_flow_stats_unpack(stat, ptr, len, &(dm->stats[i]), exp);
+        ptr += ini_len - *len;
+        ini_len = *len;
+        if (error) {
+            OFL_UTILS_FREE_ARR_FUN2(dm->stats, i,
+                                    ofl_structs_free_flow_desc, exp);
+            free (dm);
+            return error;
+        }
+        stat = (struct ofp_flow_stats *)((uint8_t *)stat + ntohs(stat->length));
     }
 
     *msg = (struct ofl_msg_header *)dm;
@@ -1499,6 +1538,10 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
 			error = ofl_msg_unpack_multipart_reply_port_desc(os, len, msg);
 			break;	
 		}
+        case OFPMP_FLOW_STATS: {
+            error = ofl_msg_unpack_multipart_reply_flow_stats(os,buf, len, msg, exp);
+            break;
+        }
         case OFPMP_EXPERIMENTER: {
             if (exp == NULL || exp->stats == NULL || exp->stats->reply_unpack == NULL) {
                 OFL_LOG_WARN(LOG_MODULE, "Received EXPERIMENTER stats reply, but no callback was given.");

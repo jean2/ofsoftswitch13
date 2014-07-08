@@ -354,6 +354,13 @@ struct ofl_msg_multipart_reply_flow_desc {
     struct ofl_flow_desc  **stats;
 };
 
+struct ofl_msg_multipart_reply_flow_stats {
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_FLOW_STATS */
+
+    size_t                  stats_num;
+    struct ofl_flow_desc  **stats;
+};
+
 struct ofl_msg_multipart_reply_aggregate {
     struct ofl_msg_multipart_reply_header   header; /* OFPMP_AGGREGATE */
 

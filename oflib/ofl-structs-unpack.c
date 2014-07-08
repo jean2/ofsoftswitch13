@@ -613,6 +613,75 @@ ofl_structs_flow_desc_unpack(struct ofp_flow_desc *src, uint8_t *buf, size_t *le
     return 0;
 }
 
+ofl_err
+ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *len, struct ofl_flow_desc **dst, struct ofl_exp *exp) {
+    struct ofl_flow_desc *s;
+    struct ofl_stats_header *stats;
+    ofl_err error;
+    size_t slen;
+    int match_pos;
+    int stats_pos;
+
+    if (*len < ( (sizeof(struct ofp_flow_stats) - sizeof(struct ofp_match)) + ROUND_UP(ntohs(src->match.length),8))) {
+        OFL_LOG_WARN(LOG_MODULE, "Received flow stats has invalid length (%zu).", *len);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+
+    if (*len < ntohs(src->length)) {
+        OFL_LOG_WARN(LOG_MODULE, "Received flow stats reply has invalid length (set to %u, but only %zu received).", ntohs(src->length), *len);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+
+    if (src->table_id >= PIPELINE_TABLES) {
+        if (OFL_LOG_IS_WARN_ENABLED(LOG_MODULE)) {
+            char *ts = ofl_table_to_string(src->table_id);
+            OFL_LOG_WARN(LOG_MODULE, "Received flow stats has invalid table_id (%s).", ts);
+            free(ts);
+        }
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID);
+    }
+
+    slen = ntohs(src->length) - (sizeof(struct ofp_flow_stats) - sizeof(struct ofp_match));
+
+    s = (struct ofl_flow_desc *)malloc(sizeof(struct ofl_flow_desc));
+    s->table_id =             src->table_id;
+    s->priority =      ntohs( src->priority);
+    s->idle_timeout =  0;
+    s->hard_timeout =  0;
+    s->cookie =        0;
+
+    match_pos = sizeof(struct ofp_flow_stats) - 4;
+
+    error = ofl_structs_match_unpack(&(src->match),buf + match_pos , &slen, &(s->match), exp);
+    if (error) {
+        free(s);
+        return error;
+    }
+
+    stats_pos = ROUND_UP(match_pos + s->match->length, 8);
+    error = ofl_structs_stats_unpack((struct ofp_stats *) (buf + stats_pos), buf + stats_pos + 4, &slen, &stats, exp);
+    if (error) {
+        ofl_structs_free_match(s->match, exp);
+        free(s);
+        return error;
+    }
+    ofl_structs_flow_desc_from_ofl_stats(s, (struct ofl_stats *) stats);
+    ofl_structs_free_stats(stats, exp);
+
+    s->instructions_num = 0;
+    s->instructions = NULL;
+
+    if (slen != 0) {
+        *len = *len - ntohs(src->length) + slen;
+        OFL_LOG_WARN(LOG_MODULE, "The received flow stats contained extra bytes (%zu).", slen);
+        ofl_structs_free_flow_desc(s, exp);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+    *len -= ntohs(src->length);
+    *dst = s;
+    return 0;
+}
+
 
 ofl_err
 ofl_structs_group_stats_unpack(struct ofp_group_stats *src, size_t *len, struct ofl_group_stats **dst) {

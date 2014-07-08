@@ -983,6 +983,10 @@ enum ofp_multipart_types {
     * The request body is empty.
     * The reply body is an array of struct ofp_port. */
     OFPMP_PORT_DESC = 13,
+    /* Individual flow statistics (without description).
+     * The request body is struct ofp_flow_stats_request.
+     * The reply body is an array of struct ofp_flow_stats. */
+    OFPMP_FLOW_STATS = 17,
     /* Experimenter extension.
     * The request and reply bodies begin with
     * struct ofp_experimenter_stats_header.
@@ -1042,6 +1046,18 @@ struct ofp_flow_desc {
                               /* Instruction set - 0 or more. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_desc) == 32);
+
+/* Body of reply to OFPMP_FLOW_STATS request. */
+struct ofp_flow_stats {
+    uint16_t length;          /* Length of this entry. */
+    uint8_t pad2[2];          /* Align to 64-bits. */
+    uint8_t table_id;         /* ID of table flow came from. */
+    uint8_t pad;
+    uint16_t priority;        /* Priority of the entry. */
+    struct ofp_match match;   /* Description of fields. Variable size. */
+    //struct ofp_stats stats; /* Statistics list. Variable size. */
+};
+OFP_ASSERT(sizeof(struct ofp_flow_stats) == 16);
 
 /* Body for ofp_multipart_request of type OFPMP_AGGREGATE. */
 struct ofp_aggregate_stats_request {

@@ -534,6 +534,9 @@ size_t
 ofl_structs_flow_desc_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_exp *exp);
 
 size_t
+ofl_structs_flow_stats_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_exp *exp);
+
+size_t
 ofl_structs_group_stats_pack(struct ofl_group_stats *src, struct ofp_group_stats *dst);
 
 size_t
@@ -579,6 +582,9 @@ ofl_structs_bucket_unpack(struct ofp_bucket *src, size_t *len, uint8_t gtype, st
 
 ofl_err
 ofl_structs_flow_desc_unpack(struct ofp_flow_desc *src,uint8_t *buf, size_t *len, struct ofl_flow_desc **dst, struct ofl_exp *exp);
+
+ofl_err
+ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src,uint8_t *buf, size_t *len, struct ofl_flow_desc **dst, struct ofl_exp *exp);
 
 ofl_err
 ofl_structs_queue_prop_unpack(struct ofp_queue_prop_header *src, size_t *len, struct ofl_queue_prop_header **dst);
@@ -700,6 +706,9 @@ ofl_err
 ofl_utils_count_ofp_flow_desc(void *data, size_t data_len, size_t *count);
 
 ofl_err
+ofl_utils_count_ofp_flow_stats(void *data, size_t data_len, size_t *count);
+
+ofl_err
 ofl_utils_count_ofp_group_stats(void *data, size_t data_len, size_t *count);
 
 ofl_err
@@ -761,6 +770,12 @@ ofl_structs_flow_desc_ofp_total_len(struct ofl_flow_desc ** stats, size_t stats_
 
 size_t
 ofl_structs_flow_desc_ofp_len(struct ofl_flow_desc *stats, struct ofl_exp *exp);
+
+size_t
+ofl_structs_flow_stats_ofp_total_len(struct ofl_flow_desc ** stats, size_t stats_num, struct ofl_exp *exp);
+
+size_t
+ofl_structs_flow_stats_ofp_len(struct ofl_flow_desc *stats, struct ofl_exp *exp);
 
 size_t
 ofl_structs_group_stats_ofp_total_len(struct ofl_group_stats ** stats, size_t stats_num);
@@ -900,6 +915,12 @@ ofl_structs_flow_desc_to_string(struct ofl_flow_desc *s, struct ofl_exp *exp);
 
 void
 ofl_structs_flow_desc_print(FILE *stream, struct ofl_flow_desc *s, struct ofl_exp *exp);
+
+char *
+ofl_structs_flow_stats_to_string(struct ofl_flow_desc *s, struct ofl_exp *exp);
+
+void
+ofl_structs_flow_stats_print(FILE *stream, struct ofl_flow_desc *s, struct ofl_exp *exp);
 
 char *
 ofl_structs_bucket_counter_to_string(struct ofl_bucket_counter *s);

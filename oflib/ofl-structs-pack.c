@@ -584,6 +584,53 @@ ofl_structs_flow_desc_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_e
 }
 
 size_t
+ofl_structs_flow_stats_ofp_len(struct ofl_flow_desc *stats, struct ofl_exp *exp UNUSED) {
+
+    return ROUND_UP((sizeof(struct ofp_flow_stats) - 4) + stats->match->length,8) +
+           ROUND_UP(sizeof(struct ofp_stats) - 4 + 48, 8);
+}
+
+size_t
+ofl_structs_flow_stats_ofp_total_len(struct ofl_flow_desc ** stats, size_t stats_num, struct ofl_exp *exp) {
+    size_t sum;
+    OFL_UTILS_SUM_ARR_FUN2(sum, stats, stats_num,
+            ofl_structs_flow_stats_ofp_len, exp);
+    return sum;
+}
+
+size_t
+ofl_structs_flow_stats_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_exp *exp) {
+
+    struct ofp_flow_stats *flow_stats;
+    size_t total_len;
+    uint8_t *data;
+    struct ofl_stats_header *stats;
+
+    stats = ofl_structs_flow_desc_to_ofl_stats(src);
+
+    total_len = ROUND_UP(sizeof(struct ofp_flow_stats) - 4 + src->match->length,8) +
+                ROUND_UP(sizeof(struct ofp_stats) - 4 + stats->length, 8);
+
+    flow_stats = (struct ofp_flow_stats*) dst;
+
+    flow_stats->length = htons(total_len);
+    memset(flow_stats->pad2, 0x00, 2);
+    flow_stats->table_id = src->table_id;
+    flow_stats->pad = 0x00;
+    flow_stats->priority = htons(src->priority);
+    data = (dst) + sizeof(struct ofp_flow_stats) - 4;
+
+    ofl_structs_match_pack(src->match, &(flow_stats->match), data, exp);
+    data = (dst) + ROUND_UP(sizeof(struct ofp_flow_stats) - 4 + src->match->length, 8);
+
+    ofl_structs_stats_pack(stats, (struct ofp_stats *) data, data + 4, exp);
+    ofl_structs_free_stats(stats, exp);
+
+    return total_len;
+}
+
+
+size_t
 ofl_structs_group_stats_ofp_len(struct ofl_group_stats *stats) {
     return sizeof(struct ofp_group_stats) +
            sizeof(struct ofp_bucket_counter) * stats->counters_num;

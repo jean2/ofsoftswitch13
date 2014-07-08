@@ -61,6 +61,7 @@ ofl_msg_free_multipart_request(struct ofl_msg_multipart_request_header *msg, str
             break;
         }
         case OFPMP_FLOW_DESC:
+        case OFPMP_FLOW_STATS:
         case OFPMP_AGGREGATE: {
             ofl_structs_free_match(((struct ofl_msg_multipart_request_flow *)msg)->match, exp);
             break;
@@ -118,6 +119,13 @@ ofl_msg_free_multipart_reply(struct ofl_msg_multipart_reply_header *msg, struct 
             struct ofl_msg_multipart_reply_flow_desc *stat = (struct ofl_msg_multipart_reply_flow_desc *)msg;
             OFL_UTILS_FREE_ARR_FUN2(stat->stats, stat->stats_num,
                                     ofl_structs_free_flow_desc, exp);
+            break;
+        }
+        case OFPMP_FLOW_STATS: {
+            struct ofl_msg_multipart_reply_flow_stats *stat = (struct ofl_msg_multipart_reply_flow_stats *)msg;
+            OFL_UTILS_FREE_ARR_FUN2(stat->stats, stat->stats_num,
+                                    ofl_structs_free_flow_desc, exp);
+            break;
         }
         case OFPMP_AGGREGATE: {
             break;

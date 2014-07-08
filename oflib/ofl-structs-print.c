@@ -666,6 +666,31 @@ ofl_structs_flow_desc_print(FILE *stream, struct ofl_flow_desc *s, struct ofl_ex
 }
 
 char *
+ofl_structs_flow_stats_to_string(struct ofl_flow_desc *s, struct ofl_exp *exp) {
+        char *str;
+    size_t str_size;
+    FILE *stream = open_memstream(&str, &str_size);
+    ofl_structs_flow_stats_print(stream, s, exp);
+    fclose(stream);
+    return str;
+}
+
+void
+ofl_structs_flow_stats_print(FILE *stream, struct ofl_flow_desc *s, struct ofl_exp *exp) {
+
+    fprintf(stream, "{table=\"");
+    ofl_table_print(stream, s->table_id);
+    fprintf(stream, "\", match=\"");
+    ofl_structs_match_print(stream, s->match, exp);
+    fprintf(stream, "\", dur_s=\"%u\", dur_ns=\"%u\", "
+                          "idle_s=\"%u\", idle_ns=\"%u\", prio=\"%u\", "
+                          "pkt_cnt=\"%"PRIu64"\", byte_cnt=\"%"PRIu64"\"}",
+                  s->duration_sec, s->duration_nsec,
+                  s->idle_sec, s->idle_nsec, s->priority,
+                  s->packet_count, s->byte_count);
+}
+
+char *
 ofl_structs_bucket_counter_to_string(struct ofl_bucket_counter *s) {
         char *str;
     size_t str_size;
