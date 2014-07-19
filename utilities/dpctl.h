@@ -112,7 +112,8 @@ static struct names16 inst_names[] = {
         {OFPIT_WRITE_ACTIONS,  "write"},
         {OFPIT_APPLY_ACTIONS,  "apply"},
         {OFPIT_CLEAR_ACTIONS,  "clear"},
-        {OFPIT_METER,  "meter"}
+        {OFPIT_METER,          "meter"},
+        {OFPIT_STAT_TRIGGER,  "trigger"},
 };
 
 static struct names8 flow_mod_cmd_names[] = {
@@ -215,6 +216,12 @@ static struct names16 band_names[] = {
 #define MATCH_PBB_ISID       "pbb_isid"
 #define MATCH_TUNNEL_ID      "tunn_id"    
 #define MATCH_EXT_HDR        "ext_hdr"
+
+#define STATS_DURATION       "duration"
+#define STATS_IDLE_TIME      "idle"
+#define STATS_FLOW_COUNT     "flow"
+#define STATS_PACKET_COUNT   "packet"
+#define STATS_BYTE_COUNT     "byte"
 
 #define GROUP_MOD_COMMAND "cmd"
 #define GROUP_MOD_TYPE    "type"

@@ -414,6 +414,11 @@ ofl_structs_free_instruction(struct ofl_instruction_header *inst, struct ofl_exp
         case OFPIT_CLEAR_ACTIONS: {
             break;
         }
+        case OFPIT_STAT_TRIGGER: {
+            struct ofl_instruction_stat_trigger *ist = (struct ofl_instruction_stat_trigger *)inst;
+            ofl_structs_free_stats(ist->thresholds, exp);
+            break;
+        }
         case OFPIT_EXPERIMENTER: {
             if (exp == NULL || exp->inst == NULL || exp->inst->free == NULL) {
                 OFL_LOG_WARN(LOG_MODULE, "Trying to free experimented instruction, but no callback was given.");

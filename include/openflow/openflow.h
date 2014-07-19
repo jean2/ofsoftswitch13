@@ -404,6 +404,7 @@ enum ofp_instruction_type {
     OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
                                    action set */
     OFPIT_METER = 6,            /* Apply meter (rate limiter) */
+    OFPIT_STAT_TRIGGER = 7,     /* Statistics triggers */
                                    
     OFPIT_EXPERIMENTER = 0xFFFF /* Experimenter instruction */
 };
@@ -466,6 +467,20 @@ struct ofp_instruction_meter {
     uint32_t meter_id; /* Meter instance. */
 };
 OFP_ASSERT(sizeof(struct ofp_instruction_meter) == 8);
+
+enum ofp_stat_trigger_flags {
+    OFPSTF_PERIODIC    = 1 << 0,  /* Trigger for all multiples of thresholds. */
+    OFPSTF_ONLY_FIRST  = 1 << 1,  /* Trigger on only first reach threshold. */
+};
+
+/* Instruction structure for OFPIT_STAT_TRIGGER */
+struct ofp_instruction_stat_trigger {
+    uint16_t type;                /* OFPIT_STAT_TRIGGER */
+    uint16_t len;                 /* Length is padded to 64 bits. */
+    uint32_t flags;               /* Bitmap of OFPSTF_* flags. */
+    struct ofp_stats thresholds;  /* Threshold list. Variable size. */
+};
+OFP_ASSERT(sizeof(struct ofp_instruction_stat_trigger) == 16);
 
 
 enum ofp_action_type {

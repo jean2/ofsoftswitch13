@@ -112,6 +112,13 @@ struct ofl_instruction_meter {
 
 };
 
+struct ofl_instruction_stat_trigger {
+    struct ofl_instruction_header   header; /* OFPIT_STAT_TRIGGER */
+
+    uint32_t flags;               /* Bitmap of OFPSTF_* flags. */
+    struct ofl_stats_header        *thresholds;   /* Stats thresholds. */
+};
+
 /* Instruction structure for experimental instructions */
 struct ofl_instruction_experimenter {
     struct ofl_instruction_header   header; /* OFPIT_EXPERIMENTER */

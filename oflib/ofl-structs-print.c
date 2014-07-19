@@ -131,6 +131,14 @@ ofl_structs_instruction_print(FILE *stream, struct ofl_instruction_header *inst,
             fprintf(stream, "{meter=\"%u\"}", i->meter_id);          
             break;
         }
+        case (OFPIT_STAT_TRIGGER): {
+            struct ofl_instruction_stat_trigger *ist = (struct ofl_instruction_stat_trigger *)inst;
+            fprintf(stream, "{flags=\"0x%x\"}", ist->flags);          
+            fprintf(stream, ", thresholds=\"");
+            ofl_structs_stats_print(stream, ist->thresholds, exp);
+            fprintf(stream, "\"}");
+            break;
+        }
         case (OFPIT_EXPERIMENTER): {
             if (exp == NULL || exp->inst == NULL || exp->inst->to_string == NULL) {
                 struct ofl_instruction_experimenter *i = (struct ofl_instruction_experimenter *)inst;
@@ -505,27 +513,36 @@ void
 ofl_structs_oxs_tlv_print(FILE *stream, struct ofl_stats_tlv *f)
 {
 	uint8_t field = OXS_FIELD(f->header);
+        uint64_t time_s_ns;
+        uint32_t time_s;
+        uint32_t time_ns;
 
 	switch (field) {
 
 		case OFPXST_OFB_DURATION:
-			fprintf(stream, "duration=\"0x%llx\"", *((uint64_t*) f->value));
+                        time_s_ns = *((uint64_t*) f->value);
+                        time_s = time_s_ns >> 32;
+                        time_ns = time_s_ns & 0xffffffff;
+			fprintf(stream, "dur_s=\"%u\", dur_ns=\"%u\"", time_s, time_ns);
 			break;
 
 		case OFPXST_OFB_IDLE_TIME:
-			fprintf(stream, "idle_time=\"0x%llx\"", *((uint64_t*) f->value));
+                        time_s_ns = *((uint64_t*) f->value);
+                        time_s = time_s_ns >> 32;
+                        time_ns = time_s_ns & 0xffffffff;
+			fprintf(stream, "idle_s=\"%u\", idle_ns=\"%u\"", time_s, time_ns);
 			break;
 
 		case OFPXST_OFB_FLOW_COUNT:
-			fprintf(stream, "flow_count=\"%d\"", *((uint32_t*) f->value));
+			fprintf(stream, "flow_count=\"%u\"", *((uint32_t*) f->value));
 			break;
 
 		case OFPXST_OFB_PACKET_COUNT:
-			fprintf(stream, "packet_count=\"0x%llx\"", *((uint64_t*) f->value));
+			fprintf(stream, "packet_count=\"%"PRIu64"\"", *((uint64_t*) f->value));
 			break;
 
 		case OFPXST_OFB_BYTE_COUNT:
-			fprintf(stream, "byte_count=\"0x%llx\"", *((uint64_t*) f->value));
+			fprintf(stream, "byte_count=\"%"PRIu64"\"", *((uint64_t*) f->value));
 			break;
 
 		default:

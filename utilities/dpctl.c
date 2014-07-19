@@ -52,6 +52,7 @@
 #include "oflib-exp/ofl-exp.h"
 #include "oflib-exp/ofl-exp-openflow.h"
 #include "oflib/oxm-match.h"
+#include "oflib/oxs-stats.h"
 
 #include "command-line.h"
 #include "compiler.h"
@@ -141,7 +142,8 @@ parse_band(char *str, struct ofl_msg_meter_mod *m, struct ofl_meter_band_header 
 static void
 make_all_match(struct ofl_match_header **match);
 
-
+static void
+parse_stats(char *str, struct ofl_stats_header **stats);
 
 
 static int
@@ -2117,6 +2119,15 @@ parse_inst(char *str, struct ofl_instruction_header **inst) {
                     (*inst) = (struct ofl_instruction_header *)i;
                     return;
                 }
+                case (OFPIT_STAT_TRIGGER): {
+                    struct ofl_instruction_stat_trigger *ist = xmalloc(sizeof(struct ofl_instruction_stat_trigger));
+                    ist->header.type = OFPIT_STAT_TRIGGER;
+                    ist->flags = 0;
+                    ist->thresholds = NULL;
+		    parse_stats(s, &(ist->thresholds));
+                    (*inst) = (struct ofl_instruction_header *)ist;
+                    return;
+                }
             }
         }
     }
@@ -2718,3 +2729,81 @@ parse32m(char *str, struct names32 *names, size_t names_num, uint32_t max, uint3
     }
     return 0;
 }
+
+static void
+parse_stats(char *str, struct ofl_stats_header **stats) {
+    char *token, *saveptr = NULL;
+    struct ofl_stats *ols = xmalloc(sizeof(struct ofl_stats));
+    ofl_structs_stats_init(ols);
+
+    fprintf(stderr, "Parse-stats [%s]\n", str);
+
+    for (token = strtok_r(str, KEY_SEP, &saveptr); token != NULL; token = strtok_r(NULL, KEY_SEP, &saveptr)) {
+
+        /* Duration. */
+        if (strncmp(token, STATS_DURATION KEY_VAL, strlen(STATS_DURATION KEY_VAL)) == 0) {
+            uint32_t duration_sec;
+            if (parse32(token + strlen(STATS_DURATION KEY_VAL), NULL, 0, 0xfffff, &duration_sec)) {
+                ofp_fatal(0, "Error parsing stats %s: %s.", STATS_DURATION, token);
+            } else {
+                uint64_t time_s_ns;
+                time_s_ns = duration_sec;
+                time_s_ns = time_s_ns << 32;
+                ofl_structs_stats_put64(ols, OXS_OF_DURATION, time_s_ns);
+            }
+            continue;
+        }
+
+        /* Idle time. */
+        if (strncmp(token, STATS_IDLE_TIME KEY_VAL, strlen(STATS_IDLE_TIME KEY_VAL)) == 0) {
+            uint32_t idle_sec;
+            if (parse32(token + strlen(STATS_IDLE_TIME KEY_VAL), NULL, 0, 0xfffff, &idle_sec)) {
+                ofp_fatal(0, "Error parsing stats %s: %s.", STATS_IDLE_TIME, token);
+            } else {
+                uint64_t time_s_ns;
+                time_s_ns = idle_sec;
+                time_s_ns = time_s_ns << 32;
+                ofl_structs_stats_put64(ols, OXS_OF_IDLE_TIME, time_s_ns);
+            }
+            continue;
+        }
+
+        /* Flow count. */
+        if (strncmp(token, STATS_FLOW_COUNT KEY_VAL, strlen(STATS_FLOW_COUNT KEY_VAL)) == 0) {
+            uint32_t flow_count;
+            if (parse32(token + strlen(STATS_FLOW_COUNT KEY_VAL), NULL, 0, 0xfffff, &flow_count)) {
+                ofp_fatal(0, "Error parsing stats %s: %s.", STATS_FLOW_COUNT, token);
+            } else {
+                ofl_structs_stats_put64(ols, OXS_OF_FLOW_COUNT, flow_count);
+            }
+            continue;
+        }
+
+        /* Packet count */
+        if (strncmp(token, STATS_PACKET_COUNT KEY_VAL, strlen(STATS_PACKET_COUNT KEY_VAL)) == 0) {
+            uint64_t count;
+            if (sscanf(token, STATS_PACKET_COUNT KEY_VAL "%"SCNu64"", (&count)) != 1) {
+                ofp_fatal(0, "Error parsing stats %s: %s.", STATS_PACKET_COUNT, token);
+            } else {
+                ofl_structs_stats_put64(ols, OXS_OF_PACKET_COUNT, count);
+            }
+            continue;
+        }
+
+        /* Byte count */
+        if (strncmp(token, STATS_BYTE_COUNT KEY_VAL, strlen(STATS_BYTE_COUNT KEY_VAL)) == 0) {
+            uint64_t count;
+            if (sscanf(token, STATS_BYTE_COUNT KEY_VAL "%"SCNu64"", (&count)) != 1) {
+                ofp_fatal(0, "Error parsing stats %s: %s.", STATS_BYTE_COUNT, token);
+            } else {
+                ofl_structs_stats_put64(ols, OXS_OF_BYTE_COUNT, count);
+            }
+            continue;
+        }
+
+        ofp_fatal(0, "Error parsing stats arg: %s.", token);
+    }
+
+    (*stats) = (struct ofl_stats_header *) ols;
+}
+

@@ -71,6 +71,12 @@ ofl_structs_instructions_ofp_len(struct ofl_instruction_header *instruction, str
         case OFPIT_METER:{
             return sizeof(struct ofp_instruction_meter);
         }
+        case OFPIT_STAT_TRIGGER:{
+            struct ofl_instruction_stat_trigger *ist = (struct ofl_instruction_stat_trigger *)instruction;
+
+            return ROUND_UP(sizeof(struct ofp_instruction_stat_trigger) - 4
+                            + ist->thresholds->length, 8);
+        }
         case OFPIT_EXPERIMENTER: {
             if (exp == NULL || exp->inst == NULL || exp->inst->ofp_len == NULL) {
                 OFL_LOG_WARN(LOG_MODULE, "Trying to len experimenter instruction, but no callback was given.");
@@ -161,6 +167,22 @@ ofl_structs_instructions_pack(struct ofl_instruction_header *src, struct ofp_ins
             di->meter_id = htonl(si->meter_id);
 
             return sizeof(struct ofp_instruction_meter);
+        }
+        case OFPIT_STAT_TRIGGER: {
+            size_t total_len;
+            uint8_t *data;
+
+            struct ofl_instruction_stat_trigger *si = (struct ofl_instruction_stat_trigger *)src;
+            struct ofp_instruction_stat_trigger *di = (struct ofp_instruction_stat_trigger *)dst;
+
+            total_len = ROUND_UP(sizeof(struct ofp_instruction_stat_trigger) - 4
+                                 + si->thresholds->length, 8);
+
+            di->len = htons(total_len);
+            di->flags = htonl(si->flags);
+            data = (uint8_t *)dst + sizeof(struct ofp_instruction_stat_trigger) - sizeof(struct ofp_stats);
+            ofl_structs_stats_pack(si->thresholds, (struct ofp_stats *) data, data + 4, exp);
+            return total_len;
         }
         case OFPIT_EXPERIMENTER: {
             if (exp == NULL || exp->inst == NULL || exp->inst->pack == NULL) {
@@ -528,15 +550,15 @@ struct ofl_stats_header *
 ofl_structs_flow_desc_to_ofl_stats(struct ofl_flow_desc *flow_desc) {
 
     struct ofl_stats *s = xmalloc(sizeof(struct ofl_stats));
-    uint64_t time;
+    uint64_t time_s_ns;
     ofl_structs_stats_init(s);
 
-    time = flow_desc->duration_sec;
-    time = time << 32 | flow_desc->duration_nsec;
-    ofl_structs_stats_put64(s, OXS_OF_DURATION, time);
-    time = flow_desc->idle_sec;
-    time = time << 32 | flow_desc->idle_nsec;
-    ofl_structs_stats_put64(s, OXS_OF_IDLE_TIME, time);
+    time_s_ns = flow_desc->duration_sec;
+    time_s_ns = time_s_ns << 32 | flow_desc->duration_nsec;
+    ofl_structs_stats_put64(s, OXS_OF_DURATION, time_s_ns);
+    time_s_ns = flow_desc->idle_sec;
+    time_s_ns = time_s_ns << 32 | flow_desc->idle_nsec;
+    ofl_structs_stats_put64(s, OXS_OF_IDLE_TIME, time_s_ns);
     ofl_structs_stats_put64(s, OXS_OF_PACKET_COUNT, flow_desc->packet_count);
     ofl_structs_stats_put64(s, OXS_OF_BYTE_COUNT, flow_desc->byte_count);
     

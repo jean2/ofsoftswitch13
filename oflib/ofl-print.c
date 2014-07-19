@@ -294,6 +294,7 @@ ofl_instruction_type_print(FILE *stream, uint16_t type) {
         case OFPIT_APPLY_ACTIONS: {  fprintf(stream, "apply"); return; }
         case OFPIT_CLEAR_ACTIONS: {  fprintf(stream, "clear"); return; }
         case OFPIT_METER:         {  fprintf(stream, "meter"); return; }
+        case OFPIT_STAT_TRIGGER:  {  fprintf(stream, "stat_trigger"); return; }
         case OFPIT_EXPERIMENTER: {   fprintf(stream, "exp"); return; }
         default: {                   fprintf(stream, "?(%u)", type); return; }
     }

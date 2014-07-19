@@ -182,6 +182,33 @@ ofl_structs_instructions_unpack(struct ofp_instruction *src, size_t *len, struct
             ilen -= sizeof(struct ofp_instruction_meter);
             break; 
         }
+        case OFPIT_STAT_TRIGGER: {
+            struct ofp_instruction_stat_trigger *si;
+            struct ofl_instruction_stat_trigger *di;
+            uint8_t *data;
+            ofl_err error;
+
+            if (ilen < sizeof(struct ofp_instruction_stat_trigger)) {
+                OFL_LOG_WARN(LOG_MODULE, "Received OFPIT_STAT_TRIGGER instruction has invalid length (%zu).", *len);
+                return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+            }
+            ilen -= sizeof(struct ofp_instruction_stat_trigger) - sizeof(struct ofp_stats);
+
+            si = (struct ofp_instruction_stat_trigger *)src;
+            di = (struct ofl_instruction_stat_trigger *)malloc(sizeof(struct ofl_instruction_stat_trigger));
+
+            di->flags = ntohl(si->flags);
+
+            data = ((uint8_t *) si) + sizeof(struct ofl_instruction_stat_trigger) - 4;
+            error = ofl_structs_stats_unpack(&si->thresholds, data, &ilen, &di->thresholds, exp);
+            if (error) {
+                free(di);
+                return error;
+            }
+
+            inst = (struct ofl_instruction_header *)di;
+            break;
+        }
         case OFPIT_EXPERIMENTER: {
             ofl_err error;
 
