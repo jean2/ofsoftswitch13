@@ -153,6 +153,7 @@ struct ofl_bucket {
 
 struct ofl_flow_desc {
     uint8_t                         table_id;      /* ID of table flow came from. */
+    uint8_t                         reason;        /* One of OFPFSR_*. */
     uint32_t                        duration_sec;  /* Time flow has been alive in secs. */
     uint32_t                        duration_nsec; /* Time flow has been alive in nsecs
                                                      beyond duration_sec. */
@@ -257,6 +258,7 @@ struct ofl_stats_header {
 struct ofl_stats {
     struct ofl_stats_header   header; /* Stats header */
     struct hmap stats_fields;         /* Stats fields. Contain OXS TLV's  */
+    uint8_t            reason;        /* One of OFPFSR_*. */
     bool trigger_done;                /* One shot trigger was done. */
 };
 

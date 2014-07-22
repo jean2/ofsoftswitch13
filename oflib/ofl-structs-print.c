@@ -697,7 +697,7 @@ ofl_structs_flow_stats_print(FILE *stream, struct ofl_flow_desc *s, struct ofl_e
 
     fprintf(stream, "{table=\"");
     ofl_table_print(stream, s->table_id);
-    fprintf(stream, "\", match=\"");
+    fprintf(stream, "\", reason=\"%d\", match=\"", s->reason);
     ofl_structs_match_print(stream, s->match, exp);
     fprintf(stream, "\", dur_s=\"%u\", dur_ns=\"%u\", "
                           "idle_s=\"%u\", idle_ns=\"%u\", prio=\"%u\", "

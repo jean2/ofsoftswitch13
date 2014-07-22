@@ -515,6 +515,7 @@ void
 ofl_structs_flow_desc_from_ofl_stats(struct ofl_flow_desc *flow_desc, struct ofl_stats *omt) {
 
     struct ofl_stats_tlv *oft;
+    //flow_desc->reason = omt->reason;
 
     /* Loop through all fields */
     HMAP_FOR_EACH(oft, struct ofl_stats_tlv, hmap_node, &omt->stats_fields){
@@ -694,6 +695,7 @@ ofl_structs_flow_stats_unpack(struct ofp_flow_stats *src, uint8_t *buf, size_t *
     }
     ofl_structs_flow_desc_from_ofl_stats(s, (struct ofl_stats *) stats);
     ofl_structs_free_stats(stats, exp);
+    s->reason = src->reason;
 
     s->instructions_num = 0;
     s->instructions = NULL;

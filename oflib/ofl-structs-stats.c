@@ -37,6 +37,7 @@ ofl_structs_stats_init(struct ofl_stats *stats){
 
     stats->header.length = 0;
     stats->stats_fields = (struct hmap) HMAP_INITIALIZER(&stats->stats_fields);
+    stats->reason = OFPFSR_STATS_REQUEST;
     stats->trigger_done = false;
 }
 

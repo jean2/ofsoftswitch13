@@ -235,7 +235,18 @@ flow_entry_trigger_timeout(struct flow_entry *entry) {
                     /* If trigger is periodic, or if it is the first time
                        we cross the trhreshold, or if count was reset... */
                     if ((oti->flags & OFPSTF_PERIODIC) || (old_trigger == 0) || (old_trigger > new_trigger)) {
-		        VLOG_WARN(LOG_MODULE, "J2: Trigger %d.", OXS_FIELD(oft->header));
+                        struct ofl_flow_desc *stats[1] = {entry->desc};
+                        struct ofl_msg_multipart_reply_flow_stats msg =
+                            {{{.type = OFPT_MULTIPART_REPLY},
+                              .type = OFPMP_FLOW_STATS, .flags = 0x0000},
+                              .stats     = stats,
+                              .stats_num = 1
+                        };
+			flow_entry_update(entry);
+                        entry->desc->reason = OFPFSR_STAT_TRIGGER;
+                        dp_send_message(entry->dp, (struct ofl_msg_header *)&msg, NULL);
+                        entry->desc->reason = OFPFSR_STATS_REQUEST;
+
                         if (oti->flags & OFPSTF_ONLY_FIRST) {
                             omt->trigger_done = true;
                         }
@@ -399,6 +410,7 @@ flow_entry_create(struct datapath *dp, struct flow_table *table, struct ofl_msg_
     entry->desc = xmalloc(sizeof(struct ofl_flow_desc));
 
     entry->desc->table_id         = mod->table_id;
+    entry->desc->reason           = OFPFSR_STATS_REQUEST;
     entry->desc->duration_sec     = 0;
     entry->desc->duration_nsec    = 0;
     entry->desc->idle_sec         = 0;

@@ -553,6 +553,7 @@ ofl_structs_flow_desc_to_ofl_stats(struct ofl_flow_desc *flow_desc) {
     uint64_t time_s_ns;
     ofl_structs_stats_init(s);
 
+    //s->reason = flow_desc->reason;
     time_s_ns = flow_desc->duration_sec;
     time_s_ns = time_s_ns << 32 | flow_desc->duration_nsec;
     ofl_structs_stats_put64(s, OXS_OF_DURATION, time_s_ns);
@@ -638,7 +639,7 @@ ofl_structs_flow_stats_pack(struct ofl_flow_desc *src, uint8_t *dst, struct ofl_
     flow_stats->length = htons(total_len);
     memset(flow_stats->pad2, 0x00, 2);
     flow_stats->table_id = src->table_id;
-    flow_stats->pad = 0x00;
+    flow_stats->reason = src->reason;
     flow_stats->priority = htons(src->priority);
     data = (dst) + sizeof(struct ofp_flow_stats) - 4;
 
