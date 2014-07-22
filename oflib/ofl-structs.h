@@ -257,6 +257,7 @@ struct ofl_stats_header {
 struct ofl_stats {
     struct ofl_stats_header   header; /* Stats header */
     struct hmap stats_fields;         /* Stats fields. Contain OXS TLV's  */
+    bool trigger_done;                /* One shot trigger was done. */
 };
 
 struct ofl_stats_tlv{
@@ -264,6 +265,7 @@ struct ofl_stats_tlv{
     struct hmap_node hmap_node;
     uint32_t header;    /* TLV header */
     uint8_t *value;     /* TLV value */
+    uint64_t last_trigger;
 };
 
 

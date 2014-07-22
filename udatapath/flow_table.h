@@ -56,6 +56,8 @@ struct flow_table {
                                                 ordered by their timeout times. */
     struct list               idle_entries;   /* unordered list of entries with
                                                 idle timeout. */
+    struct list               trigger_entries; /* unordered list of entries with
+                                                trigger instruction. */
 };
 
 extern uint32_t oxm_ids[];

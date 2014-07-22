@@ -42,6 +42,7 @@
 #include "oflib/ofl-structs.h"
 #include "oflib/ofl-actions.h"
 #include "oflib/ofl-utils.h"
+#include "oflib/oxs-stats.h"
 #include "packets.h"
 #include "timeval.h"
 #include "util.h"
@@ -173,6 +174,76 @@ flow_entry_hard_timeout(struct flow_entry *entry) {
         flow_entry_remove(entry, OFPRR_HARD_TIMEOUT);
     }
     return timeout;
+}
+
+void
+flow_entry_trigger_timeout(struct flow_entry *entry) {
+    size_t i;
+    struct ofl_instruction_header *inst;
+
+    for (i=0; i < entry->desc->instructions_num; i++) {
+        inst = entry->desc->instructions[i];
+        if(inst->type == OFPIT_STAT_TRIGGER) {
+            struct ofl_instruction_stat_trigger *oti = (struct ofl_instruction_stat_trigger *) inst;
+            struct ofl_stats * omt = (struct ofl_stats *) oti->thresholds;
+            struct ofl_stats_tlv *oft;
+            uint32_t time_s;
+            uint64_t count;
+            uint64_t new_trigger;
+            uint64_t old_trigger;
+
+            /* Check if it was a one-shot trigger that was done. */
+            if (omt->trigger_done)
+                continue;
+
+            /* Check each threshold. */
+            HMAP_FOR_EACH(oft, struct ofl_stats_tlv, hmap_node, &omt->stats_fields){
+                old_trigger = oft->last_trigger;
+                new_trigger = old_trigger;
+                switch (oft->header){
+                    case OXS_OF_DURATION:{
+                        time_s = (uint32_t) (*((uint64_t*) oft->value) >> 32);
+                        if (time_s)
+                            new_trigger = (time_msec() - entry->created) / 1000 / time_s;
+                        break;
+                    }
+                    case OXS_OF_IDLE_TIME:{
+                        time_s = (uint32_t) (*((uint64_t*) oft->value) >> 32);
+                        if (time_s)
+                            new_trigger = (time_msec() - entry->last_used) / 1000 / time_s;
+                        break;
+                    }
+                    case OXS_OF_FLOW_COUNT:{
+                        /* This one does not make sense, ignore... */
+                        break;
+                    }
+                    case OXS_OF_PACKET_COUNT:{
+                        count = *((uint64_t*) oft->value);
+                        if (count && !entry->no_pkt_count)
+                            new_trigger = entry->desc->packet_count / count;
+                        break;
+                    }
+                    case OXS_OF_BYTE_COUNT:{
+                        count = *((uint64_t*) oft->value);
+                        if (count && !entry->no_byt_count)
+                            new_trigger = entry->desc->byte_count / count;
+                        break;
+                    }
+                 }
+		if (old_trigger != new_trigger) {
+                    oft->last_trigger = new_trigger;
+                    /* If trigger is periodic, or if it is the first time
+                       we cross the trhreshold, or if count was reset... */
+                    if ((oti->flags & OFPSTF_PERIODIC) || (old_trigger == 0) || (old_trigger > new_trigger)) {
+		        VLOG_WARN(LOG_MODULE, "J2: Trigger %d.", OXS_FIELD(oft->header));
+                        if (oti->flags & OFPSTF_ONLY_FIRST) {
+                            omt->trigger_done = true;
+                        }
+                    }
+                }
+	    }
+	}
+    }
 }
 
 void
@@ -361,6 +432,7 @@ flow_entry_create(struct datapath *dp, struct flow_table *table, struct ofl_msg_
     list_init(&entry->match_node);
     list_init(&entry->idle_node);
     list_init(&entry->hard_node);
+    list_init(&entry->trigger_node);
 
     list_init(&entry->group_refs);
     init_group_refs(entry);
@@ -400,6 +472,7 @@ flow_entry_remove(struct flow_entry *entry, uint8_t reason) {
     list_remove(&entry->match_node);
     list_remove(&entry->hard_node);
     list_remove(&entry->idle_node);
+    list_remove(&entry->trigger_node);
     entry->table->stats->active_count--;
     flow_entry_destroy(entry);
 }

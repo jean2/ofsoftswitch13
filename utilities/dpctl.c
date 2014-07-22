@@ -143,7 +143,7 @@ static void
 make_all_match(struct ofl_match_header **match);
 
 static void
-parse_stats(char *str, struct ofl_stats_header **stats);
+parse_stats(char *str, struct ofl_stats_header **stats, uint32_t *flags_p);
 
 
 static int
@@ -2124,7 +2124,7 @@ parse_inst(char *str, struct ofl_instruction_header **inst) {
                     ist->header.type = OFPIT_STAT_TRIGGER;
                     ist->flags = 0;
                     ist->thresholds = NULL;
-		    parse_stats(s, &(ist->thresholds));
+		    parse_stats(s, &(ist->thresholds), &(ist->flags));
                     (*inst) = (struct ofl_instruction_header *)ist;
                     return;
                 }
@@ -2731,7 +2731,7 @@ parse32m(char *str, struct names32 *names, size_t names_num, uint32_t max, uint3
 }
 
 static void
-parse_stats(char *str, struct ofl_stats_header **stats) {
+parse_stats(char *str, struct ofl_stats_header **stats, uint32_t *flags_p) {
     char *token, *saveptr = NULL;
     struct ofl_stats *ols = xmalloc(sizeof(struct ofl_stats));
     ofl_structs_stats_init(ols);
@@ -2797,6 +2797,13 @@ parse_stats(char *str, struct ofl_stats_header **stats) {
                 ofp_fatal(0, "Error parsing stats %s: %s.", STATS_BYTE_COUNT, token);
             } else {
                 ofl_structs_stats_put64(ols, OXS_OF_BYTE_COUNT, count);
+            }
+            continue;
+        }
+
+        if (strncmp(token, FLOW_MOD_FLAGS KEY_VAL, strlen(FLOW_MOD_FLAGS KEY_VAL)) == 0) {
+            if (sscanf(token, FLOW_MOD_FLAGS KEY_VAL "0x%"SCNx32"", flags_p) != 1) {
+                ofp_fatal(0, "Error parsing %s: %s.", FLOW_MOD_FLAGS, token);
             }
             continue;
         }

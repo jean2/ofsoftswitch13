@@ -565,6 +565,10 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
                 dp_exp_inst((*pkt), (struct ofl_instruction_experimenter *)inst);
                 break;
             }
+            case OFPIT_STAT_TRIGGER: {
+                /* Nothing to do here. */
+                break;
+            }
         }
     }
 }

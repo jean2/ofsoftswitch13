@@ -48,6 +48,7 @@ struct flow_entry {
     struct list              match_node;  /* list nodes in flow table lists. */
     struct list              hard_node;
     struct list              idle_node;
+    struct list              trigger_node;
 
     struct datapath         *dp;
     struct flow_table       *table;
@@ -93,6 +94,11 @@ flow_entry_idle_timeout(struct flow_entry *entry);
  * packet is freed, flow removed message is generated, and true is returned. */
 bool
 flow_entry_hard_timeout(struct flow_entry *entry);
+
+/* Checks if the entry should sends a statistic trigger event. If so, the
+ * flow statistics message is generated. */
+void
+flow_entry_trigger_timeout(struct flow_entry *entry);
 
 /* Returns true if the flow entry has an output action to the given port. */
 bool

@@ -83,6 +83,10 @@ struct ofl_action_header actions[] = { {OFPAT_OUTPUT, 4},
  * hard and idle timeout entries, if appropriate. */
 static void
 add_to_timeout_lists(struct flow_table *table, struct flow_entry *entry) {
+
+    size_t i;
+    struct ofl_instruction_header *inst;
+
     if (entry->desc->idle_timeout > 0) {
         list_insert(&table->idle_entries, &entry->idle_node);
     }
@@ -98,6 +102,14 @@ add_to_timeout_lists(struct flow_table *table, struct flow_entry *entry) {
             }
         }
         list_insert(&e->hard_node, &entry->hard_node);
+    }
+
+    for (i=0; i < entry->desc->instructions_num; i++) {
+        inst = entry->desc->instructions[i];
+        if(inst->type == OFPIT_STAT_TRIGGER) {
+            list_insert(&table->trigger_entries, &entry->trigger_node);
+            break;
+        }
     }
 }
 
@@ -262,6 +274,10 @@ flow_table_timeout(struct flow_table *table) {
     LIST_FOR_EACH_SAFE (entry, next, struct flow_entry, idle_node, &table->idle_entries) {
         flow_entry_idle_timeout(entry);
     }
+
+    LIST_FOR_EACH_SAFE (entry, next, struct flow_entry, trigger_node, &table->trigger_entries) {
+        flow_entry_trigger_timeout(entry);
+    }
 }
 
 
@@ -391,6 +407,7 @@ flow_table_create(struct datapath *dp, uint8_t table_id) {
     list_init(&table->match_entries);
     list_init(&table->hard_entries);
     list_init(&table->idle_entries);
+    list_init(&table->trigger_entries);
 
     return table;
 }

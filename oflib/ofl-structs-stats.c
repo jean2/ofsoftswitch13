@@ -37,6 +37,7 @@ ofl_structs_stats_init(struct ofl_stats *stats){
 
     stats->header.length = 0;
     stats->stats_fields = (struct hmap) HMAP_INITIALIZER(&stats->stats_fields);
+    stats->trigger_done = false;
 }
 
 
@@ -47,6 +48,7 @@ ofl_structs_stats_put8(struct ofl_stats *stats, uint32_t header, uint8_t value){
 
     m->header = header;
     m->value = malloc(len);
+    m->last_trigger = 0ll;
     memcpy(m->value, &value, len);
     hmap_insert(&stats->stats_fields,&m->hmap_node,hash_int(header, 0));
     stats->header.length += len + 4;
@@ -59,6 +61,7 @@ ofl_structs_stats_put16(struct ofl_stats *stats, uint32_t header, uint16_t value
 
     m->header = header;
     m->value = malloc(len);
+    m->last_trigger = 0ll;
     memcpy(m->value, &value, len);
     hmap_insert(&stats->stats_fields,&m->hmap_node,hash_int(header, 0));
     stats->header.length += len + 4;
@@ -72,6 +75,7 @@ ofl_structs_stats_put32(struct ofl_stats *stats, uint32_t header, uint32_t value
 
     m->header = header;
     m->value = malloc(len);
+    m->last_trigger = 0ll;
     memcpy(m->value, &value, len);
     hmap_insert(&stats->stats_fields,&m->hmap_node,hash_int(header, 0));
     stats->header.length += len + 4;
@@ -85,6 +89,7 @@ ofl_structs_stats_put64(struct ofl_stats *stats, uint32_t header, uint64_t value
 
     m->header = header;
     m->value = malloc(len);
+    m->last_trigger = 0ll;
     memcpy(m->value, &value, len);
     hmap_insert(&stats->stats_fields,&m->hmap_node,hash_int(header, 0));
     stats->header.length += len + 4;
