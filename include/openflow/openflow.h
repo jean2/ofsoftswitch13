@@ -875,7 +875,7 @@ enum ofp_bundle_prop_type {
     OFPBPT_TIME         = 1, /*Time property*/ //ORON
 };
 
-/*Time Format*/ //OORN
+/*Time Format*/ //ORON
 struct ofp_time{
 	uint32_t seconds;
 	uint32_t nanoseconds;
@@ -1049,6 +1049,36 @@ struct ofp_bundle_features_request {
 	//struct ofp_bundle_features_prop_header properties[0];
 };
 OFP_ASSERT(sizeof(struct ofp_bundle_features_request) == 8);
+
+enum ofp_bundle_feature_flags {
+	OFPBF_TIMESTAMP = 1 << 0, /* When enabled, the current request includes a timestamp, using the time property */
+	OFPBF_TIME_SET_SCHED = 1 << 1, /* When enabled, the current request includes the sched_max_future* and sched_max_past parameters, using the time property */
+};
+
+
+/* Body of reply to OFPMP_BUNDLE_FEATURES request. */
+struct ofp_bundle_features {
+	uint32_t capabilities; /* Bitmap of "ofp_bundle_capabilities". */
+	uint8_t pad[4];
+	/* Bundle features property list - 0 or more. */
+	struct ofp_bundle_features_prop_header properties[0];
+};
+OFP_ASSERT(sizeof(struct ofp_bundle_features) == 8);
+
+/* Bundle capabilities, used in OFPMP_BUNDLE_FEATURES request. */
+enum ofp_bundle_capabilities{
+	OFPBF_ATOMIC = 1 << 0, /*Atomic execution is supported. */
+	OFPBF_ORDERED = 1 << 1, /*Ordered execution is supported. */
+	OFPBF_TIME = 1 << 2,  /*Scheduled execution is supported. */
+};
+
+
+
+
+
+
+
+
 //*****ORON*****//
 
 /* Body of reply to OFPMP_DESC request. Each entry is a NULL-terminated
