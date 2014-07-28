@@ -1050,6 +1050,13 @@ struct ofp_bundle_features_request {
 };
 OFP_ASSERT(sizeof(struct ofp_bundle_features_request) == 8);
 
+/* Bundle features property types. */
+enum ofp_bundle_features_prop_type {
+	OFPTMPBF_TIME_CAPABILITY = 0x1, /* Time feature property. */
+	OFPTMPBF_EXPERIMENTER = 0xFFFF, /* Experimenter property. */
+};
+
+
 enum ofp_bundle_feature_flags {
 	OFPBF_TIMESTAMP = 1 << 0, /* When enabled, the current request includes a timestamp, using the time property */
 	OFPBF_TIME_SET_SCHED = 1 << 1, /* When enabled, the current request includes the sched_max_future* and sched_max_past parameters, using the time property */
