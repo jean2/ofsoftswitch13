@@ -392,6 +392,9 @@ bundle_handle_control(struct datapath *dp,
 				printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg\n", ctl->bundle_id);
 					prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
 					bundle_time_ctl.sched_time.nanoseconds = prop_time->scheduled_time.nanoseconds;
+					while(bundle_time_ctl.sched_time.nanoseconds<100000000){
+							bundle_time_ctl.sched_time.nanoseconds = bundle_time_ctl.sched_time.nanoseconds*10;
+					}
 					bundle_time_ctl.sched_time.seconds     = prop_time->scheduled_time.seconds;
 					bundle_time_ctl.ctl=*ctl;
 					bundle_time_ctl.table = table;
