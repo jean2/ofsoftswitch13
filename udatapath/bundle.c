@@ -379,6 +379,7 @@ bundle_handle_control(struct datapath *dp,
             printf("Processing bundle discard of bundle ID %u\n", ctl->bundle_id);
             error = bundle_discard(table, ctl->bundle_id, ctl->flags);
             if(!error) {
+            	bundle_time_ctl.ctl.flags=0; //ORON (discard any bundle pending)
                 reply.type = OFPBCT_DISCARD_REPLY;
                 reply.bundle_id = ctl->bundle_id;
                 dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
