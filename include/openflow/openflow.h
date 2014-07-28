@@ -1032,6 +1032,25 @@ enum ofp_multipart_types {
 
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
+
+//*****ORON*****//
+struct ofp_bundle_features_prop_header {
+	uint16_t type; /* One of OFPTMPBF_*. */
+	uint16_t length; /* Length in bytes of this property. */
+};
+OFP_ASSERT(sizeof(struct ofp_bundle_features_prop_header) == 4);
+
+/* Body of OFPMP_BUNDLE_FEATURES request. */
+struct ofp_bundle_features_request {
+	uint32_t feature_request_flags;  /* Bitmap of "ofp_bundle_feature_flags". */
+	uint8_t pad[4];
+
+	/* Bundle features property list - 0 or more. */
+	//struct ofp_bundle_features_prop_header properties[0];
+};
+OFP_ASSERT(sizeof(struct ofp_bundle_features_request) == 8);
+//*****ORON*****//
+
 /* Body of reply to OFPMP_DESC request. Each entry is a NULL-terminated
 * ASCII string. */
 struct ofp_desc {
