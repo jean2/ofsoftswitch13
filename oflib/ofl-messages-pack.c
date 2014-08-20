@@ -474,6 +474,28 @@ ofl_msg_pack_multipart_request_flow(struct ofl_msg_multipart_request_flow *msg, 
     return 0;
 }
 
+//ORON(open)
+static int
+ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_bundle_features *msg, uint8_t **buf, size_t *buf_len){
+
+	struct ofp_multipart_request *req;
+	struct ofp_bundle_features_request *features;
+
+	*buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_bundle_features_request);
+    *buf = (uint8_t*) malloc(*buf_len);
+
+    req = (struct ofp_multipart_request*) (*buf);
+    features = (struct ofp_bundle_features_request*) req->body;
+
+    features->feature_request_flags = htonl(msg->feature_request_flags);
+    memset(features->pad, 0x00, 4);
+    if(msg->feature_request_flags==OFPBF_TIMESTAMP)//add this
+    	if(msg->feature_request_flags==OFPBF_TIME_SET_SCHED)
+
+    return 0;
+}
+//ORON(close)
+
 static int
 ofl_msg_pack_multipart_request_port(struct ofl_msg_multipart_request_port *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_multipart_request *req;
@@ -560,6 +582,7 @@ ofl_msg_pack_meter_multipart_request(struct ofl_msg_multipart_meter_request *msg
     return 0;
 }
 
+
 static int
 ofl_msg_pack_multipart_request_empty(struct ofl_msg_multipart_request_header *msg UNUSED, uint8_t **buf, size_t *buf_len) {
 
@@ -614,6 +637,13 @@ ofl_msg_pack_multipart_request(struct ofl_msg_multipart_request_header *msg, uin
         error = ofl_msg_pack_meter_multipart_request((struct ofl_msg_multipart_meter_request*)msg, buf, buf_len);
         break;
    }
+   //ORON(open)
+   case OFPMP_BUNDLE_FEATURES:
+	   error = ofl_msg_pack_multipart_request_bundle_features((struct ofl_msg_multipart_request_bundle_features*)msg, buf, buf_len);
+   {
+	   break;
+   }
+   //ORON(close)
    case OFPMP_METER_FEATURES:{
         error = ofl_msg_pack_multipart_request_empty(msg, buf, buf_len);
         break;
@@ -626,7 +656,7 @@ ofl_msg_pack_multipart_request(struct ofl_msg_multipart_request_header *msg, uin
         error = ofl_msg_pack_multipart_request_empty(msg, buf, buf_len);
         break;
    }
-    case OFPMP_EXPERIMENTER: {
+   case OFPMP_EXPERIMENTER: {
         if (exp == NULL || exp->stats == NULL || exp->stats->req_pack == NULL) {
             OFL_LOG_WARN(LOG_MODULE, "Trying to pack experimenter stat req, but no callback was given.");
             error = -1;

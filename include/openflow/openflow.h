@@ -1033,7 +1033,7 @@ enum ofp_multipart_types {
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
 
-//*****ORON*****//
+//ORON(open)
 struct ofp_bundle_features_prop_header {
 	uint16_t type; /* One of OFPTMPBF_*. */
 	uint16_t length; /* Length in bytes of this property. */
@@ -1046,7 +1046,7 @@ struct ofp_bundle_features_request {
 	uint8_t pad[4];
 
 	/* Bundle features property list - 0 or more. */
-	//struct ofp_bundle_features_prop_header properties[0];
+	struct ofp_bundle_features_prop_header properties[0];
 };
 OFP_ASSERT(sizeof(struct ofp_bundle_features_request) == 8);
 
@@ -1056,6 +1056,20 @@ enum ofp_bundle_features_prop_type {
 	OFPTMPBF_EXPERIMENTER = 0xFFFF, /* Experimenter property. */
 };
 
+struct ofp_bundle_features_prop_time {
+	uint16_t type;/* OFPTMPBF_TIME_CAPABILITY. */
+	uint16_t length; /* Length in bytes of this property. */
+	uint8_t pad[4];
+	struct ofp_time sched_accuracy;   /* The scheduling accuracy, i.e., how accurately the switch can
+									   *perform a scheduled commit. This field is used only in bundle
+									   *features replies, and is ignored in bundle features requests.*/
+	struct ofp_time sched_max_future; /*The maximal difference between the
+									   *scheduling time and the current time.*/
+	struct ofp_time sched_max_past;   /*If the scheduling time occurs in the past, defines the maximal
+								       *difference between the current time and the scheduling time.*/
+	struct ofp_time timestamp;        /*Indicates the time during the transmission of this message.*/
+};
+OFP_ASSERT(sizeof(struct ofp_bundle_features_prop_time) == 40);
 
 enum ofp_bundle_feature_flags {
 	OFPBF_TIMESTAMP = 1 << 0, /* When enabled, the current request includes a timestamp, using the time property */
@@ -1072,21 +1086,14 @@ struct ofp_bundle_features {
 };
 OFP_ASSERT(sizeof(struct ofp_bundle_features) == 8);
 
-/* Bundle capabilities, used in OFPMP_BUNDLE_FEATURES request. */
-enum ofp_bundle_capabilities{
-	OFPBF_ATOMIC = 1 << 0, /*Atomic execution is supported. */
-	OFPBF_ORDERED = 1 << 1, /*Ordered execution is supported. */
-	OFPBF_TIME = 1 << 2,  /*Scheduled execution is supported. */
-};
+///* Bundle capabilities, used in OFPMP_BUNDLE_FEATURES request. */
+//enum ofp_bundle_capabilities{
+//	OFPBF_ATOMIC = 1 << 0, /*Atomic execution is supported. */
+//	OFPBF_ORDERED = 1 << 1, /*Ordered execution is supported. */
+//	OFPBF_TIME = 1 << 2,  /*Scheduled execution is supported. */
+//};
 
-
-
-
-
-
-
-
-//*****ORON*****//
+//ORON(close)
 
 /* Body of reply to OFPMP_DESC request. Each entry is a NULL-terminated
 * ASCII string. */

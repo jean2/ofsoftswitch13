@@ -344,6 +344,14 @@ struct ofl_msg_multipart_request_experimenter {
 
     uint32_t   experimenter_id;
 };
+//ORON(open)
+struct ofl_msg_multipart_request_bundle_features {
+    struct ofl_msg_multipart_request_header   header; /* OFPMP_EXPERIMENTER */
+
+    uint32_t feature_request_flags;
+};
+//ORON(close)
+
 
 struct ofl_msg_multipart_reply_header {
     struct ofl_msg_header   header; /* OFPT_MULTIPART_REPLY */

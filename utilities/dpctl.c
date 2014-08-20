@@ -1011,6 +1011,17 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
     dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
 }
 
+// ORON (open)
+static void
+bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
+    struct ofl_msg_multipart_request_header req =
+            {{.type = OFPT_MULTIPART_REQUEST},
+             .type = OFPMP_BUNDLE_FEATURES, .flags = bundle_flags};
+    printf("bundle feature request experimental\n");
+    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+}
+// ORON (close)
+
 static struct command all_commands[] = {
     {"ping", 0, 2, ping},
     {"monitor", 0, 0, monitor},
@@ -1043,7 +1054,8 @@ static struct command all_commands[] = {
 
     {"queue-mod", 3, 3, queue_mod},
     {"queue-del", 2, 2, queue_del},
-    {"bundle", 1, 2, bundle_control}//ORON change nuber of min max arg 
+    {"bundle", 1, 2, bundle_control},//ORON change number of min max arg
+    {"bundle-feature",0,1,bundle_feature_req},//ORON 1 flag argument
 };
 
 
