@@ -335,7 +335,32 @@ bundle_commit(struct datapath *dp,
 
     return last_error;
 }
+//ORON(open)
+ofl_err
+bundle_handle_features_request(struct datapath *dp,
+        struct bundle_table *table,
+        struct ofl_msg_multipart_request_bundle_features *req,
+        const struct sender *sender) {
 
+	struct ofl_msg_multipart_request_bundle_features reply=
+	 {{.type = OFPMP_BUNDLE_FEATURES}};
+    ofl_err error;
+
+    if(sender->remote->role == OFPCR_ROLE_SLAVE) {
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
+    }
+    else{
+    	OFPMP_BUNDLE_FEATURES
+    	dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
+        ofl_msg_free((struct ofl_msg_header *)req, dp->exp);
+    }
+
+
+	printf("BUNDLE HANDE FEATURE REQ REIVEID!!!!!");
+	return 0;
+
+}
+//ORON(close)
 /* Handle bundle control operations: open, close, discard, commit. */
 ofl_err
 bundle_handle_control(struct datapath *dp,

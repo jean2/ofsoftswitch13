@@ -277,6 +277,7 @@ ofl_msg_print_stats_request_group(struct ofl_msg_multipart_request_group *msg, F
     fprintf(stream, "\"");
 }
 
+
 static void
 ofl_msg_print_table_features_request(struct ofl_msg_multipart_request_table_features* msg, FILE *stream){
 
@@ -361,8 +362,16 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
         case OFPMP_PORT_DESC:{
             break;
         }
+        //ORON(open)
+        case OFPMP_BUNDLE_FEATURES:{
+            fprintf(stream, "ADD HERE BUNDLE FEATURE REQESUTS PRINT");
+            fprintf(stream, "\"");
+            break;
+        }
+        //ORON(close)
         case OFPMP_EXPERIMENTER: {
             ofl_msg_print_stats_request_experimenter((struct ofl_msg_multipart_request_experimenter *)msg, stream);
+            break;
         }
     }
     fprintf(stream, "}");

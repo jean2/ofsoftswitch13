@@ -945,6 +945,27 @@ ofl_msg_unpack_meter_multipart_request(struct ofp_multipart_request *os, size_t 
     *msg = (struct ofl_msg_header *)dm;
     return 0;
 }
+//ORON(open)
+static ofl_err
+ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *os, size_t *len, struct ofl_msg_header **msg) {
+//    struct ofp_meter_multipart_request *sm;
+//    struct ofl_msg_multipart_meter_request *dm;
+	struct ofp_bundle_features_request *sm;
+	struct ofl_msg_multipart_request_bundle_features *dm;
+
+
+	// TODO: add len check and error with invalid length
+    *len -= sizeof(struct ofp_bundle_features_request);
+
+    sm = (struct ofp_bundle_features_request *)os->body;
+    dm = (struct ofl_msg_multipart_request_bundle_features *) malloc(sizeof(struct ofl_msg_multipart_request_bundle_features));
+
+    dm->feature_request_flags = ntohl(sm->feature_request_flags);
+
+    *msg = (struct ofl_msg_header *)dm;
+    return 0;
+}
+//ORON(close)
 
 static ofl_err
 ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *len, struct ofl_msg_header **msg, struct ofl_exp *exp) {
@@ -1020,8 +1041,15 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             }
             break;
         }
+        //ORON(open)
+        case OFPMP_BUNDLE_FEATURES:{
+     	   error = ofl_msg_unpack_multipart_request_bundle_features(os, len, msg);
+     	   break;
+        }
+        //ORON(close)
         default: {
             error = ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_MULTIPART);
+            break;
         }
     }
 

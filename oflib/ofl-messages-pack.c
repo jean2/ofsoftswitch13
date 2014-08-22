@@ -489,8 +489,8 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
 
     features->feature_request_flags = htonl(msg->feature_request_flags);
     memset(features->pad, 0x00, 4);
-    if(msg->feature_request_flags==OFPBF_TIMESTAMP)//add this
-    	if(msg->feature_request_flags==OFPBF_TIME_SET_SCHED)
+//    if(msg->feature_request_flags==OFPBF_TIMESTAMP)//add this
+//    	if(msg->feature_request_flags==OFPBF_TIME_SET_SCHED)
 
     return 0;
 }
@@ -638,9 +638,8 @@ ofl_msg_pack_multipart_request(struct ofl_msg_multipart_request_header *msg, uin
         break;
    }
    //ORON(open)
-   case OFPMP_BUNDLE_FEATURES:
+   case OFPMP_BUNDLE_FEATURES:{
 	   error = ofl_msg_pack_multipart_request_bundle_features((struct ofl_msg_multipart_request_bundle_features*)msg, buf, buf_len);
-   {
 	   break;
    }
    //ORON(close)
