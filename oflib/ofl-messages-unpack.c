@@ -161,6 +161,25 @@ ofl_msg_unpack_get_config_reply(struct ofp_header *src, size_t *len, struct ofl_
     return 0;
 }
 
+//ORON(open)
+static ofl_err
+ofl_msg_unpack_relpy_bundle_feature(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
+	 struct ofp_bundle_features *sr;
+	 struct ofl_msg_multipart_relpy_bundle_features *dr;
+
+	 //TODO:add len (check of length)
+	 *len -= sizeof(struct ofp_bundle_features_prop_header);
+
+	 sr = (struct ofp_bundle_features *)src;
+	 dr = (struct ofl_msg_multipart_relpy_bundle_features *)malloc(sizeof(struct ofl_msg_multipart_relpy_bundle_features));
+
+	 dr->capabilities = ntohs(sr->capabilities);
+
+	 *msg = (struct ofl_msg_header *)dr;
+     return 0;
+}
+//ORON(close)
+
 static ofl_err
 ofl_msg_unpack_set_config(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
     struct ofp_switch_config *sr;
@@ -183,6 +202,7 @@ ofl_msg_unpack_set_config(struct ofp_header *src, size_t *len, struct ofl_msg_he
      *msg = (struct ofl_msg_header *)dr;
      return 0;
 }
+
 
 static ofl_err 
 ofl_msg_unpack_async_config(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg){
@@ -948,11 +968,8 @@ ofl_msg_unpack_meter_multipart_request(struct ofp_multipart_request *os, size_t 
 //ORON(open)
 static ofl_err
 ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *os, size_t *len, struct ofl_msg_header **msg) {
-//    struct ofp_meter_multipart_request *sm;
-//    struct ofl_msg_multipart_meter_request *dm;
 	struct ofp_bundle_features_request *sm;
 	struct ofl_msg_multipart_request_bundle_features *dm;
-
 
 	// TODO: add len check and error with invalid length
     *len -= sizeof(struct ofp_bundle_features_request);
@@ -1552,6 +1569,12 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_multipart_reply_meter_config(os, len, msg);
             break;
         }
+        //ORON(open)
+        case OFPMP_BUNDLE_FEATURES:{
+        	error = ofl_msg_unpack_relpy_bundle_feature(os, len, msg);
+        	break;
+        }
+        //ORON(close)
         case OFPMP_METER_FEATURES:{
             error = ofl_msg_unpack_multipart_reply_meter_features(os, len, msg);
             break;

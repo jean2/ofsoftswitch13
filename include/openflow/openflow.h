@@ -1079,8 +1079,8 @@ enum ofp_bundle_feature_flags {
 
 /* Body of reply to OFPMP_BUNDLE_FEATURES request. */
 struct ofp_bundle_features {
-	uint32_t capabilities; /* Bitmap of "ofp_bundle_capabilities". */
-	uint8_t pad[4];
+	uint16_t capabilities; /* Bitmap of "ofp_bundle_flags". */
+	uint8_t pad[6];
 	/* Bundle features property list - 0 or more. */
 	struct ofp_bundle_features_prop_header properties[0];
 };

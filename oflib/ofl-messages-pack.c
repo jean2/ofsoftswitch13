@@ -487,7 +487,7 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
     req = (struct ofp_multipart_request*) (*buf);
     features = (struct ofp_bundle_features_request*) req->body;
 
-    features->feature_request_flags = htonl(msg->feature_request_flags);
+    features->feature_request_flags = htons(msg->feature_request_flags);
     memset(features->pad, 0x00, 4);
 //    if(msg->feature_request_flags==OFPBF_TIMESTAMP)//add this
 //    	if(msg->feature_request_flags==OFPBF_TIME_SET_SCHED)
@@ -892,6 +892,26 @@ ofl_msg_pack_multipart_reply_meter_stats(struct ofl_msg_multipart_reply_meter *m
     return 0;
 }
 
+//ORON(open)
+static int
+ofl_msg_pack_multipart_reply_bundle_features(struct ofl_msg_multipart_relpy_bundle_features *msg, uint8_t **buf, size_t *buf_len) {
+    struct ofp_multipart_reply *resp;
+    struct ofp_bundle_features *features;
+
+    *buf_len = sizeof(struct ofp_multipart_reply)+sizeof(struct ofp_bundle_features);
+    *buf     = (uint8_t *)malloc(*buf_len);
+    resp = (struct ofp_multipart_reply *)(*buf);
+
+    features = (struct ofp_bundle_features*) resp->body;
+
+    features->capabilities = htons(msg->capabilities);
+    memset(features->pad, 0x00, 6);
+
+    return 0;
+}
+//ORON(close)
+
+
 static int
 ofl_msg_pack_multipart_reply_meter_conf(struct ofl_msg_multipart_reply_meter_conf *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_multipart_reply *resp;
@@ -1011,6 +1031,12 @@ ofl_msg_pack_multipart_reply(struct ofl_msg_multipart_reply_header *msg, uint8_t
 			error = ofl_msg_pack_multipart_reply_port_status_desc((struct ofl_msg_multipart_reply_port_desc*)msg, buf, buf_len);
 			break;
 		}
+		//ORON(open)
+		case OFPMP_BUNDLE_FEATURES:{
+			error = ofl_msg_pack_multipart_reply_bundle_features((struct ofl_msg_multipart_relpy_bundle_features *)msg, buf, buf_len);
+			break;
+		}
+		//ORON(close)
         case OFPMP_EXPERIMENTER: {
             if (exp == NULL || exp->stats == NULL || exp->stats->reply_pack == NULL) {
                 OFL_LOG_WARN(LOG_MODULE, "Trying to pack experimenter stat resp, but no callback was given.");

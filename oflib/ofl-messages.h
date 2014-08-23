@@ -350,6 +350,12 @@ struct ofl_msg_multipart_request_bundle_features {
 
     uint32_t feature_request_flags;
 };
+
+struct ofl_msg_multipart_relpy_bundle_features {
+    struct ofl_msg_multipart_request_header   header;
+
+    uint16_t capabilities;
+};
 //ORON(close)
 
 

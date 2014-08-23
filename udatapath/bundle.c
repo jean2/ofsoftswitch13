@@ -342,15 +342,16 @@ bundle_handle_features_request(struct datapath *dp,
         struct ofl_msg_multipart_request_bundle_features *req,
         const struct sender *sender) {
 
-	struct ofl_msg_multipart_request_bundle_features reply=
-	 {{.type = OFPMP_BUNDLE_FEATURES}};
+	struct ofl_msg_multipart_relpy_bundle_features reply=
+    {{{.type = OFPT_MULTIPART_REPLY},
+      .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000}};
     ofl_err error;
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE) {
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
     }
     else{
-    	OFPMP_BUNDLE_FEATURES
+//    	reply.type =OFPMP_BUNDLE_FEATURES;
     	dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
         ofl_msg_free((struct ofl_msg_header *)req, dp->exp);
     }
