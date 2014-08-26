@@ -2843,12 +2843,14 @@ set_table_features_match(struct vconn *vconn, int argc, char *argv[]) {
 
     }
 
+#if 0
     {
       int features_len;
       printf("\nJII table-num:%zu\n", table_feat->tables_num);
       features_len = ofl_structs_table_features_ofp_total_len(table_feat->table_features, table_feat->tables_num, NULL);
       printf("\nJII features_len:%d\n", features_len);
     }
+#endif
 
     /* Turn the reply into a request */
     table_feat->header.header.type = OFPT_MULTIPART_REQUEST;
@@ -2893,7 +2895,9 @@ set_table_features_match(struct vconn *vconn, int argc, char *argv[]) {
 	if (error) {
 	  ofp_fatal(0, "Error packing request.");
 	}
+#if 0
 	printf("\nJII-req-pack:%zu\n", bufreq_size);
+#endif
 
 	ofpbufreq = ofpbuf_new(0);
 	ofpbuf_use(ofpbufreq, bufreq, bufreq_size);
