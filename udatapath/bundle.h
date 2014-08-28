@@ -91,4 +91,12 @@ bundle_handle_add_msg(struct bundle_table *table,
                       struct ofl_msg_bundle_add_msg *add_msg,
                       const struct sender *sender);
 
+//ORON(open)
+ofl_err
+bundle_handle_features_request(struct datapath *dp,
+        struct bundle_table *table,
+        struct ofl_msg_multipart_request_bundle_features *req,
+        const struct sender *sender);
+//ORON(close)
+
 #endif /* BUNDLE_H */

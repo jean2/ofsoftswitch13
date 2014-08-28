@@ -345,7 +345,8 @@ bundle_handle_features_request(struct datapath *dp,
 	struct ofl_msg_multipart_relpy_bundle_features reply=
     {{{.type = OFPT_MULTIPART_REPLY},
       .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000}};
-    ofl_err error;
+//	reply.capabilities = OFPBF_ATOMIC | OFPBF_ORDERED|OFPBF_TIME;
+
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE) {
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
@@ -415,6 +416,7 @@ bundle_handle_control(struct datapath *dp,
         }
         case OFPBCT_COMMIT_REQUEST: {
         	switch (ctl->flags){ //ORON
+        	//ORON(open)
         		case OFPBF_TIME:{//ORON
 				printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg\n", ctl->bundle_id);
 					prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
@@ -428,18 +430,18 @@ bundle_handle_control(struct datapath *dp,
 					bundle_time_ctl.remote=sender->remote;
 					bundle_time_ctl.conn_id=sender->conn_id;
 					bundle_time_ctl.xid=sender->xid;
-					//empty reply back TODO ORON : ask Tal
+					//empty reply back TODO ORON : ask Tal TODO: check here time sched ok!
 						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//ORON ? maybe
 				return 0;
 				break;
-				}//ORON
+				}
         		default:{
 					printf("Processing bundle commit of bundle ID %u\n", ctl->bundle_id);
 					error = bundle_commit(dp, table, ctl->bundle_id, ctl->flags, sender);
 					if(!error) {
 						reply.type = OFPBCT_COMMIT_REPLY;
 						reply.bundle_id = ctl->bundle_id;
-						if(!bundle_time_ctl.commiting_now){//ORON
+						if(!bundle_time_ctl.commiting_now){
 							dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
 							ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);
 						}
@@ -448,6 +450,7 @@ bundle_handle_control(struct datapath *dp,
         		}
         	}
         }
+        //ORON(close)
         default: {
             return ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_BAD_TYPE);
         }

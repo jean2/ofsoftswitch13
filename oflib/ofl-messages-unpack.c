@@ -163,19 +163,17 @@ ofl_msg_unpack_get_config_reply(struct ofp_header *src, size_t *len, struct ofl_
 
 //ORON(open)
 static ofl_err
-ofl_msg_unpack_relpy_bundle_feature(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
-	 struct ofp_bundle_features *sr;
-	 struct ofl_msg_multipart_relpy_bundle_features *dr;
+ofl_msg_unpack_relpy_bundle_feature(struct ofp_multipart_reply *os, size_t *len, struct ofl_msg_header **msg) {
+	 struct ofp_bundle_features *src;
+	 struct ofl_msg_multipart_relpy_bundle_features *dst;
 
 	 //TODO:add len (check of length)
-	 *len -= sizeof(struct ofp_bundle_features_prop_header);
+	 *len -= sizeof(struct ofp_bundle_features);
+	 src  = (struct ofp_bundle_features *) os->body;
+	 dst  = (struct ofl_msg_multipart_relpy_bundle_features *)malloc(sizeof(struct ofl_msg_multipart_relpy_bundle_features));
 
-	 sr = (struct ofp_bundle_features *)src;
-	 dr = (struct ofl_msg_multipart_relpy_bundle_features *)malloc(sizeof(struct ofl_msg_multipart_relpy_bundle_features));
-
-	 dr->capabilities = ntohs(sr->capabilities);
-
-	 *msg = (struct ofl_msg_header *)dr;
+	 dst->capabilities = ntohs(src->capabilities);
+	 *msg = (struct ofl_msg_header *) dst;
      return 0;
 }
 //ORON(close)

@@ -303,10 +303,13 @@ ofl_msg_print_stats_request_experimenter(struct ofl_msg_multipart_request_experi
 //ORON(open)
 static void
 ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_features *msg, FILE *stream) {
-    fprintf(stream, "{type=%s,bundle_id=%d}",
+    fprintf(stream, "{type=%s,flags=%s,bundle_id=%d}",
             (msg->header.type == OFPMP_BUNDLE_FEATURES)  ? "FEATURES_REQUEST" :
-           // (msg->type == OFPBCT_OPEN_REPLY)      ? "OPEN_REPLY" :
-            "???",-1);
+            "???",
+            (msg->feature_request_flags == OFPBF_TIMESTAMP)      ? "OFPBF_TIMESTAMP" :
+            (msg->feature_request_flags == OFPBF_TIME_SET_SCHED) ? "OFPBF_TIME_SET_SCHED" :
+            "???",
+            -1);
     //        msg->bundle_id); TODO:support multiple bundles
 }
 //ORON(close)
@@ -314,12 +317,20 @@ ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_featur
 //ORON(open)
 static void
 ofl_msg_print_bundle_features_reply(struct ofl_msg_multipart_relpy_bundle_features *msg, FILE *stream) {
-    fprintf(stream, "{type=%s,bundle_id=%d}",
+    fprintf(stream, "{type=%s,bundle_id=%d",
             (msg->header.type == OFPMP_BUNDLE_FEATURES)  ? "FEATURES_REPLY" :
-           // (msg->type == OFPBCT_OPEN_REPLY)      ? "OPEN_REPLY" :
             "???",-1);
-    //        msg->bundle_id); TODO:support multiple bundles
-}
+    fprintf(stream, ",capabilities=");
+    if(msg->capabilities   > 0){
+        if(((msg->capabilities )& OFPBF_ATOMIC  )>0) {fprintf(stream,"OFPBF_ATOMIC,");};
+    	if(((msg->capabilities )& OFPBF_ORDERED )>0) {fprintf(stream,"OFPBF_ORDERED,");};
+    	if(((msg->capabilities )& OFPBF_TIME    )>0) {fprintf(stream,"OFPBF_TIME,");};
+    }
+    else{
+    	fprintf(stream,"0");
+    };
+    fprintf(stream, "}");
+};
 //ORON(close)
 
 static void

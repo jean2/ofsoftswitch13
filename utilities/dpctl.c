@@ -981,7 +981,7 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
             prop_time->scheduled_time.nanoseconds=bundle_time_nsec;
             prop_time->scheduled_time.seconds    =bundle_time_sec;
 
-            req.properties = &prop_time;
+            req.properties = &prop_time;//TODO : casting?
             printf("Dcptl send bundle commit in time = %lu.%lu, flag = %d (make sure if T>0 then f=4)\n",bundle_time_sec,bundle_time_nsec,bundle_flags);//ORON
             req.bundle_id = bundle_id;
             req.flags = bundle_flags;
@@ -1014,11 +1014,30 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 // ORON (open)
 static void
 bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
-    struct ofl_msg_multipart_request_header req =
-            {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_BUNDLE_FEATURES, .flags = bundle_flags};
-    printf("bundle feature request experimental\n");
-    dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+	struct ofl_msg_multipart_request_bundle_features req =
+			{{{.type = OFPT_MULTIPART_REQUEST},
+			   .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000}};//flags here are for more multipart messages
+    struct ofp_bundle_features_prop_time *features; //ORON
+
+	req.feature_request_flags = bundle_flags;
+	if((bundle_flags & OFPBF_TIMESTAMP) | (bundle_flags & OFPBF_TIME_SET_SCHED)){
+		features = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
+		features->type                         = OFPTMPBF_TIME_CAPABILITY; //TODO: ask tal
+		features->length                       = sizeof(struct ofp_bundle_features_prop_time);
+		features->sched_accuracy.seconds       = 1;
+		features->sched_accuracy.nanoseconds   = 2;
+		features->sched_max_future.seconds     = 3;
+		features->sched_max_future.nanoseconds = 4;
+		features->sched_max_past.seconds       = 5;
+		features->sched_max_past.nanoseconds   = 6;
+		features->timestamp.seconds            = 7;
+		features->timestamp.nanoseconds        = 8;
+		req.features = &features;
+	}
+
+	dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
+
+
 }
 // ORON (close)
 

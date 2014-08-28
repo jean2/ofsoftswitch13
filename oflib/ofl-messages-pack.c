@@ -480,17 +480,51 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
 
 	struct ofp_multipart_request *req;
 	struct ofp_bundle_features_request *features;
+	struct ofp_bundle_features_prop_time *features_prop_time ,*features_prop_time_aux;
 
-	*buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_bundle_features_request);
-    *buf = (uint8_t*) malloc(*buf_len);
 
-    req = (struct ofp_multipart_request*) (*buf);
-    features = (struct ofp_bundle_features_request*) req->body;
+	if((msg->feature_request_flags & OFPBF_TIMESTAMP) | (msg->feature_request_flags & OFPBF_TIME_SET_SCHED)){
 
-    features->feature_request_flags = htons(msg->feature_request_flags);
-    memset(features->pad, 0x00, 4);
-//    if(msg->feature_request_flags==OFPBF_TIMESTAMP)//add this
-//    	if(msg->feature_request_flags==OFPBF_TIME_SET_SCHED)
+		*buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_bundle_features_request)+sizeof(struct ofp_bundle_features_prop_time);
+		*buf = (uint8_t*) malloc(*buf_len);
+
+		req = (struct ofp_multipart_request*) (*buf);
+		features = (struct ofp_bundle_features_request*) req->body;
+
+		features->feature_request_flags = htons(msg->feature_request_flags);
+		memset(features->pad, 0x00, 4);
+
+		features_prop_time_aux     = (struct ofp_bundle_features_prop_time *)*(msg->features); //pointer to "ofl" features struct
+		features_prop_time         = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
+		features_prop_time->type   = htons(features_prop_time_aux->type);
+		features_prop_time->length = htons(features_prop_time_aux->length);
+		features_prop_time->pad[0] = 0;
+		features_prop_time->pad[1] = 0;
+		features_prop_time->pad[2] = 0;
+		features_prop_time->pad[3] = 0;
+		features_prop_time->sched_accuracy.seconds       = htonl(features_prop_time->sched_accuracy.seconds);
+		features_prop_time->sched_accuracy.nanoseconds   = htonl(features_prop_time->sched_accuracy.nanoseconds);
+		features_prop_time->sched_max_future.seconds     = htonl(features_prop_time->sched_max_future.seconds);
+		features_prop_time->sched_max_future.nanoseconds = htonl(features_prop_time->sched_max_future.nanoseconds);
+		features_prop_time->sched_max_past.seconds       = htonl(features_prop_time->sched_max_past.seconds);
+		features_prop_time->sched_max_past.nanoseconds   = htonl(features_prop_time->sched_max_past.nanoseconds);
+		features_prop_time->timestamp.seconds            = htonl(features_prop_time->timestamp.seconds);
+		features_prop_time->timestamp.nanoseconds        = htonl(features_prop_time->timestamp.nanoseconds);
+
+//		ptr = (*buf) + sizeof(struct ofp_multipart_request) + sizeof(struct ofp_bundle_features_request);
+		memcpy(features->properties, features_prop_time ,sizeof(struct ofp_bundle_features_prop_time));
+		free(features_prop_time);
+
+	}
+	else{
+		*buf_len = sizeof(struct ofp_multipart_request) + sizeof(struct ofp_bundle_features_request);
+		*buf = (uint8_t*) malloc(*buf_len);
+		req = (struct ofp_multipart_request*) (*buf);
+		features = (struct ofp_bundle_features_request*) req->body;
+
+		features->feature_request_flags = htons(msg->feature_request_flags);
+		memset(features->pad, 0x00, 4);
+    }
 
     return 0;
 }
@@ -903,6 +937,7 @@ ofl_msg_pack_multipart_reply_bundle_features(struct ofl_msg_multipart_relpy_bund
     resp = (struct ofp_multipart_reply *)(*buf);
 
     features = (struct ofp_bundle_features*) resp->body;
+
 
     features->capabilities = htons(msg->capabilities);
     memset(features->pad, 0x00, 6);

@@ -349,6 +349,7 @@ struct ofl_msg_multipart_request_bundle_features {
     struct ofl_msg_multipart_request_header   header; /* OFPMP_EXPERIMENTER */
 
     uint32_t feature_request_flags;
+    struct ofp_bundle_features_prop_header **features;
 };
 
 struct ofl_msg_multipart_relpy_bundle_features {
