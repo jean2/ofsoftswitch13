@@ -491,7 +491,7 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
 		req = (struct ofp_multipart_request*) (*buf);
 		features = (struct ofp_bundle_features_request*) req->body;
 
-		features->feature_request_flags = htons(msg->feature_request_flags);
+		features->feature_request_flags = htonl(msg->feature_request_flags);
 		memset(features->pad, 0x00, 4);
 
 		features_prop_time_aux     = (struct ofp_bundle_features_prop_time *)*(msg->features); //pointer to "ofl" features struct

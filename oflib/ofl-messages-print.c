@@ -303,14 +303,19 @@ ofl_msg_print_stats_request_experimenter(struct ofl_msg_multipart_request_experi
 //ORON(open)
 static void
 ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_features *msg, FILE *stream) {
-    fprintf(stream, "{type=%s,flags=%s,bundle_id=%d}",
+    fprintf(stream, "{type=%s,",
             (msg->header.type == OFPMP_BUNDLE_FEATURES)  ? "FEATURES_REQUEST" :
-            "???",
-            (msg->feature_request_flags == OFPBF_TIMESTAMP)      ? "OFPBF_TIMESTAMP" :
-            (msg->feature_request_flags == OFPBF_TIME_SET_SCHED) ? "OFPBF_TIME_SET_SCHED" :
-            "???",
-            -1);
-    //        msg->bundle_id); TODO:support multiple bundles
+            "???");
+    fprintf(stream,"flags=");
+    if(msg->feature_request_flags >0){
+    	if(((msg->feature_request_flags)& OFPBF_TIMESTAMP) >0)      {fprintf(stream,"OFPBF_TIMESTAMP,");};
+    	if(((msg->feature_request_flags)& OFPBF_TIME_SET_SCHED) >0) {fprintf(stream,"OFPBF_TIME_SET_SCHED,");};
+    }
+    else{
+    	fprintf(stream,"0");
+    }
+    fprintf(stream,"bundle_id=-1}");//msg->bundle_id
+
 }
 //ORON(close)
 
@@ -327,7 +332,7 @@ ofl_msg_print_bundle_features_reply(struct ofl_msg_multipart_relpy_bundle_featur
     	if(((msg->capabilities )& OFPBF_TIME    )>0) {fprintf(stream,"OFPBF_TIME,");};
     }
     else{
-    	fprintf(stream,"0");
+    	fprintf(stream,"0,");
     };
     fprintf(stream, "}");
 };

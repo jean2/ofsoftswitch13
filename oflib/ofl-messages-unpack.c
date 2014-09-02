@@ -699,8 +699,8 @@ static ofl_err
 ofl_msg_unpack_bundle_control(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
     struct ofp_bundle_control *sm;
     struct ofl_msg_bundle_control *dm;
-    struct ofp_bundle_prop_time *prop_time;
-    struct ofp_bundle_prop_time *prop_time_aux;
+    struct ofp_bundle_prop_time *prop_time;//ORON
+    struct ofp_bundle_prop_time *prop_time_aux;//ORON
 
     if (*len < sizeof(struct ofp_bundle_control)) {
         OFL_LOG_WARN(LOG_MODULE, "Received BUNDLE_CONTROL message has invalid length (%zu).", *len);
@@ -968,6 +968,7 @@ static ofl_err
 ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *os, size_t *len, struct ofl_msg_header **msg) {
 	struct ofp_bundle_features_request *sm;
 	struct ofl_msg_multipart_request_bundle_features *dm;
+	struct ofp_bundle_features_prop_time *features_prop_time ,*features_prop_time_aux;
 
 	// TODO: add len check and error with invalid length
     *len -= sizeof(struct ofp_bundle_features_request);
@@ -977,6 +978,30 @@ ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *o
 
     dm->feature_request_flags = ntohl(sm->feature_request_flags);
 
+    if((dm->feature_request_flags & OFPBF_TIMESTAMP)) {
+    	*len -= sizeof(struct ofp_bundle_features_prop_time);
+
+    	features_prop_time_aux  = sm->properties;
+    	features_prop_time         = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
+		features_prop_time->type   = ntohs(features_prop_time_aux->type);
+		features_prop_time->length = ntohs(features_prop_time_aux->length);
+		features_prop_time->sched_accuracy.seconds       = ntohl(features_prop_time->sched_accuracy.seconds);
+		features_prop_time->sched_accuracy.nanoseconds   = ntohl(features_prop_time->sched_accuracy.nanoseconds);
+		features_prop_time->sched_max_future.seconds     = ntohl(features_prop_time->sched_max_future.seconds);
+		features_prop_time->sched_max_future.nanoseconds = ntohl(features_prop_time->sched_max_future.nanoseconds);
+		features_prop_time->sched_max_past.seconds       = ntohl(features_prop_time->sched_max_past.seconds);
+		features_prop_time->sched_max_past.nanoseconds   = ntohl(features_prop_time->sched_max_past.nanoseconds);
+		features_prop_time->timestamp.seconds            = ntohl(features_prop_time->timestamp.seconds);
+		features_prop_time->timestamp.nanoseconds        = ntohl(features_prop_time->timestamp.nanoseconds);
+
+		printf('%u,%u,%u,%u'
+				,features_prop_time->sched_accuracy.seconds
+				,features_prop_time->sched_accuracy.nanoseconds
+				,features_prop_time->sched_max_future.seconds
+				);
+
+
+    }
     *msg = (struct ofl_msg_header *)dm;
     return 0;
 }
