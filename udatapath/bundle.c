@@ -344,9 +344,26 @@ bundle_handle_features_request(struct datapath *dp,
 
 	struct ofl_msg_multipart_relpy_bundle_features reply=
     {{{.type = OFPT_MULTIPART_REPLY},
-      .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000}};
-//	reply.capabilities = OFPBF_ATOMIC | OFPBF_ORDERED|OFPBF_TIME;
+      .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000},.capabilities=0};
+	struct ofp_bundle_features_prop_time *features_prop_time  = (struct ofp_bundle_features_prop_time *)(*req->features);
 
+	reply.capabilities = OFPBF_ATOMIC | OFPBF_ORDERED | OFPBF_TIME;
+	if(req->feature_request_flags & OFPBF_TIMESTAMP){
+
+
+		printf("\nBUNDLE HANDE FEATURE REQ REIVEID OFPBF_TIMESTAMP!!!!!\n");
+		printf("length %d\n",features_prop_time->length);
+		printf("type %d\n",features_prop_time->type);
+		printf("%lu\n",features_prop_time->sched_accuracy.seconds);
+		printf("%d\n",features_prop_time->sched_accuracy.nanoseconds);
+		printf("%d\n",features_prop_time->sched_max_future.seconds);
+		printf("%d\n",features_prop_time->sched_max_future.nanoseconds);
+		printf("%d\n",features_prop_time->sched_max_past.seconds);
+		printf("%d\n",features_prop_time->sched_max_past.nanoseconds);
+		printf("%d\n",features_prop_time->timestamp.seconds);
+		printf("%d\n",features_prop_time->timestamp.nanoseconds);
+		fflush(stdout);
+	}
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE) {
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
@@ -358,7 +375,7 @@ bundle_handle_features_request(struct datapath *dp,
     }
 
 
-	printf("BUNDLE HANDE FEATURE REQ REIVEID!!!!!");
+
 	return 0;
 
 }

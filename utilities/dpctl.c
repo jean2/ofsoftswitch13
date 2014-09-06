@@ -1024,14 +1024,14 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 		features = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
 		features->type                         = OFPTMPBF_TIME_CAPABILITY; //TODO: ask tal
 		features->length                       = sizeof(struct ofp_bundle_features_prop_time);
-		features->sched_accuracy.seconds       = 1;
-		features->sched_accuracy.nanoseconds   = 2;
-		features->sched_max_future.seconds     = 3;
-		features->sched_max_future.nanoseconds = 4;
-		features->sched_max_past.seconds       = 5;
-		features->sched_max_past.nanoseconds   = 6;
-		features->timestamp.seconds            = 7;
-		features->timestamp.nanoseconds        = 8;
+		features->sched_accuracy.seconds       = 11;
+		features->sched_accuracy.nanoseconds   = 22;
+		features->sched_max_future.seconds     = 33;
+		features->sched_max_future.nanoseconds = 44;
+		features->sched_max_past.seconds       = 55;
+		features->sched_max_past.nanoseconds   = 66;
+		features->timestamp.seconds            = 77;
+		features->timestamp.nanoseconds        = 88;
 		req.features = &features;
 	}
 

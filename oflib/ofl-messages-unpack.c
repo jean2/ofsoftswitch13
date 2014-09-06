@@ -981,25 +981,21 @@ ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *o
     if((dm->feature_request_flags & OFPBF_TIMESTAMP)) {
     	*len -= sizeof(struct ofp_bundle_features_prop_time);
 
-    	features_prop_time_aux  = sm->properties;
+    	features_prop_time_aux     = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
+    	memcpy(features_prop_time_aux,sm->properties ,sizeof(struct ofp_bundle_features_prop_time));
     	features_prop_time         = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
 		features_prop_time->type   = ntohs(features_prop_time_aux->type);
 		features_prop_time->length = ntohs(features_prop_time_aux->length);
-		features_prop_time->sched_accuracy.seconds       = ntohl(features_prop_time->sched_accuracy.seconds);
-		features_prop_time->sched_accuracy.nanoseconds   = ntohl(features_prop_time->sched_accuracy.nanoseconds);
-		features_prop_time->sched_max_future.seconds     = ntohl(features_prop_time->sched_max_future.seconds);
-		features_prop_time->sched_max_future.nanoseconds = ntohl(features_prop_time->sched_max_future.nanoseconds);
-		features_prop_time->sched_max_past.seconds       = ntohl(features_prop_time->sched_max_past.seconds);
-		features_prop_time->sched_max_past.nanoseconds   = ntohl(features_prop_time->sched_max_past.nanoseconds);
-		features_prop_time->timestamp.seconds            = ntohl(features_prop_time->timestamp.seconds);
-		features_prop_time->timestamp.nanoseconds        = ntohl(features_prop_time->timestamp.nanoseconds);
+		features_prop_time->sched_accuracy.seconds       = ntohl(features_prop_time_aux->sched_accuracy.seconds);
+		features_prop_time->sched_accuracy.nanoseconds   = ntohl(features_prop_time_aux->sched_accuracy.nanoseconds);
+		features_prop_time->sched_max_future.seconds     = ntohl(features_prop_time_aux->sched_max_future.seconds);
+		features_prop_time->sched_max_future.nanoseconds = ntohl(features_prop_time_aux->sched_max_future.nanoseconds);
+		features_prop_time->sched_max_past.seconds       = ntohl(features_prop_time_aux->sched_max_past.seconds);
+		features_prop_time->sched_max_past.nanoseconds   = ntohl(features_prop_time_aux->sched_max_past.nanoseconds);
+		features_prop_time->timestamp.seconds            = ntohl(features_prop_time_aux->timestamp.seconds);
+		features_prop_time->timestamp.nanoseconds        = ntohl(features_prop_time_aux->timestamp.nanoseconds);
 
-		printf('%u,%u,%u,%u'
-				,features_prop_time->sched_accuracy.seconds
-				,features_prop_time->sched_accuracy.nanoseconds
-				,features_prop_time->sched_max_future.seconds
-				);
-
+		dm->features = &features_prop_time;
 
     }
     *msg = (struct ofl_msg_header *)dm;
