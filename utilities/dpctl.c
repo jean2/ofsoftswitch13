@@ -1017,26 +1017,22 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	struct ofl_msg_multipart_request_bundle_features req =
 			{{{.type = OFPT_MULTIPART_REQUEST},
 			   .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000}};//flags here are for more multipart messages
-    struct ofp_bundle_features_prop_time *features; //ORON
 
 	req.feature_request_flags = bundle_flags;
 	if((bundle_flags & OFPBF_TIMESTAMP) | (bundle_flags & OFPBF_TIME_SET_SCHED)){
-		features = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
-		features->type                         = OFPTMPBF_TIME_CAPABILITY; //TODO: ask tal
-		features->length                       = sizeof(struct ofp_bundle_features_prop_time);
-		features->sched_accuracy.seconds       = 11;
-		features->sched_accuracy.nanoseconds   = 22;
-		features->sched_max_future.seconds     = 33;
-		features->sched_max_future.nanoseconds = 44;
-		features->sched_max_past.seconds       = 55;
-		features->sched_max_past.nanoseconds   = 66;
-		features->timestamp.seconds            = 77;
-		features->timestamp.nanoseconds        = 88;
-		req.features = &features;
+		req.features.type                         = OFPTMPBF_TIME_CAPABILITY; //TODO: ask tal
+		req.features.length                       = sizeof(struct ofp_bundle_features_prop_time);
+		req.features.sched_accuracy.seconds       = 11;
+		req.features.sched_accuracy.nanoseconds   = 22;
+		req.features.sched_max_future.seconds     = 33;
+		req.features.sched_max_future.nanoseconds = 44;
+		req.features.sched_max_past.seconds       = 55;
+		req.features.sched_max_past.nanoseconds   = 66;
+		req.features.timestamp.seconds            = 77;
+		req.features.timestamp.nanoseconds        = 88;
 	}
 
 	dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
-
 
 }
 // ORON (close)

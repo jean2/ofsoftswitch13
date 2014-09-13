@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$1" = "start" ]; then
-	sudo udatapath/ofdatapath --datapath-id=b4b52fd06906 --interfaces=eth0 ptcp:6635 
+	sudo udatapath/ofdatapath --datapath-id=b4b52fd06906 --interfaces=eth0 ptcp:6635
 fi
 
 if [ "$1" = "open" ]; then

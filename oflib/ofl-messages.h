@@ -345,17 +345,33 @@ struct ofl_msg_multipart_request_experimenter {
     uint32_t   experimenter_id;
 };
 //ORON(open)
+struct ofl_bundle_time{
+	uint32_t seconds;
+	uint32_t nanoseconds;
+};
+struct ofl_bundle_features_prop_time{
+		uint16_t type;
+		uint16_t length;
+		struct ofl_bundle_time sched_accuracy;
+		struct ofl_bundle_time sched_max_future;
+		struct ofl_bundle_time sched_max_past;
+		struct ofl_bundle_time timestamp;
+};
+
 struct ofl_msg_multipart_request_bundle_features {
     struct ofl_msg_multipart_request_header   header; /* OFPMP_EXPERIMENTER */
 
     uint32_t feature_request_flags;
-    struct ofp_bundle_features_prop_header **features;
+    struct ofl_bundle_features_prop_time features;
+//    struct ofp_bundle_features_prop_header **features;
 };
 
 struct ofl_msg_multipart_relpy_bundle_features {
     struct ofl_msg_multipart_request_header   header;
 
     uint16_t capabilities;
+    struct ofl_bundle_features_prop_time features;
+//    struct ofp_bundle_features_prop_header **features;
 };
 //ORON(close)
 
