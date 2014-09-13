@@ -351,7 +351,6 @@ struct ofl_bundle_time{
 };
 struct ofl_bundle_features_prop_time{
 		uint16_t type;
-		uint16_t length;
 		struct ofl_bundle_time sched_accuracy;
 		struct ofl_bundle_time sched_max_future;
 		struct ofl_bundle_time sched_max_past;

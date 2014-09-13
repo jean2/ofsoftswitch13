@@ -1021,7 +1021,6 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	req.feature_request_flags = bundle_flags;
 	if((bundle_flags & OFPBF_TIMESTAMP) | (bundle_flags & OFPBF_TIME_SET_SCHED)){
 		req.features.type                         = OFPTMPBF_TIME_CAPABILITY; //TODO: ask tal
-		req.features.length                       = sizeof(struct ofp_bundle_features_prop_time);
 		req.features.sched_accuracy.seconds       = 11;
 		req.features.sched_accuracy.nanoseconds   = 22;
 		req.features.sched_max_future.seconds     = 33;

@@ -347,9 +347,15 @@ bundle_handle_features_request(struct datapath *dp,
       .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000},.capabilities=0};
 
 	reply.capabilities = OFPBF_ATOMIC | OFPBF_ORDERED | OFPBF_TIME;
-	if(req->feature_request_flags & OFPBF_TIMESTAMP){
-
-	}
+	reply.features.type = OFPTMPBF_TIME_CAPABILITY;
+	reply.features.sched_accuracy.seconds       = 999;
+	reply.features.sched_accuracy.nanoseconds   = 888;
+	reply.features.sched_max_future.seconds     = 777;
+	reply.features.sched_max_future.nanoseconds = 666;
+	reply.features.sched_max_past.seconds       = 555;
+	reply.features.sched_max_past.nanoseconds   = 444;
+	reply.features.timestamp.seconds            = 333;
+	reply.features.timestamp.nanoseconds        = 222;
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE) {
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);

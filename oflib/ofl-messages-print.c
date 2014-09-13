@@ -310,7 +310,7 @@ ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_featur
     if(msg->feature_request_flags >0){
     	if(((msg->feature_request_flags)& OFPBF_TIMESTAMP) >0)      {fprintf(stream,"OFPBF_TIMESTAMP,");};
     	if(((msg->feature_request_flags)& OFPBF_TIME_SET_SCHED) >0) {fprintf(stream,"OFPBF_TIME_SET_SCHED,");};
-    	fprintf(stream,"type=%s,",(msg->features.type == OFPTMPBF_TIME_CAPABILITY) ? "OFPTMPBF_TIME_CAPABILITY" : "???" );
+    	fprintf(stream,"{type=%s,",(msg->features.type == OFPTMPBF_TIME_CAPABILITY) ? "OFPTMPBF_TIME_CAPABILITY" : "???" );
     	fprintf(stream,"sched_accuracy:");
     	fprintf(stream,"%u.",msg->features.sched_accuracy.seconds);
     	fprintf(stream,"%09u[sec]",msg->features.sched_accuracy.nanoseconds);
@@ -344,20 +344,20 @@ ofl_msg_print_bundle_features_reply(struct ofl_msg_multipart_relpy_bundle_featur
     else{
     	fprintf(stream,"0,");
     };
-    fprintf(stream, "}");
-
-     fprintf(stream,"{type:%s,", (msg->features.type == 1) ? "OFPTMPBF_TIME_CAPABILITY":"???");
-//	 features_prop_time         = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
-//	 features_prop_time->type   = 999;//ntohs(features_prop_time_aux->type);
-//	 features_prop_time->length = 999;//ntohs(features_prop_time_aux->length);
-//	 features_prop_time->sched_accuracy.seconds       = 999;//ntohl(features_prop_time_aux->sched_accuracy.seconds);
-//	 features_prop_time->sched_accuracy.nanoseconds   = 999;//ntohl(features_prop_time_aux->sched_accuracy.nanoseconds);
-//	 features_prop_time->sched_max_future.seconds     = 999;//ntohl(features_prop_time_aux->sched_max_future.seconds);
-//	 features_prop_time->sched_max_future.nanoseconds = 999;//ntohl(features_prop_time_aux->sched_max_future.nanoseconds);
-//	 features_prop_time->sched_max_past.seconds       = 999;//ntohl(features_prop_time_aux->sched_max_past.seconds);
-//	 features_prop_time->sched_max_past.nanoseconds   = 999;//ntohl(features_prop_time_aux->sched_max_past.nanoseconds);
-//	 features_prop_time->timestamp.seconds            = 999;//ntohl(features_prop_time_aux->timestamp.seconds);
-//	 features_prop_time->timestamp.nanoseconds        = 999;//ntohl(features_prop
+    fprintf(stream, "{");
+	fprintf(stream,"type=%s,",(msg->features.type == OFPTMPBF_TIME_CAPABILITY) ? "OFPTMPBF_TIME_CAPABILITY" : "???" );
+	fprintf(stream,"sched_accuracy:");
+	fprintf(stream,"%u.",msg->features.sched_accuracy.seconds);
+	fprintf(stream,"%09u[sec]",msg->features.sched_accuracy.nanoseconds);
+	fprintf(stream,"sched_max_future:");
+	fprintf(stream,"%u.",msg->features.sched_max_future.seconds);
+	fprintf(stream,"%09u[sec]",msg->features.sched_max_future.nanoseconds);
+	fprintf(stream,"sched_max_past:");
+	fprintf(stream,"%u.",msg->features.sched_max_past.seconds);
+	fprintf(stream,"%09u[sec]",msg->features.sched_max_past.nanoseconds);
+	fprintf(stream,"timestamp:");
+	fprintf(stream,"%u.",msg->features.timestamp.seconds);
+	fprintf(stream,"%09u[sec]}",msg->features.timestamp.nanoseconds);
 
 };
 //ORON(close)
