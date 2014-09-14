@@ -1649,7 +1649,7 @@ enum ofp_error_type {
     OFPET_SWITCH_CONFIG_FAILED = 10, /* Switch config request failed. */
     OFPET_ROLE_REQUEST_FAILED = 11,  /* Controller Role request failed. */
     OFPET_METER_MOD_FAILED = 12,     /* Error in meter. */
-    OFPET_TABLE_FEATURES_FAILED = 13, /* Setting table features failed. */
+    OFPET_TABLE_FEATURES_FAILED = 13,/* Setting table features failed. */
     OFPET_BUNDLE_FAILED = 14,        /* Bundle related operation failed. */
     OFPET_EXPERIMENTER = 0xffff      /* Experimenter error messages. */
 };
@@ -1888,6 +1888,9 @@ enum ofp_bundle_failed_code {
     OFPBFC_MSG_FAILED = 13,   /* One message in bundle failed. */
     OFPBFC_TIMEOUT = 14,      /* Bundle is taking too long. */
     OFPBFC_BUNDLE_IN_PROGRESS = 15, /* Bundle is locking the resource. */
+    OFPBFC_SCHED_NOT_SUPPORTED = 16, /* Scheduled commit was received and scheduling is not supported. */
+    OFPBFC_SCHED_FUTURE = 17, /* Scheduled commit time exceeds upper bound. */
+    OFPBFC_SCHED_PAST = 18, /* Scheduled commit time exceeds lower bound. */
 };
 
 /* OFPET_EXPERIMENTER: Error message (datapath -> controller). */

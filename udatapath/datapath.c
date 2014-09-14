@@ -246,7 +246,8 @@ dp_run(struct datapath *dp) {
     			printf("Commit sched time %lu.%lu\n",sched_sec,sched_nsec);
 				printf("Committing Bundle in time %lu.%lu\n",time_check.tv_sec,time_check.tv_usec);
 	    		bundle_time_ctl.commiting_now=1;
-					bundle_time_ctl.ctl.flags=bundle_time_ctl.ctl.flags & 0xFFFB; // shutting down only time flag
+	    		    // shutting down only time flag
+					bundle_time_ctl.ctl.flags=bundle_time_ctl.ctl.flags & 0xFFFB;
 					struct sender sender = {.remote = bundle_time_ctl.remote, .conn_id = bundle_time_ctl.conn_id , .xid = bundle_time_ctl.xid};
 					handle_control_msg(dp, &bundle_time_ctl.ctl, &sender);
 				bundle_time_ctl.commiting_now=0;

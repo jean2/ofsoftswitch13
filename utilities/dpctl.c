@@ -77,7 +77,7 @@
 #define LOG_MODULE VLM_dpctl
 
 
-// NOTE: the request and the barrier is sent with the same xid,
+// NOTE: the request and the barrier is sgent with the same xid,
 //       so a vconn_receive_block will return with either the
 //       response, barrier resp., or the error
 #define XID   0xf0ff00f0
@@ -350,7 +350,8 @@ dpctl_send(struct vconn *vconn, struct ofl_msg_header *msg) {
     dpctl_barrier(vconn);
 }
 
-dpctl_send_time_commit(struct vconn *vconn, struct ofl_msg_header *msg) {//ORON
+//ORON(open) (not waiting for reply)
+dpctl_send_time_commit(struct vconn *vconn, struct ofl_msg_header *msg) {
     struct ofpbuf *ofpbuf;
     uint8_t *buf;
     size_t buf_size;
@@ -372,7 +373,7 @@ dpctl_send_time_commit(struct vconn *vconn, struct ofl_msg_header *msg) {//ORON
 
     dpctl_barrier(vconn);
 }
-
+//ORON(close)
 static void
 dpctl_send_and_print(struct vconn *vconn, struct ofl_msg_header *msg) {
     char *str;
@@ -981,20 +982,21 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
             prop_time->scheduled_time.nanoseconds=bundle_time_nsec;
             prop_time->scheduled_time.seconds    =bundle_time_sec;
 
-            req.properties = &prop_time;//TODO : casting?
-            printf("Dcptl send bundle commit in time = %lu.%lu, flag = %d (make sure if T>0 then f=4)\n",bundle_time_sec,bundle_time_nsec,bundle_flags);//ORON
+            req.properties = &prop_time;
+            printf("Dcptl send bundle commit in time = %u.%u, flag = %u (make sure if T>0 then f=4)\n",bundle_time_sec,bundle_time_nsec,bundle_flags);//ORON
             req.bundle_id = bundle_id;
             req.flags = bundle_flags;
 
-            /* Dump error messages with different XID */
-            vconn_set_spurious_handler(vconn, &show_error_handler);
-
-            char *str;
-            str = ofl_msg_to_string((struct ofl_msg_header *)&req, &dpctl_exp);
-            printf("\nSENDING (xid=0x%X):\n%s\n\n", global_xid, str);
-            free(str);
-            dpctl_send_time_commit(vconn, (struct ofl_msg_header *)&req); //ORON don't wait for reply
-            return;
+            // don't wait for reply code
+//            /* Dump error messages with different XID */
+//            vconn_set_spurious_handler(vconn, &show_error_handler);
+//
+//            char *str;
+//            str = ofl_msg_to_string((struct ofl_msg_header *)&req, &dpctl_exp);
+//            printf("\nSENDING (xid=0x%X):\n%s\n\n", global_xid, str);
+//            free(str);
+//            dpctl_send_time_commit(vconn, (struct ofl_msg_header *)&req); //ORON don't wait for reply
+//            return;
         }
     } else if (strcmp(argv[0], "discard") == 0) {
         req.type = OFPBCT_DISCARD_REQUEST;
@@ -1022,12 +1024,12 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	req.feature_request_flags = bundle_flags;
 	req.features.type                         = OFPTMPBF_TIME_CAPABILITY;
 	if((bundle_flags & OFPBF_TIME_SET_SCHED)>0){
-		req.features.sched_accuracy.seconds       = 11;
-		req.features.sched_accuracy.nanoseconds   = 22;
-		req.features.sched_max_future.seconds     = 33;
-		req.features.sched_max_future.nanoseconds = 44;
-		req.features.sched_max_past.seconds       = 55;
-		req.features.sched_max_past.nanoseconds   = 66;
+		req.features.sched_accuracy.seconds       = 0;
+		req.features.sched_accuracy.nanoseconds   = 0;
+		req.features.sched_max_future.seconds     = 10;
+		req.features.sched_max_future.nanoseconds = 0;
+		req.features.sched_max_past.seconds       = 10;
+		req.features.sched_max_past.nanoseconds   = 0;
 	}
 	else
 	{

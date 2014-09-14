@@ -497,6 +497,10 @@ ofl_error_code_print(FILE *stream, uint16_t type, uint16_t code) {
                 case (OFPBFC_MSG_FAILED) : { fprintf(stream, "MSG_FAILED"); return; }
                 case (OFPBFC_TIMEOUT) :      { fprintf(stream, "TIMEOUT"); return; }
                 case (OFPBFC_BUNDLE_IN_PROGRESS) : { fprintf(stream, "BUNDLE_IN_PROGRESS"); return; }
+                case (OFPBFC_SCHED_NOT_SUPPORTED) : { fprintf(stream, "OFPBFC_SCHED_NOT_SUPPORTED"); return; }
+                case (OFPBFC_SCHED_FUTURE) : { fprintf(stream, "OFPBFC_SCHED_FUTURE"); return; }
+                case (OFPBFC_SCHED_PAST) : { fprintf(stream, "BUNDLE_IN_PROGRESS"); return; }
+
             }
             break;
         }

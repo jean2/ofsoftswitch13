@@ -473,31 +473,33 @@ bundle_handle_control(struct datapath *dp,
 					//check time limits
 					//future limit check
 					if(max_future_sec < bundle_time_ctl.sched_time.seconds){
-						//TODO : send ERR OFPBFC_SCHED_FUTURE return
+						error = ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_SCHED_FUTURE);
 					}
 					else if(max_future_sec == bundle_time_ctl.sched_time.seconds){
 						if(max_future_nan < bundle_time_ctl.sched_time.nanoseconds){
-							//TODO : send ERR OFPBFC_SCHED_FUTURE return
+							error = ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_SCHED_FUTURE);
 						}
 					}
 					//past limit check
 					if(max_past_sec > bundle_time_ctl.sched_time.seconds){
-						//TODO : send ERR OFPBFC_SCHED_PAST return
+						error = ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_SCHED_PAST);
 					}
 					else if (max_past_sec == bundle_time_ctl.sched_time.seconds){
 						if(max_past_nan > bundle_time_ctl.sched_time.nanoseconds){
-							//TODO : send ERR OFPBFC_SCHED_PAST return
+							error = ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_SCHED_PAST);
 						}
 					}
 
+					if(error){
+						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//ORON ? maybe
+						return error;
+					}
 					bundle_time_ctl.ctl=*ctl;
 					bundle_time_ctl.table = table;
 					bundle_time_ctl.remote=sender->remote;
 					bundle_time_ctl.conn_id=sender->conn_id;
 					bundle_time_ctl.xid=sender->xid;
-					//empty reply back TODO ORON : ask Tal TODO: check here time sched ok!
 						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//ORON ? maybe
-				return 0;
 				break;
 				}
         		// normal commit (now)
@@ -507,8 +509,8 @@ bundle_handle_control(struct datapath *dp,
 					if(!error) {
 						reply.type = OFPBCT_COMMIT_REPLY;
 						reply.bundle_id = ctl->bundle_id;
+						dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
 						if(!bundle_time_ctl.commiting_now){
-							dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
 							ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);
 						}
 					}
