@@ -101,9 +101,14 @@ parse_options(int argc, char *argv[]);
 
 static uint32_t bundle_id = (uint32_t)-1;
 static uint16_t bundle_flags = 0;
-static uint32_t bundle_time_sec = 0;//ORON
-static uint32_t bundle_time_nsec = 0;//ORON
-
+//ORON(open)
+static uint32_t bundle_time_sec = 0;
+static uint32_t bundle_time_nsec = 0;
+static uint32_t bundle_max_future_sec = 0;
+static uint32_t bundle_max_past_sec = 0;
+static uint32_t bundle_max_future_nano = 0;
+static uint32_t bundle_max_past_nano = 0;
+//ORON(close)
 static uint8_t mask_all[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 
@@ -1025,10 +1030,10 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	if((bundle_flags & OFPBF_TIME_SET_SCHED)>0){
 		req.features.sched_accuracy.seconds       = 0;
 		req.features.sched_accuracy.nanoseconds   = 0;
-		req.features.sched_max_future.seconds     = 10;
-		req.features.sched_max_future.nanoseconds = 0;
-		req.features.sched_max_past.seconds       = 10;
-		req.features.sched_max_past.nanoseconds   = 0;
+		req.features.sched_max_future.seconds     = bundle_max_future_sec;
+		req.features.sched_max_future.nanoseconds = bundle_max_future_nano;
+		req.features.sched_max_past.seconds       = bundle_max_past_sec;
+		req.features.sched_max_past.nanoseconds   = bundle_max_past_nano;
 	}
 	else
 	{
@@ -1161,6 +1166,10 @@ parse_options(int argc, char *argv[])
         {"bundle", required_argument, 0, 'b'},
         {"bundle_time_sec" ,required_argument ,0,'T'},//ORON
         {"bundle_time_nsec" ,required_argument ,0,'N'},//ORON
+        {"bundle_time_feature1" ,required_argument ,0,'P'},//ORON
+        {"bundle_time_feature2" ,required_argument ,0,'p'},//ORON
+        {"bundle_time_feature3" ,required_argument ,0,'S'},//ORON
+        {"bundle_time_feature4" ,required_argument ,0,'s'},//ORON
         {"flags", required_argument, 0, 'f'},
         {"verbose", optional_argument, 0, 'v'},
         {"strict", no_argument, 0, OPT_STRICT},
@@ -1195,12 +1204,26 @@ parse_options(int argc, char *argv[])
         case 'b':
             bundle_id = strtoul(optarg, NULL, 10);
             break;
-        case 'T': //ORON
+            //ORON(open)
+        case 'S':
+        	bundle_max_future_sec = strtoul(optarg, NULL, 10);
+        	break;
+        case 's':
+        	bundle_max_future_nano = strtoul(optarg, NULL, 10);
+        	break;
+        case 'P':
+        	bundle_max_past_sec = strtoul(optarg, NULL, 10);
+        	break;
+        case 'p':
+        	bundle_max_past_nano = strtoul(optarg, NULL, 10);
+        	break;
+        case 'T':
             bundle_time_sec = strtoul(optarg, NULL, 10);
-            break;//ORON
-        case 'N': //ORON
+            break;
+        case 'N':
         	bundle_time_nsec = strtoul(optarg, NULL, 10);
-        	break;//ORON
+        	break;
+        	//ORON(close)
         case 'f':
             bundle_flags = strtoul(optarg, NULL, 10);
             // TODO permit comma separated list of identifiers
@@ -1208,7 +1231,7 @@ parse_options(int argc, char *argv[])
 
         case 'h':
             usage();
-
+            break;
         case 'V':
             printf("%s %s compiled "__DATE__" "__TIME__"\n",
                    program_name, VERSION BUILDNR);

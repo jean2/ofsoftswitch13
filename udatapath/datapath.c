@@ -228,7 +228,8 @@ dp_run(struct datapath *dp) {
     struct remote *r, *rn;
     size_t i;
     struct timeval time_check;
-    uint32_t sched_sec,sched_nsec;
+    uint64_t sched_sec;
+    uint32_t sched_nsec;
 
     if (now != dp->last_timeout) {
         dp->last_timeout = now;
@@ -243,8 +244,8 @@ dp_run(struct datapath *dp) {
         sched_nsec = bundle_time_ctl.sched_time.nanoseconds;
 
     	if((time_check.tv_sec >sched_sec) || ((time_check.tv_sec == sched_sec) && ((time_check.tv_usec*1000) >= sched_nsec))){
-    			printf("Commit sched time %lu.%lu\n",sched_sec,sched_nsec);
-				printf("Committing Bundle in time %lu.%lu\n",time_check.tv_sec,time_check.tv_usec);
+    			printf("Commit Bundle in time sched :%lu.%09u\n",sched_sec,sched_nsec);
+				printf("Commit Bundle in time actual:%u.%09u\n",time_check.tv_sec,time_check.tv_usec);
 	    		bundle_time_ctl.commiting_now=1;
 	    		    // shutting down only time flag
 					bundle_time_ctl.ctl.flags=bundle_time_ctl.ctl.flags & 0xFFFB;
