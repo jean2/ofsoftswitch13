@@ -396,7 +396,7 @@ bundle_handle_control(struct datapath *dp,
                       const struct sender *sender) {
 	struct ofp_bundle_prop_time *prop_time;//ORON
     struct timeval time_check; //ORON
-    uint32_t max_future_sec, max_past_sec;
+    uint64_t max_future_sec, max_past_sec;
     uint32_t max_future_nan, max_past_nan;
     struct ofl_msg_bundle_control reply =
             {{.type = OFPT_BUNDLE_CONTROL}};
@@ -446,7 +446,8 @@ bundle_handle_control(struct datapath *dp,
         	switch (ctl->flags){
         	//ORON(open)
         		case OFPBF_TIME:{
-				printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg\n", ctl->bundle_id);
+        		error = 0;
+				printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg (if not error)\n", ctl->bundle_id);
 					prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
 					bundle_time_ctl.sched_time.nanoseconds = prop_time->scheduled_time.nanoseconds;
 					bundle_time_ctl.sched_time.seconds     = prop_time->scheduled_time.seconds;
@@ -491,7 +492,6 @@ bundle_handle_control(struct datapath *dp,
 					}
 
 					if(error){
-						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//ORON ? maybe
 						return error;
 					}
 					bundle_time_ctl.ctl=*ctl;

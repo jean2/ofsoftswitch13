@@ -877,10 +877,10 @@ enum ofp_bundle_prop_type {
 
 /*Time Format*/ //ORON
 struct ofp_time{
-	uint32_t seconds;
+	uint64_t seconds;
 	uint32_t nanoseconds;
 };
-OFP_ASSERT(sizeof(struct ofp_time)==8);//ORON
+OFP_ASSERT(sizeof(struct ofp_time)==16);//ORON
 
 struct ofp_bundle_prop_time{
 	uint16_t type; /*OFPBPT_TIME*/
@@ -888,7 +888,7 @@ struct ofp_bundle_prop_time{
 	uint8_t  pad[4];
 	struct ofp_time scheduled_time;
 };
-OFP_ASSERT(sizeof(struct ofp_bundle_prop_time)==16);//ORON
+OFP_ASSERT(sizeof(struct ofp_bundle_prop_time)==24);//ORON
 
 
 enum ofp_bundle_ctrl_type {
@@ -1069,7 +1069,7 @@ struct ofp_bundle_features_prop_time {
 								       *difference between the current time and the scheduling time.*/
 	struct ofp_time timestamp;        /*Indicates the time during the transmission of this message.*/
 };
-OFP_ASSERT(sizeof(struct ofp_bundle_features_prop_time) == 40);
+OFP_ASSERT(sizeof(struct ofp_bundle_features_prop_time) == 72);
 
 enum ofp_bundle_feature_flags {
 	OFPBF_TIMESTAMP = 1 << 0, /* When enabled, the current request includes a timestamp, using the time property */
@@ -1085,15 +1085,6 @@ struct ofp_bundle_features {
 	struct ofp_bundle_features_prop_header properties[0];
 };
 OFP_ASSERT(sizeof(struct ofp_bundle_features) == 8);
-
-///* Bundle capabilities, used in OFPMP_BUNDLE_FEATURES request. */
-//enum ofp_bundle_capabilities{
-//	OFPBF_ATOMIC = 1 << 0, /*Atomic execution is supported. */
-//	OFPBF_ORDERED = 1 << 1, /*Ordered execution is supported. */
-//	OFPBF_TIME = 1 << 2,  /*Scheduled execution is supported. */
-//};
-
-//ORON(close)
 
 /* Body of reply to OFPMP_DESC request. Each entry is a NULL-terminated
 * ASCII string. */

@@ -181,13 +181,13 @@ ofl_msg_unpack_relpy_bundle_feature(struct ofp_multipart_reply *os, size_t *len,
  	 memcpy(features_prop_time_aux,sm->properties ,sizeof(struct ofp_bundle_features_prop_time));
 
  	 dm->features.type                         = ntohs(features_prop_time_aux->type);
-	 dm->features.sched_accuracy.seconds       = ntohl(features_prop_time_aux->sched_accuracy.seconds);
+	 dm->features.sched_accuracy.seconds       = ntohll(features_prop_time_aux->sched_accuracy.seconds);
 	 dm->features.sched_accuracy.nanoseconds   = ntohl(features_prop_time_aux->sched_accuracy.nanoseconds);
-	 dm->features.sched_max_future.seconds     = ntohl(features_prop_time_aux->sched_max_future.seconds);
+	 dm->features.sched_max_future.seconds     = ntohll(features_prop_time_aux->sched_max_future.seconds);
 	 dm->features.sched_max_future.nanoseconds = ntohl(features_prop_time_aux->sched_max_future.nanoseconds);
-	 dm->features.sched_max_past.seconds       = ntohl(features_prop_time_aux->sched_max_past.seconds);
+	 dm->features.sched_max_past.seconds       = ntohll(features_prop_time_aux->sched_max_past.seconds);
 	 dm->features.sched_max_past.nanoseconds   = ntohl(features_prop_time_aux->sched_max_past.nanoseconds);
-	 dm->features.timestamp.seconds            = ntohl(features_prop_time_aux->timestamp.seconds);
+	 dm->features.timestamp.seconds            = ntohll(features_prop_time_aux->timestamp.seconds);
 	 dm->features.timestamp.nanoseconds        = ntohl(features_prop_time_aux->timestamp.nanoseconds);
 
 	 *msg = (struct ofl_msg_header *) dm;
@@ -739,7 +739,7 @@ ofl_msg_unpack_bundle_control(struct ofp_header *src, size_t *len, struct ofl_ms
 
     	prop_time->length=ntohs(prop_time_aux->length);
     	prop_time->type=ntohs(prop_time_aux->type);
-    	prop_time->scheduled_time.seconds=ntohl(prop_time_aux->scheduled_time.seconds);
+    	prop_time->scheduled_time.seconds=ntohll(prop_time_aux->scheduled_time.seconds);
     	prop_time->scheduled_time.nanoseconds=ntohl(prop_time_aux->scheduled_time.nanoseconds);
     	free(prop_time_aux);
     	dm->properties=&(prop_time);
@@ -1001,13 +1001,13 @@ ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *o
     	features_prop_time_aux     = (struct ofp_bundle_features_prop_time *)malloc(sizeof(struct ofp_bundle_features_prop_time));
     	memcpy(features_prop_time_aux,sm->properties ,sizeof(struct ofp_bundle_features_prop_time));
 
-		dm->features.sched_accuracy.seconds       = ntohl(features_prop_time_aux->sched_accuracy.seconds);
+		dm->features.sched_accuracy.seconds       = ntohll(features_prop_time_aux->sched_accuracy.seconds);
 		dm->features.sched_accuracy.nanoseconds   = ntohl(features_prop_time_aux->sched_accuracy.nanoseconds);
-		dm->features.sched_max_future.seconds     = ntohl(features_prop_time_aux->sched_max_future.seconds);
+		dm->features.sched_max_future.seconds     = ntohll(features_prop_time_aux->sched_max_future.seconds);
 		dm->features.sched_max_future.nanoseconds = ntohl(features_prop_time_aux->sched_max_future.nanoseconds);
-		dm->features.sched_max_past.seconds       = ntohl(features_prop_time_aux->sched_max_past.seconds);
+		dm->features.sched_max_past.seconds       = ntohll(features_prop_time_aux->sched_max_past.seconds);
 		dm->features.sched_max_past.nanoseconds   = ntohl(features_prop_time_aux->sched_max_past.nanoseconds);
-		dm->features.timestamp.seconds            = ntohl(features_prop_time_aux->timestamp.seconds);
+		dm->features.timestamp.seconds            = ntohll(features_prop_time_aux->timestamp.seconds);
 		dm->features.timestamp.nanoseconds        = ntohl(features_prop_time_aux->timestamp.nanoseconds);
 
     }

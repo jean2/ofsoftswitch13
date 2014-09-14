@@ -117,7 +117,7 @@ ofl_msg_pack_bundle_control(struct ofl_msg_bundle_control *msg, uint8_t **buf, s
 				prop_time->pad[1] =0;
 				prop_time->pad[2] =0;
 				prop_time->pad[3] =0;
-				prop_time->scheduled_time.seconds      =htonl(prop_time_aux->scheduled_time.seconds);
+				prop_time->scheduled_time.seconds      =htonll(prop_time_aux->scheduled_time.seconds);
 				prop_time->scheduled_time.nanoseconds  =htonl(prop_time_aux->scheduled_time.nanoseconds);
 
 				ptr = (*buf) + sizeof(struct ofp_bundle_control);
@@ -498,13 +498,13 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
 		features_prop_time->pad[1] = 0;
 		features_prop_time->pad[2] = 0;
 		features_prop_time->pad[3] = 0;
-		features_prop_time->sched_accuracy.seconds       = htonl(msg->features.sched_accuracy.seconds);
+		features_prop_time->sched_accuracy.seconds       = htonll(msg->features.sched_accuracy.seconds);
 		features_prop_time->sched_accuracy.nanoseconds   = htonl(msg->features.sched_accuracy.nanoseconds);
-		features_prop_time->sched_max_future.seconds     = htonl(msg->features.sched_max_future.seconds);
+		features_prop_time->sched_max_future.seconds     = htonll(msg->features.sched_max_future.seconds);
 		features_prop_time->sched_max_future.nanoseconds = htonl(msg->features.sched_max_future.nanoseconds);
-		features_prop_time->sched_max_past.seconds       = htonl(msg->features.sched_max_past.seconds);
+		features_prop_time->sched_max_past.seconds       = htonll(msg->features.sched_max_past.seconds);
 		features_prop_time->sched_max_past.nanoseconds   = htonl(msg->features.sched_max_past.nanoseconds);
-		features_prop_time->timestamp.seconds            = htonl(msg->features.timestamp.seconds);
+		features_prop_time->timestamp.seconds            = htonll(msg->features.timestamp.seconds);
 		features_prop_time->timestamp.nanoseconds		 = htonl(msg->features.timestamp.nanoseconds);
 
 		memcpy(features->properties, features_prop_time ,sizeof(struct ofp_bundle_features_prop_time));
@@ -943,13 +943,13 @@ ofl_msg_pack_multipart_reply_bundle_features(struct ofl_msg_multipart_relpy_bund
 	features_prop_time->pad[1] = 0;
 	features_prop_time->pad[2] = 0;
 	features_prop_time->pad[3] = 0;
-	features_prop_time->sched_accuracy.seconds       = htonl(msg->features.sched_accuracy.seconds);
+	features_prop_time->sched_accuracy.seconds       = htonll(msg->features.sched_accuracy.seconds);
 	features_prop_time->sched_accuracy.nanoseconds   = htonl(msg->features.sched_accuracy.nanoseconds);
-	features_prop_time->sched_max_future.seconds     = htonl(msg->features.sched_max_future.seconds);
+	features_prop_time->sched_max_future.seconds     = htonll(msg->features.sched_max_future.seconds);
 	features_prop_time->sched_max_future.nanoseconds = htonl(msg->features.sched_max_future.nanoseconds);
-	features_prop_time->sched_max_past.seconds       = htonl(msg->features.sched_max_past.seconds);
+	features_prop_time->sched_max_past.seconds       = htonll(msg->features.sched_max_past.seconds);
 	features_prop_time->sched_max_past.nanoseconds   = htonl(msg->features.sched_max_past.nanoseconds);
-	features_prop_time->timestamp.seconds            = htonl(msg->features.timestamp.seconds);
+	features_prop_time->timestamp.seconds            = htonll(msg->features.timestamp.seconds);
 	features_prop_time->timestamp.nanoseconds        = htonl(msg->features.timestamp.nanoseconds);
 
 	memcpy(features->properties, features_prop_time ,sizeof(struct ofp_bundle_features_prop_time));

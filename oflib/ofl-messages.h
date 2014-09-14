@@ -346,7 +346,7 @@ struct ofl_msg_multipart_request_experimenter {
 };
 //ORON(open)
 struct ofl_bundle_time{
-	uint32_t seconds;
+	uint64_t seconds;
 	uint32_t nanoseconds;
 };
 struct ofl_bundle_features_prop_time{

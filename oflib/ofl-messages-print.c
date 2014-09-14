@@ -312,16 +312,16 @@ ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_featur
     	if(((msg->feature_request_flags)& OFPBF_TIME_SET_SCHED) >0) {fprintf(stream,"OFPBF_TIME_SET_SCHED,");};
     	fprintf(stream,"{type=%s,",(msg->features.type == OFPTMPBF_TIME_CAPABILITY) ? "OFPTMPBF_TIME_CAPABILITY" : "???" );
     	fprintf(stream,"sched_accuracy:");
-    	fprintf(stream,"%u.",msg->features.sched_accuracy.seconds);
+    	fprintf(stream,"%lu.",msg->features.sched_accuracy.seconds);
     	fprintf(stream,"%09u[sec]",msg->features.sched_accuracy.nanoseconds);
     	fprintf(stream,"sched_max_future:");
-    	fprintf(stream,"%u.",msg->features.sched_max_future.seconds);
+    	fprintf(stream,"%lu.",msg->features.sched_max_future.seconds);
     	fprintf(stream,"%09u[sec]",msg->features.sched_max_future.nanoseconds);
     	fprintf(stream,"sched_max_past:");
-    	fprintf(stream,"%u.",msg->features.sched_max_past.seconds);
+    	fprintf(stream,"%lu.",msg->features.sched_max_past.seconds);
     	fprintf(stream,"%09u[sec]",msg->features.sched_max_past.nanoseconds);
     	fprintf(stream,"timestamp:");
-    	fprintf(stream,"%u.",msg->features.timestamp.seconds);
+    	fprintf(stream,"%lu.",msg->features.timestamp.seconds);
     	fprintf(stream,"%09u[sec]}",msg->features.timestamp.nanoseconds);
     }
     else{
@@ -347,16 +347,16 @@ ofl_msg_print_bundle_features_reply(struct ofl_msg_multipart_relpy_bundle_featur
     fprintf(stream, "{");
 	fprintf(stream,"type=%s,",(msg->features.type == OFPTMPBF_TIME_CAPABILITY) ? "OFPTMPBF_TIME_CAPABILITY" : "???" );
 	fprintf(stream,"sched_accuracy:");
-	fprintf(stream,"%u.",msg->features.sched_accuracy.seconds);
+	fprintf(stream,"%lu.",msg->features.sched_accuracy.seconds);
 	fprintf(stream,"%09u[sec]",msg->features.sched_accuracy.nanoseconds);
 	fprintf(stream,"sched_max_future:");
-	fprintf(stream,"%u.",msg->features.sched_max_future.seconds);
+	fprintf(stream,"%lu.",msg->features.sched_max_future.seconds);
 	fprintf(stream,"%09u[sec]",msg->features.sched_max_future.nanoseconds);
 	fprintf(stream,"sched_max_past:");
-	fprintf(stream,"%u.",msg->features.sched_max_past.seconds);
+	fprintf(stream,"%lu.",msg->features.sched_max_past.seconds);
 	fprintf(stream,"%09u[sec]",msg->features.sched_max_past.nanoseconds);
 	fprintf(stream,"timestamp:");
-	fprintf(stream,"%u.",msg->features.timestamp.seconds);
+	fprintf(stream,"%lu.",msg->features.timestamp.seconds);
 	fprintf(stream,"%09u[sec]}",msg->features.timestamp.nanoseconds);
 
 };
