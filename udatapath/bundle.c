@@ -342,34 +342,50 @@ bundle_handle_features_request(struct datapath *dp,
         struct ofl_msg_multipart_request_bundle_features *req,
         const struct sender *sender) {
 
+    struct timeval time_check;
+
 	struct ofl_msg_multipart_relpy_bundle_features reply=
     {{{.type = OFPT_MULTIPART_REPLY},
       .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000},.capabilities=0};
 
-	reply.capabilities = OFPBF_ATOMIC | OFPBF_ORDERED | OFPBF_TIME;
+	// TIMESTAMP FLAG recievied
+	if((req->feature_request_flags & OFPBF_TIMESTAMP) >0){
+		//request include timestamp of controller send time
+	}
+	// always returns reply timestamp
+	gettimeofday(&time_check, 0);
+	reply.features.timestamp.seconds            = time_check.tv_sec;
+	reply.features.timestamp.nanoseconds        = time_check.tv_usec*1000;
+
+
+	// SET SCHED FLAG
+	if((req->feature_request_flags & OFPBF_TIME_SET_SCHED) >0){
+		bundle_time_ctl.features.sched_accuracy.seconds       = req->features.sched_accuracy.seconds;
+		bundle_time_ctl.features.sched_accuracy.nanoseconds   = req->features.sched_accuracy.nanoseconds;
+		bundle_time_ctl.features.sched_max_future.seconds     = req->features.sched_max_future.seconds;
+		bundle_time_ctl.features.sched_max_future.nanoseconds = req->features.sched_max_future.nanoseconds;
+		bundle_time_ctl.features.sched_max_past.seconds       = req->features.sched_max_past.seconds;
+		bundle_time_ctl.features.sched_max_past.nanoseconds   = req->features.sched_max_past.nanoseconds;
+	}
+
+	reply.capabilities = bundle_time_ctl.capabilities;
 	reply.features.type = OFPTMPBF_TIME_CAPABILITY;
-	reply.features.sched_accuracy.seconds       = 999;
-	reply.features.sched_accuracy.nanoseconds   = 888;
-	reply.features.sched_max_future.seconds     = 777;
-	reply.features.sched_max_future.nanoseconds = 666;
-	reply.features.sched_max_past.seconds       = 555;
-	reply.features.sched_max_past.nanoseconds   = 444;
-	reply.features.timestamp.seconds            = 333;
-	reply.features.timestamp.nanoseconds        = 222;
+	reply.features.sched_accuracy.seconds       = bundle_time_ctl.features.sched_accuracy.seconds;
+	reply.features.sched_accuracy.nanoseconds   = bundle_time_ctl.features.sched_accuracy.nanoseconds;
+	reply.features.sched_max_future.seconds     = bundle_time_ctl.features.sched_max_future.seconds;
+	reply.features.sched_max_future.nanoseconds = bundle_time_ctl.features.sched_max_future.nanoseconds;
+	reply.features.sched_max_past.seconds       = bundle_time_ctl.features.sched_max_past.seconds;
+	reply.features.sched_max_past.nanoseconds   = bundle_time_ctl.features.sched_max_past.nanoseconds;;
+
 
     if(sender->remote->role == OFPCR_ROLE_SLAVE) {
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
     }
     else{
-//    	reply.type =OFPMP_BUNDLE_FEATURES;
     	dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
         ofl_msg_free((struct ofl_msg_header *)req, dp->exp);
     }
-
-
-
 	return 0;
-
 }
 //ORON(close)
 /* Handle bundle control operations: open, close, discard, commit. */
@@ -379,6 +395,9 @@ bundle_handle_control(struct datapath *dp,
                       struct ofl_msg_bundle_control *ctl,
                       const struct sender *sender) {
 	struct ofp_bundle_prop_time *prop_time;//ORON
+    struct timeval time_check; //ORON
+    uint32_t max_future_sec, max_past_sec;
+    uint32_t max_future_nan, max_past_nan;
     struct ofl_msg_bundle_control reply =
             {{.type = OFPT_BUNDLE_CONTROL}};
     ofl_err error;
@@ -424,16 +443,53 @@ bundle_handle_control(struct datapath *dp,
             return error;
         }
         case OFPBCT_COMMIT_REQUEST: {
-        	switch (ctl->flags){ //ORON
+        	switch (ctl->flags){
         	//ORON(open)
-        		case OFPBF_TIME:{//ORON
+        		case OFPBF_TIME:{
 				printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg\n", ctl->bundle_id);
 					prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
 					bundle_time_ctl.sched_time.nanoseconds = prop_time->scheduled_time.nanoseconds;
-					while(bundle_time_ctl.sched_time.nanoseconds<100000000){
-							bundle_time_ctl.sched_time.nanoseconds = bundle_time_ctl.sched_time.nanoseconds*10;
-					}
 					bundle_time_ctl.sched_time.seconds     = prop_time->scheduled_time.seconds;
+					// Check if commit time is valid
+					gettimeofday(&time_check, 0);
+					// check overflow and compute time limits
+					max_future_sec = 0;
+					max_future_nan = time_check.tv_usec*1000 + bundle_time_ctl.features.sched_max_future.nanoseconds;
+					if(max_future_nan>=1000000000){
+						max_future_nan -= 1000000000;
+						max_future_sec += 1;
+					}
+					max_future_sec += time_check.tv_sec + bundle_time_ctl.features.sched_max_future.seconds;
+
+					max_past_sec   = 0;
+					if(time_check.tv_usec*1000 < bundle_time_ctl.features.sched_max_past.nanoseconds){
+						max_past_nan  = 1000000000 - bundle_time_ctl.features.sched_max_past.nanoseconds;
+						max_past_sec  = time_check.tv_sec - bundle_time_ctl.features.sched_max_past.seconds - 1;
+					}
+					else{
+						max_past_nan =  time_check.tv_usec*1000 - bundle_time_ctl.features.sched_max_past.nanoseconds;
+						max_past_sec =  time_check.tv_sec - bundle_time_ctl.features.sched_max_past.seconds;
+					}
+					//check time limits
+					//future limit check
+					if(max_future_sec < bundle_time_ctl.sched_time.seconds){
+						//TODO : send ERR OFPBFC_SCHED_FUTURE return
+					}
+					else if(max_future_sec == bundle_time_ctl.sched_time.seconds){
+						if(max_future_nan < bundle_time_ctl.sched_time.nanoseconds){
+							//TODO : send ERR OFPBFC_SCHED_FUTURE return
+						}
+					}
+					//past limit check
+					if(max_past_sec > bundle_time_ctl.sched_time.seconds){
+						//TODO : send ERR OFPBFC_SCHED_PAST return
+					}
+					else if (max_past_sec == bundle_time_ctl.sched_time.seconds){
+						if(max_past_nan > bundle_time_ctl.sched_time.nanoseconds){
+							//TODO : send ERR OFPBFC_SCHED_PAST return
+						}
+					}
+
 					bundle_time_ctl.ctl=*ctl;
 					bundle_time_ctl.table = table;
 					bundle_time_ctl.remote=sender->remote;
@@ -444,6 +500,7 @@ bundle_handle_control(struct datapath *dp,
 				return 0;
 				break;
 				}
+        		// normal commit (now)
         		default:{
 					printf("Processing bundle commit of bundle ID %u\n", ctl->bundle_id);
 					error = bundle_commit(dp, table, ctl->bundle_id, ctl->flags, sender);
@@ -458,6 +515,7 @@ bundle_handle_control(struct datapath *dp,
 					return error;
         		}
         	}
+        	break;
         }
         //ORON(close)
         default: {

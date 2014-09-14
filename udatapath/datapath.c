@@ -68,14 +68,22 @@
 #include "vconn.h"
 
 #define LOG_MODULE VLM_dp
-
-struct bundle_time_ctl bundle_time_ctl ={//ORON
-		.commiting_now=0,
-		.sched_max_future_ns=1000000000,
-		.sched_max_past_ns  =1000000000,
+//ORON(open)
+struct bundle_time_ctl bundle_time_ctl ={
+		{
+				.type = 0,
+				{0,0}, //sched_accuracy  -1 [sec] //to be updated on statistics
+				{1,0},  //sched_max_future 1[sec]
+ 				{1,0},  //sched_max_past   1[sec]
+ 				{0,0},  //timestamp
+		},
+		.commiting_now =0,
+		.capabilities  = OFPBF_TIME,
 		.ctl.flags=0,
+		.sched_time.seconds = 0,
+		.sched_time.nanoseconds = 0,
 };
-
+//ORON(close)
 static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
 
 

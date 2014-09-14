@@ -1017,19 +1017,39 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	struct ofl_msg_multipart_request_bundle_features req =
 			{{{.type = OFPT_MULTIPART_REQUEST},
 			   .type = OFPMP_BUNDLE_FEATURES, .flags = 0x0000}};//flags here are for more multipart messages
+    struct timeval time_check;
 
 	req.feature_request_flags = bundle_flags;
-	if((bundle_flags & OFPBF_TIMESTAMP) | (bundle_flags & OFPBF_TIME_SET_SCHED)){
-		req.features.type                         = OFPTMPBF_TIME_CAPABILITY; //TODO: ask tal
+	req.features.type                         = OFPTMPBF_TIME_CAPABILITY;
+	if((bundle_flags & OFPBF_TIME_SET_SCHED)>0){
 		req.features.sched_accuracy.seconds       = 11;
 		req.features.sched_accuracy.nanoseconds   = 22;
 		req.features.sched_max_future.seconds     = 33;
 		req.features.sched_max_future.nanoseconds = 44;
 		req.features.sched_max_past.seconds       = 55;
 		req.features.sched_max_past.nanoseconds   = 66;
-		req.features.timestamp.seconds            = 77;
-		req.features.timestamp.nanoseconds        = 88;
 	}
+	else
+	{
+		req.features.sched_accuracy.seconds       = 0;
+		req.features.sched_accuracy.nanoseconds   = 0;
+		req.features.sched_max_future.seconds     = 0;
+		req.features.sched_max_future.nanoseconds = 0;
+		req.features.sched_max_past.seconds       = 0;
+		req.features.sched_max_past.nanoseconds   = 0;
+	}
+
+
+	if ((bundle_flags & OFPBF_TIMESTAMP)>0){
+		gettimeofday(&time_check, 0);
+		req.features.timestamp.seconds            = time_check.tv_sec;
+		req.features.timestamp.nanoseconds        = time_check.tv_usec*1000;
+	}
+	else{
+		req.features.timestamp.seconds            = 0;
+		req.features.timestamp.nanoseconds        = 0;
+	}
+
 
 	dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
 

@@ -54,22 +54,24 @@
 #include "timeval.h"
 #include "list.h"
 
-struct bundle_time_ctl {//ORON
+//ORON(open)
+/****************************************************************************
+ * Bundle Commit in time module
+ ****************************************************************************/
+struct bundle_time_ctl {
+    struct ofl_bundle_features_prop_time features;
+    uint16_t capabilities;    /* OFPBF_ATOMIC | OFPBF_ORDERED | OFPBF_TIME */
 
-	int    commiting_now;
-	struct ofl_msg_bundle_control ctl;
+    int    commiting_now;
+
     struct ofp_time sched_time;
+	struct ofl_msg_bundle_control ctl;
 	struct bundle_table *table;
-
     struct remote *remote;      /* The device that sent the message. */
     uint8_t conn_id;            /* The connection that sent the message */
     uint32_t xid;				/* The transmission id*/
-
-    int sched_max_future_ns ;
-    int sched_max_past_ns   ;
-
 };
-
+//ORON(close)
 
 struct rconn;
 struct pvconn;
