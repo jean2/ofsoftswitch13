@@ -41,7 +41,7 @@
 
 #include "vlog.h"
 
-extern struct bundle_time_ctl bundle_time_ctl;//ORON
+extern struct bundle_time_ctl bundle_time_ctl;//TIME_EXTENTION_EXP
 // TODO update for bundles, and change printf()-s to log API calls
 //#define LOG_MODULE VLM_bundle_t
 
@@ -201,7 +201,11 @@ bundle_discard(struct bundle_table *table,
                uint32_t bundle_id, uint16_t flags) {
     struct bundle_table_entry *entry;
     ofl_err error;
-
+    //TIME_EXTENTION_EXP(open)
+    if(bundle_time_ctl.discard==0){
+    	bundle_time_ctl.discard = 1;
+    }
+    //TIME_EXTENTION_EXP(close)
     entry = bundle_table_entry_find(table, bundle_id);
     if (entry != NULL) {
 	/* Spec says we should always succeed, so don't fail on bad flags. */
@@ -335,7 +339,7 @@ bundle_commit(struct datapath *dp,
 
     return last_error;
 }
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 ofl_err
 bundle_handle_features_request(struct datapath *dp,
         struct bundle_table *table,
@@ -387,15 +391,15 @@ bundle_handle_features_request(struct datapath *dp,
     }
 	return 0;
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 /* Handle bundle control operations: open, close, discard, commit. */
 ofl_err
 bundle_handle_control(struct datapath *dp,
                       struct bundle_table *table,
                       struct ofl_msg_bundle_control *ctl,
                       const struct sender *sender) {
-	struct ofp_bundle_prop_time *prop_time;//ORON
-    struct timeval time_check; //ORON
+	struct ofp_bundle_prop_time *prop_time;//TIME_EXTENTION_EXP
+    struct timeval time_check; //TIME_EXTENTION_EXP
     uint64_t max_future_sec, max_past_sec;
     uint32_t max_future_nan, max_past_nan;
     struct ofl_msg_bundle_control reply =
@@ -434,7 +438,7 @@ bundle_handle_control(struct datapath *dp,
             printf("Processing bundle discard of bundle ID %u\n", ctl->bundle_id);
             error = bundle_discard(table, ctl->bundle_id, ctl->flags);
             if(!error) {
-            	bundle_time_ctl.ctl.flags=0; //ORON (discard any bundle pending)
+            	bundle_time_ctl.ctl.flags=0; //TIME_EXTENTION_EXP (discard any bundle pending)
                 reply.type = OFPBCT_DISCARD_REPLY;
                 reply.bundle_id = ctl->bundle_id;
                 dp_send_message(dp, (struct ofl_msg_header *)&reply, sender);
@@ -444,13 +448,14 @@ bundle_handle_control(struct datapath *dp,
         }
         case OFPBCT_COMMIT_REQUEST: {
         	switch (ctl->flags){
-        	//ORON(open)
+        	//TIME_EXTENTION_EXP(open)
         		case OFPBF_TIME:{
         		error = 0;
 				printf("Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg (if not error)\n", ctl->bundle_id);
 					prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
 					bundle_time_ctl.sched_time.nanoseconds = prop_time->scheduled_time.nanoseconds;
 					bundle_time_ctl.sched_time.seconds     = prop_time->scheduled_time.seconds;
+					bundle_time_ctl.discard                = 0;
 					// Check if commit time is valid
 					gettimeofday(&time_check, 0);
 					// check overflow and compute time limits
@@ -499,7 +504,7 @@ bundle_handle_control(struct datapath *dp,
 					bundle_time_ctl.remote=sender->remote;
 					bundle_time_ctl.conn_id=sender->conn_id;
 					bundle_time_ctl.xid=sender->xid;
-						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//ORON ? maybe
+						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//TIME_EXTENTION_EXP ? maybe
 				break;
 				}
         		// normal commit (now)
@@ -519,7 +524,7 @@ bundle_handle_control(struct datapath *dp,
         	}
         	break;
         }
-        //ORON(close)
+        //TIME_EXTENTION_EXP(close)
         default: {
             return ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_BAD_TYPE);
         }

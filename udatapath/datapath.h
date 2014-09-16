@@ -54,11 +54,12 @@
 #include "timeval.h"
 #include "list.h"
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 /****************************************************************************
  * Bundle Commit in time module
  ****************************************************************************/
 struct bundle_time_ctl {
+	int    discard;
     struct ofl_bundle_features_prop_time features;
     uint16_t capabilities;    /* OFPBF_ATOMIC | OFPBF_ORDERED | OFPBF_TIME */
 
@@ -71,7 +72,7 @@ struct bundle_time_ctl {
     uint8_t conn_id;            /* The connection that sent the message */
     uint32_t xid;				/* The transmission id*/
 };
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 struct rconn;
 struct pvconn;

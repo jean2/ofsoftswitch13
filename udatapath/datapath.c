@@ -68,11 +68,12 @@
 #include "vconn.h"
 
 #define LOG_MODULE VLM_dp
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 struct bundle_time_ctl bundle_time_ctl ={
+		.discard = 0,
 		{
 				.type = 0,
-				{0,0}, //sched_accuracy  -1 [sec] //to be updated on statistics
+				{0,1000000}, //sched_accuracy  -1 [sec] //to be updated on statistics
 				{1,0},  //sched_max_future 1[sec]
  				{1,0},  //sched_max_past   1[sec]
  				{0,0},  //timestamp
@@ -83,7 +84,7 @@ struct bundle_time_ctl bundle_time_ctl ={
 		.sched_time.seconds = 0,
 		.sched_time.nanoseconds = 0,
 };
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
 
 
@@ -237,9 +238,9 @@ dp_run(struct datapath *dp) {
         pipeline_timeout(dp->pipeline);
     }
 
-    //ORON
-    gettimeofday(&time_check, 0); //TODO ORON:may be very inefficient
-    if(bundle_time_ctl.ctl.flags!=0){
+    //TIME_EXTENTION_EXP
+    gettimeofday(&time_check, 0);
+    if((bundle_time_ctl.ctl.flags!=0) & (!bundle_time_ctl.discard) ){
     	sched_sec  = bundle_time_ctl.sched_time.seconds;
         sched_nsec = bundle_time_ctl.sched_time.nanoseconds;
 

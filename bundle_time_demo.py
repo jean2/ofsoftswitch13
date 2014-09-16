@@ -5,9 +5,9 @@ import os
 import time
 
 if(len(sys.argv)!=3):
-        print '    -usage: ./bundle_time_demo.py <computer_name/ip> <dpctl-port>'
+        print '    -usage: ./bundle_time_demo.py <computer_name/ip> <dpctl-tcp-port>'
         print '  exapmle : ./bundle_time_demo.py 192.168.1.18 6635'
-	print '  exapmle : ./bundle_time_demo.py ubuntu 6635'
+	print '  exapmle : ./bundle_time_demo.py localhost 6635'
 
         exit()
 else:
@@ -49,33 +49,54 @@ os.system(add_bundle)
 time.sleep(slp)
 os.system(add_bundle)
 time.sleep(slp)
-#Bundle Commit 
+#Bundle features request with TIMESTAMP flag
+print '***********Bundle feature request with TIMESTAMP FLAG***************'
 time.sleep(slp)
-delta_time = 5
-print '***********Bundle Commit in '+str(delta_time)+' sec*******'
-commit_time   = "%.9f" % time.time()
-commit_time   = commit_time.split('.')
-commit_time[0] = str(int(commit_time[0])+delta_time)
-commit_in_time = 'utilities/dpctl tcp:'+host+':'+port+' bundle commit -b 4 -f 4 -T '+commit_time[0]+' -N '+commit_time[1]
 print 'dpctl usage:'
-print commit_in_time
-os.system(commit_in_time)
+bundle_feature_req = 'utilities/dpctl -b 4 tcp:'+host+':'+port+' bundle-feature -f 1'
+print bundle_feature_req
+os.system(bundle_feature_req)
+time.sleep(slp)
 print
-#Stats:shold be empty
+#Bundle features request with SET_SCHED flag
+print '***********Bundle feature request with SET_SCHED FLAG***************'
 time.sleep(slp)
-print '***********Showing empty stats**********'
 print 'dpctl usage:'
-print show_stat
-os.system(show_stat)
-print 
-#Stats:shold NOT be empty
-print 'Couting '+str(delta_time)+' sec until commit is done'
-for i in range(1,delta_time+1):
-	time.sleep(1)
-	print i
-print '***********Showing commited stats*******'
-print 'dpctl usage:'
-print show_stat
-os.system(show_stat)
+bundle_set_sched = 'utilities/dpctl -b 4 tcp:'+host+':'+port+' bundle-feature -f 2 -P 7 -p 777 -S 8 -s 888'
+print bundle_set_sched
+os.system(bundle_set_sched)
+time.sleep(slp)
+print
+
+delta_time = 5
+if(os.fork()==0):
+	#Bundle Commit 
+	print '***********Bundle Commit in '+str(delta_time)+' sec*******'
+	commit_time   = "%.9f" % time.time()
+	commit_time   = commit_time.split('.')
+	commit_time[0] = str(int(commit_time[0])+delta_time)
+	commit_in_time = 'utilities/dpctl tcp:'+host+':'+port+' bundle commit -b 4 -f 4 -T '+commit_time[0]+' -N '+commit_time[1]
+	print 'dpctl usage:'
+	print commit_in_time
+	os.popen(commit_in_time)
+	print '*******Bundle Commit in time RESPONSE******'
+	print
+else:
+	#Stats:shold be empty
+	time.sleep(slp)
+	print '***********Showing empty stats**********'
+	print 'dpctl usage:'
+	print show_stat
+	os.system(show_stat)
+	print 
+	#Stats:shold NOT be empty
+	print 'Couting '+str(delta_time)+' sec until commit is done'
+	for i in range(1,delta_time+1):
+		time.sleep(1)
+		print i
+	print '***********Showing commited stats*******'
+	print 'dpctl usage:'
+	print show_stat
+	os.system(show_stat)
 
 

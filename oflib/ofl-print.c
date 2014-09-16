@@ -791,7 +791,7 @@ ofl_stats_type_print(FILE *stream, uint16_t type) {
         case (OFPMP_METER_CONFIG):  { fprintf(stream, "mconf"); return; }
         case (OFPMP_METER_FEATURES):{ fprintf(stream, "mfeat"); return; }
         case (OFPMP_PORT_DESC):     { fprintf(stream, "port-desc"); return; }   
-        case (OFPMP_BUNDLE_FEATURES):{fprintf(stream, "bundle-features"); return; }   //ORON
+        case (OFPMP_BUNDLE_FEATURES):{fprintf(stream, "bundle-features"); return; }   //TIME_EXTENTION_EXP
         case (OFPMP_EXPERIMENTER):  { fprintf(stream, "exp"); return; }
         default: {                    fprintf(stream, "?(%u)", type); return; }
     }

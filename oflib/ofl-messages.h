@@ -266,7 +266,7 @@ struct ofl_msg_bundle_control {
     uint32_t  bundle_id; /* Bundle instance. */
     uint16_t  type;      /* One of OFPBT_*. */
     uint16_t  flags;     /* One of OFPBF_*. */
-    struct ofp_bundle_prop_header **properties; //ORON
+    struct ofp_bundle_prop_header **properties; //TIME_EXTENTION_EXP
 };
 
 /* Bundled operations - append message. OFPT_BUNDLE_APPEND. */
@@ -344,7 +344,7 @@ struct ofl_msg_multipart_request_experimenter {
 
     uint32_t   experimenter_id;
 };
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 struct ofl_bundle_time{
 	uint64_t seconds;
 	uint32_t nanoseconds;
@@ -372,7 +372,7 @@ struct ofl_msg_multipart_relpy_bundle_features {
     struct ofl_bundle_features_prop_time features;
 //    struct ofp_bundle_features_prop_header **features;
 };
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 
 struct ofl_msg_multipart_reply_header {

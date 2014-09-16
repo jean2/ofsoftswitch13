@@ -101,14 +101,14 @@ parse_options(int argc, char *argv[]);
 
 static uint32_t bundle_id = (uint32_t)-1;
 static uint16_t bundle_flags = 0;
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static uint32_t bundle_time_sec = 0;
 static uint32_t bundle_time_nsec = 0;
 static uint32_t bundle_max_future_sec = 0;
 static uint32_t bundle_max_past_sec = 0;
 static uint32_t bundle_max_future_nano = 0;
 static uint32_t bundle_max_past_nano = 0;
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 static uint8_t mask_all[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 
@@ -355,7 +355,7 @@ dpctl_send(struct vconn *vconn, struct ofl_msg_header *msg) {
     dpctl_barrier(vconn);
 }
 
-//ORON(open) (not waiting for reply)
+//TIME_EXTENTION_EXP(open) (not waiting for reply)
 dpctl_send_time_commit(struct vconn *vconn, struct ofl_msg_header *msg) {
     struct ofpbuf *ofpbuf;
     uint8_t *buf;
@@ -378,7 +378,7 @@ dpctl_send_time_commit(struct vconn *vconn, struct ofl_msg_header *msg) {
 
     dpctl_barrier(vconn);
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 static void
 dpctl_send_and_print(struct vconn *vconn, struct ofl_msg_header *msg) {
     char *str;
@@ -972,22 +972,22 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	     .bundle_id = 0,
 	     .type = 0,
 	     .flags = 0};
-    struct ofp_bundle_prop_time *prop_time; //ORON
+    struct ofp_bundle_prop_time *prop_time; //TIME_EXTENTION_EXP
     if (strcmp(argv[0], "open") == 0) {
         req.type = OFPBCT_OPEN_REQUEST;
     } else if (strcmp(argv[0], "close") == 0) {
         req.type = OFPBCT_CLOSE_REQUEST;
     } else if (strcmp(argv[0], "commit") == 0) {
         req.type = OFPBCT_COMMIT_REQUEST;
-        if(bundle_flags==OFPBF_TIME){//ORON
+        if(bundle_flags==OFPBF_TIME){//TIME_EXTENTION_EXP
             prop_time = (struct ofp_bundle_prop_time *)malloc(sizeof(struct ofp_bundle_prop_time));
             prop_time->type    = OFPBPT_TIME;
-            prop_time->length  = sizeof(struct ofp_bundle_prop_time);//TODO ORON ask TAL
+            prop_time->length  = sizeof(struct ofp_bundle_prop_time);//TODO TIME_EXTENTION_EXP ask TAL
             prop_time->scheduled_time.nanoseconds=bundle_time_nsec;
             prop_time->scheduled_time.seconds    =bundle_time_sec;
 
             req.properties = &prop_time;
-            printf("Dcptl send bundle commit in time = %u.%u, flag = %u (make sure if T>0 then f=4)\n",bundle_time_sec,bundle_time_nsec,bundle_flags);//ORON
+            printf("Dcptl send bundle commit in time = %u.%u, flag = %u (make sure if T>0 then f=4)\n",bundle_time_sec,bundle_time_nsec,bundle_flags);//TIME_EXTENTION_EXP
             req.bundle_id = bundle_id;
             req.flags = bundle_flags;
 
@@ -999,7 +999,7 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 //            str = ofl_msg_to_string((struct ofl_msg_header *)&req, &dpctl_exp);
 //            printf("\nSENDING (xid=0x%X):\n%s\n\n", global_xid, str);
 //            free(str);
-//            dpctl_send_time_commit(vconn, (struct ofl_msg_header *)&req); //ORON don't wait for reply
+//            dpctl_send_time_commit(vconn, (struct ofl_msg_header *)&req); //TIME_EXTENTION_EXP don't wait for reply
 //            return;
         }
     } else if (strcmp(argv[0], "discard") == 0) {
@@ -1017,7 +1017,7 @@ bundle_control(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
     dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
 }
 
-// ORON (open)
+// TIME_EXTENTION_EXP (open)
 static void
 bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	struct ofl_msg_multipart_request_bundle_features req =
@@ -1060,7 +1060,7 @@ bundle_feature_req(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
 	dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
 
 }
-// ORON (close)
+// TIME_EXTENTION_EXP (close)
 
 static struct command all_commands[] = {
     {"ping", 0, 2, ping},
@@ -1094,8 +1094,8 @@ static struct command all_commands[] = {
 
     {"queue-mod", 3, 3, queue_mod},
     {"queue-del", 2, 2, queue_del},
-    {"bundle", 1, 2, bundle_control},//ORON change number of min max arg
-    {"bundle-feature",0,1,bundle_feature_req},//ORON 1 flag argument
+    {"bundle", 1, 2, bundle_control},//TIME_EXTENTION_EXP change number of min max arg
+    {"bundle-feature",0,1,bundle_feature_req},//TIME_EXTENTION_EXP 1 flag argument
 };
 
 
@@ -1164,12 +1164,12 @@ parse_options(int argc, char *argv[])
     static struct option long_options[] = {
         {"timeout", required_argument, 0, 't'},
         {"bundle", required_argument, 0, 'b'},
-        {"bundle_time_sec" ,required_argument ,0,'T'},//ORON
-        {"bundle_time_nsec" ,required_argument ,0,'N'},//ORON
-        {"bundle_time_feature1" ,required_argument ,0,'P'},//ORON
-        {"bundle_time_feature2" ,required_argument ,0,'p'},//ORON
-        {"bundle_time_feature3" ,required_argument ,0,'S'},//ORON
-        {"bundle_time_feature4" ,required_argument ,0,'s'},//ORON
+        {"bundle_time_sec" ,required_argument ,0,'T'},//TIME_EXTENTION_EXP
+        {"bundle_time_nsec" ,required_argument ,0,'N'},//TIME_EXTENTION_EXP
+        {"bundle_time_feature1" ,required_argument ,0,'P'},//TIME_EXTENTION_EXP
+        {"bundle_time_feature2" ,required_argument ,0,'p'},//TIME_EXTENTION_EXP
+        {"bundle_time_feature3" ,required_argument ,0,'S'},//TIME_EXTENTION_EXP
+        {"bundle_time_feature4" ,required_argument ,0,'s'},//TIME_EXTENTION_EXP
         {"flags", required_argument, 0, 'f'},
         {"verbose", optional_argument, 0, 'v'},
         {"strict", no_argument, 0, OPT_STRICT},
@@ -1204,7 +1204,7 @@ parse_options(int argc, char *argv[])
         case 'b':
             bundle_id = strtoul(optarg, NULL, 10);
             break;
-            //ORON(open)
+            //TIME_EXTENTION_EXP(open)
         case 'S':
         	bundle_max_future_sec = strtoul(optarg, NULL, 10);
         	break;
@@ -1223,7 +1223,7 @@ parse_options(int argc, char *argv[])
         case 'N':
         	bundle_time_nsec = strtoul(optarg, NULL, 10);
         	break;
-        	//ORON(close)
+        	//TIME_EXTENTION_EXP(close)
         case 'f':
             bundle_flags = strtoul(optarg, NULL, 10);
             // TODO permit comma separated list of identifiers

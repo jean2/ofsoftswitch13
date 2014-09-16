@@ -872,23 +872,24 @@ OFP_ASSERT(sizeof(struct ofp_bundle_prop_header) == 4);
 /* Bundle property types. */
 enum ofp_bundle_prop_type {
     OFPBPT_EXPERIMENTER = 0xFFFF, /* Experimenter property. */
-    OFPBPT_TIME         = 1, /*Time property*/ //ORON
+    OFPBPT_TIME         = 1, /*Time property*/ //TIME_EXTENTION_EXP
 };
 
-/*Time Format*/ //ORON
+/*Time Format*/ //TIME_EXTENTION_EXP
 struct ofp_time{
 	uint64_t seconds;
 	uint32_t nanoseconds;
+	uint8_t  pad[4];
 };
-OFP_ASSERT(sizeof(struct ofp_time)==16);//ORON
+OFP_ASSERT(sizeof(struct ofp_time)==16);//TIME_EXTENTION_EXP
 
 struct ofp_bundle_prop_time{
 	uint16_t type; /*OFPBPT_TIME*/
-	uint16_t length; /*length in bytes =24 ? ORON TODO*/
+	uint16_t length; /*length in bytes =24 ? TIME_EXTENTION_EXP TODO*/
 	uint8_t  pad[4];
 	struct ofp_time scheduled_time;
 };
-OFP_ASSERT(sizeof(struct ofp_bundle_prop_time)==24);//ORON
+OFP_ASSERT(sizeof(struct ofp_bundle_prop_time)==24);//TIME_EXTENTION_EXP
 
 
 enum ofp_bundle_ctrl_type {
@@ -929,7 +930,7 @@ OFP_ASSERT(sizeof(struct ofp_bundle_add_msg) == 24);
 enum ofp_bundle_flags {
     OFPBF_ATOMIC  = 1 << 0,  /* Execute atomically. */
     OFPBF_ORDERED = 1 << 1,  /* Execute in specified order. */
-    OFPBF_TIME    = 1 << 2,  /* Execute in specified time. */ //ORON
+    OFPBF_TIME    = 1 << 2,  /* Execute in specified time. */ //TIME_EXTENTION_EXP
 };
 
 
@@ -1023,7 +1024,7 @@ enum ofp_multipart_types {
     * The request and reply bodies begin with
     * struct ofp_experimenter_stats_header.
     * The request and reply bodies are otherwise experimenter-defined. */
-    OFPMP_BUNDLE_FEATURES = 17, //ORON
+    OFPMP_BUNDLE_FEATURES = 17, //TIME_EXTENTION_EXP
     /* Bundle features.
     * The request body is ofp_bundle_features_request.
     * The reply body is struct ofp_bundle_features. */
@@ -1033,7 +1034,7 @@ enum ofp_multipart_types {
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 struct ofp_bundle_features_prop_header {
 	uint16_t type; /* One of OFPTMPBF_*. */
 	uint16_t length; /* Length in bytes of this property. */

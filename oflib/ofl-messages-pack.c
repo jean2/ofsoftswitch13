@@ -474,7 +474,7 @@ ofl_msg_pack_multipart_request_flow(struct ofl_msg_multipart_request_flow *msg, 
     return 0;
 }
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static int
 ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_bundle_features *msg, uint8_t **buf, size_t *buf_len){
 	struct ofp_multipart_request *req;
@@ -500,12 +500,29 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
 		features_prop_time->pad[3] = 0;
 		features_prop_time->sched_accuracy.seconds       = htonll(msg->features.sched_accuracy.seconds);
 		features_prop_time->sched_accuracy.nanoseconds   = htonl(msg->features.sched_accuracy.nanoseconds);
+		features_prop_time->sched_accuracy.pad[0] = 0;
+		features_prop_time->sched_accuracy.pad[1] = 0;
+		features_prop_time->sched_accuracy.pad[2] = 0;
+		features_prop_time->sched_accuracy.pad[3] = 0;
 		features_prop_time->sched_max_future.seconds     = htonll(msg->features.sched_max_future.seconds);
 		features_prop_time->sched_max_future.nanoseconds = htonl(msg->features.sched_max_future.nanoseconds);
+		features_prop_time->sched_max_future.pad[0] = 0;
+		features_prop_time->sched_max_future.pad[1] = 0;
+		features_prop_time->sched_max_future.pad[2] = 0;
+		features_prop_time->sched_max_future.pad[3] = 0;
 		features_prop_time->sched_max_past.seconds       = htonll(msg->features.sched_max_past.seconds);
 		features_prop_time->sched_max_past.nanoseconds   = htonl(msg->features.sched_max_past.nanoseconds);
+		features_prop_time->sched_max_past.pad[0] = 0;
+		features_prop_time->sched_max_past.pad[1] = 0;
+		features_prop_time->sched_max_past.pad[2] = 0;
+		features_prop_time->sched_max_past.pad[3] = 0;
 		features_prop_time->timestamp.seconds            = htonll(msg->features.timestamp.seconds);
 		features_prop_time->timestamp.nanoseconds		 = htonl(msg->features.timestamp.nanoseconds);
+		features_prop_time->timestamp.pad[0] = 0;
+		features_prop_time->timestamp.pad[1] = 0;
+		features_prop_time->timestamp.pad[2] = 0;
+		features_prop_time->timestamp.pad[3] = 0;
+
 
 		memcpy(features->properties, features_prop_time ,sizeof(struct ofp_bundle_features_prop_time));
 		free(features_prop_time);
@@ -523,7 +540,7 @@ ofl_msg_pack_multipart_request_bundle_features(struct ofl_msg_multipart_request_
 
     return 0;
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 static int
 ofl_msg_pack_multipart_request_port(struct ofl_msg_multipart_request_port *msg, uint8_t **buf, size_t *buf_len) {
@@ -666,12 +683,12 @@ ofl_msg_pack_multipart_request(struct ofl_msg_multipart_request_header *msg, uin
         error = ofl_msg_pack_meter_multipart_request((struct ofl_msg_multipart_meter_request*)msg, buf, buf_len);
         break;
    }
-   //ORON(open)
+   //TIME_EXTENTION_EXP(open)
    case OFPMP_BUNDLE_FEATURES:{
 	   error = ofl_msg_pack_multipart_request_bundle_features((struct ofl_msg_multipart_request_bundle_features*)msg, buf, buf_len);
 	   break;
    }
-   //ORON(close)
+   //TIME_EXTENTION_EXP(close)
    case OFPMP_METER_FEATURES:{
         error = ofl_msg_pack_multipart_request_empty(msg, buf, buf_len);
         break;
@@ -921,7 +938,7 @@ ofl_msg_pack_multipart_reply_meter_stats(struct ofl_msg_multipart_reply_meter *m
     return 0;
 }
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static int
 ofl_msg_pack_multipart_reply_bundle_features(struct ofl_msg_multipart_relpy_bundle_features *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_multipart_reply *resp;
@@ -945,19 +962,35 @@ ofl_msg_pack_multipart_reply_bundle_features(struct ofl_msg_multipart_relpy_bund
 	features_prop_time->pad[3] = 0;
 	features_prop_time->sched_accuracy.seconds       = htonll(msg->features.sched_accuracy.seconds);
 	features_prop_time->sched_accuracy.nanoseconds   = htonl(msg->features.sched_accuracy.nanoseconds);
+	features_prop_time->sched_accuracy.pad[0] = 0;
+	features_prop_time->sched_accuracy.pad[1] = 0;
+	features_prop_time->sched_accuracy.pad[2] = 0;
+	features_prop_time->sched_accuracy.pad[3] = 0;
 	features_prop_time->sched_max_future.seconds     = htonll(msg->features.sched_max_future.seconds);
 	features_prop_time->sched_max_future.nanoseconds = htonl(msg->features.sched_max_future.nanoseconds);
+	features_prop_time->sched_max_future.pad[0] = 0;
+	features_prop_time->sched_max_future.pad[1] = 0;
+	features_prop_time->sched_max_future.pad[2] = 0;
+	features_prop_time->sched_max_future.pad[3] = 0;
 	features_prop_time->sched_max_past.seconds       = htonll(msg->features.sched_max_past.seconds);
 	features_prop_time->sched_max_past.nanoseconds   = htonl(msg->features.sched_max_past.nanoseconds);
+	features_prop_time->sched_max_past.pad[0] = 0;
+	features_prop_time->sched_max_past.pad[1] = 0;
+	features_prop_time->sched_max_past.pad[2] = 0;
+	features_prop_time->sched_max_past.pad[3] = 0;
 	features_prop_time->timestamp.seconds            = htonll(msg->features.timestamp.seconds);
 	features_prop_time->timestamp.nanoseconds        = htonl(msg->features.timestamp.nanoseconds);
+	features_prop_time->timestamp.pad[0] = 0;
+	features_prop_time->timestamp.pad[1] = 0;
+	features_prop_time->timestamp.pad[2] = 0;
+	features_prop_time->timestamp.pad[3] = 0;
 
 	memcpy(features->properties, features_prop_time ,sizeof(struct ofp_bundle_features_prop_time));
 	free(features_prop_time);
 
     return 0;
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 
 static int
@@ -1079,12 +1112,12 @@ ofl_msg_pack_multipart_reply(struct ofl_msg_multipart_reply_header *msg, uint8_t
 			error = ofl_msg_pack_multipart_reply_port_status_desc((struct ofl_msg_multipart_reply_port_desc*)msg, buf, buf_len);
 			break;
 		}
-		//ORON(open)
+		//TIME_EXTENTION_EXP(open)
 		case OFPMP_BUNDLE_FEATURES:{
 			error = ofl_msg_pack_multipart_reply_bundle_features((struct ofl_msg_multipart_relpy_bundle_features *)msg, buf, buf_len);
 			break;
 		}
-		//ORON(close)
+		//TIME_EXTENTION_EXP(close)
         case OFPMP_EXPERIMENTER: {
             if (exp == NULL || exp->stats == NULL || exp->stats->reply_pack == NULL) {
                 OFL_LOG_WARN(LOG_MODULE, "Trying to pack experimenter stat resp, but no callback was given.");

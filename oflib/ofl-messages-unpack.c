@@ -161,7 +161,7 @@ ofl_msg_unpack_get_config_reply(struct ofp_header *src, size_t *len, struct ofl_
     return 0;
 }
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static ofl_err
 ofl_msg_unpack_relpy_bundle_feature(struct ofp_multipart_reply *os, size_t *len, struct ofl_msg_header **msg) {
 	 struct ofp_bundle_features *sm;
@@ -193,7 +193,7 @@ ofl_msg_unpack_relpy_bundle_feature(struct ofp_multipart_reply *os, size_t *len,
 	 *msg = (struct ofl_msg_header *) dm;
      return 0;
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 static ofl_err
 ofl_msg_unpack_set_config(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
@@ -716,8 +716,8 @@ static ofl_err
 ofl_msg_unpack_bundle_control(struct ofp_header *src, size_t *len, struct ofl_msg_header **msg) {
     struct ofp_bundle_control *sm;
     struct ofl_msg_bundle_control *dm;
-    struct ofp_bundle_prop_time *prop_time;//ORON
-    struct ofp_bundle_prop_time *prop_time_aux;//ORON
+    struct ofp_bundle_prop_time *prop_time;//TIME_EXTENTION_EXP
+    struct ofp_bundle_prop_time *prop_time_aux;//TIME_EXTENTION_EXP
 
     if (*len < sizeof(struct ofp_bundle_control)) {
         OFL_LOG_WARN(LOG_MODULE, "Received BUNDLE_CONTROL message has invalid length (%zu).", *len);
@@ -980,7 +980,7 @@ ofl_msg_unpack_meter_multipart_request(struct ofp_multipart_request *os, size_t 
     *msg = (struct ofl_msg_header *)dm;
     return 0;
 }
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static ofl_err
 ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *os, size_t *len, struct ofl_msg_header **msg) {
 	struct ofp_bundle_features_request *sm;
@@ -1014,7 +1014,7 @@ ofl_msg_unpack_multipart_request_bundle_features(struct ofp_multipart_request *o
     *msg = (struct ofl_msg_header *)dm;
     return 0;
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 static ofl_err
 ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *len, struct ofl_msg_header **msg, struct ofl_exp *exp) {
@@ -1090,12 +1090,12 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             }
             break;
         }
-        //ORON(open)
+        //TIME_EXTENTION_EXP(open)
         case OFPMP_BUNDLE_FEATURES:{
      	   error = ofl_msg_unpack_multipart_request_bundle_features(os, len, msg);
      	   break;
         }
-        //ORON(close)
+        //TIME_EXTENTION_EXP(close)
         default: {
             error = ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_MULTIPART);
             break;
@@ -1601,12 +1601,12 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_multipart_reply_meter_config(os, len, msg);
             break;
         }
-        //ORON(open)
+        //TIME_EXTENTION_EXP(open)
         case OFPMP_BUNDLE_FEATURES:{
         	error = ofl_msg_unpack_relpy_bundle_feature(os, len, msg);
         	break;
         }
-        //ORON(close)
+        //TIME_EXTENTION_EXP(close)
         case OFPMP_METER_FEATURES:{
             error = ofl_msg_unpack_multipart_reply_meter_features(os, len, msg);
             break;

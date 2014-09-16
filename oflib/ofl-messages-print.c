@@ -300,7 +300,7 @@ ofl_msg_print_stats_request_experimenter(struct ofl_msg_multipart_request_experi
     fprintf(stream, "\"");
 }
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static void
 ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_features *msg, FILE *stream) {
     fprintf(stream, "{type=%s,",
@@ -329,9 +329,9 @@ ofl_msg_print_bundle_features_req(struct ofl_msg_multipart_request_bundle_featur
     }
 
 }
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
-//ORON(open)
+//TIME_EXTENTION_EXP(open)
 static void
 ofl_msg_print_bundle_features_reply(struct ofl_msg_multipart_relpy_bundle_features *msg, FILE *stream) {
 	fprintf(stream, "{type=%s",(msg->header.type == OFPMP_BUNDLE_FEATURES)  ? "FEATURES_REPLY" : "???");
@@ -360,7 +360,7 @@ ofl_msg_print_bundle_features_reply(struct ofl_msg_multipart_relpy_bundle_featur
 	fprintf(stream,"%09u[sec]}",msg->features.timestamp.nanoseconds);
 
 };
-//ORON(close)
+//TIME_EXTENTION_EXP(close)
 
 static void
 ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FILE *stream, struct ofl_exp *exp) {
@@ -424,12 +424,12 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
         case OFPMP_PORT_DESC:{
             break;
         }
-        //ORON(open)
+        //TIME_EXTENTION_EXP(open)
         case OFPMP_BUNDLE_FEATURES:{
         	ofl_msg_print_bundle_features_req((struct ofl_msg_multipart_request_bundle_features*)msg, stream);
             break;
         }
-        //ORON(close)
+        //TIME_EXTENTION_EXP(close)
         case OFPMP_EXPERIMENTER: {
             ofl_msg_print_stats_request_experimenter((struct ofl_msg_multipart_request_experimenter *)msg, stream);
             break;
@@ -710,12 +710,12 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             ofl_msg_print_port_desc_reply((struct ofl_msg_multipart_reply_port_desc*)msg, stream);
             break;
         }
-        //ORON(open)
+        //TIME_EXTENTION_EXP(open)
         case OFPMP_BUNDLE_FEATURES:{
         	ofl_msg_print_bundle_features_reply((struct ofl_msg_multipart_relpy_bundle_features*)msg, stream);
         	break;
         }
-        //ORON(close)
+        //TIME_EXTENTION_EXP(close)
         case OFPMP_EXPERIMENTER: {
             ofl_msg_print_stats_reply_experimenter((struct ofl_msg_multipart_reply_experimenter *)msg, stream);
             break;
