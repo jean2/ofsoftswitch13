@@ -130,6 +130,10 @@ Zoltán Lajos Kis from Ericsson Traffic Lab, for his really helpful contribution
 
 Khai Nguyen Dinh and Thanh Le Dinh from Applistar, for contributions on meter features.
 
+This EXT-340 (TIME_EXTENSION)
+was written as undergraduate project, technion israel,
+by Oron Anschel and Nadav Shiloha, supervised by Tal Mizrahi.
+
 # Contact
 E-mail: Eder Leao Fernandes (ederlf@cpqd.com.br)
 
