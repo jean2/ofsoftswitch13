@@ -452,7 +452,7 @@ bundle_handle_control(struct datapath *dp,
         		case OFPBF_TIME:{
         		error = 0;
 				VLOG_DBG_RL(LOG_MODULE, &rl, "Processing bundle commit IN TIME of bundle ID %u, no ACK on this msg (if not error)\n", ctl->bundle_id);
-					prop_time = (struct ofp_bundle_prop_time *)(*ctl->properties);
+					prop_time = (struct ofp_bundle_prop_time *)ctl->properties;
 					bundle_time_ctl.sched_time.nanoseconds = prop_time->scheduled_time.nanoseconds;
 					bundle_time_ctl.sched_time.seconds     = prop_time->scheduled_time.seconds;
 					bundle_time_ctl.discard                = 0;
@@ -478,7 +478,7 @@ bundle_handle_control(struct datapath *dp,
 					}
 					//check time limits
 					//future limit check
-					VLOG_DBG_RL(LOG_MODULE, &rl, "future check : %ld vs %ld", bundle_time_ctl.features.sched_max_future.seconds, bundle_time_ctl.sched_time.seconds - time_check.tv_sec);
+					VLOG_DBG_RL(LOG_MODULE, &rl, "future check : %ld vs %ld (%ld - %ld)", bundle_time_ctl.features.sched_max_future.seconds, bundle_time_ctl.sched_time.seconds - time_check.tv_sec, bundle_time_ctl.sched_time.seconds, time_check.tv_sec);
 					if(max_future_sec < bundle_time_ctl.sched_time.seconds){
 						error = ofl_error(OFPET_BUNDLE_FAILED, OFPBFC_SCHED_FUTURE);
 					}
