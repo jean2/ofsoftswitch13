@@ -506,6 +506,7 @@ bundle_handle_control(struct datapath *dp,
 					bundle_time_ctl.conn_id=sender->conn_id;
 					bundle_time_ctl.xid=sender->xid;
 						ofl_msg_free((struct ofl_msg_header *)ctl, dp->exp);//TIME_EXTENTION_EXP ? maybe
+						return error; // 0
 				break;
 				}
         		// normal commit (now)
