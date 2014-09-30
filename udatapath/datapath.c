@@ -155,6 +155,7 @@ dp_new(void) {
 
     dp->config.flags         = OFPC_FRAG_NORMAL;
     dp->config.miss_send_len = OFP_DEFAULT_MISS_SEND_LEN;
+    dp->config.egress_table_id = OFPTT_ALL;
 
     if(strlen(dp->dp_desc) == 0) {
         /* just use "$HOSTNAME pid=$$" */

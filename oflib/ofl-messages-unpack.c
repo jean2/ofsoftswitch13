@@ -156,6 +156,7 @@ ofl_msg_unpack_get_config_reply(struct ofp_header *src, size_t *len, struct ofl_
     dr->config = (struct ofl_config *)malloc(sizeof(struct ofl_config));
     dr->config->miss_send_len = ntohs(sr->miss_send_len);
     dr->config->flags = ntohs(sr->flags);
+    dr->config->egress_table_id = sr->egress_table_id;
 
     *msg = (struct ofl_msg_header *)dr;
     return 0;
@@ -179,6 +180,7 @@ ofl_msg_unpack_set_config(struct ofp_header *src, size_t *len, struct ofl_msg_he
      // TODO Zoltan: validate flags
      dr->config->miss_send_len = ntohs(sr->miss_send_len);
      dr->config->flags = ntohs(sr->flags);
+     dr->config->egress_table_id = sr->egress_table_id;
 
      *msg = (struct ofl_msg_header *)dr;
      return 0;

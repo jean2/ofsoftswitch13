@@ -234,6 +234,7 @@ static struct names16 band_names[] = {
 
 #define CONFIG_FLAGS "flags"
 #define CONFIG_MISS  "miss"
+#define CONFIG_EGRESS "egress"
 
 
 #define PORT_MOD_PORT      "port"

@@ -123,6 +123,8 @@ struct ofl_config {
     uint16_t   flags;         /* OFPC_* flags. */
     uint16_t   miss_send_len; /* Max bytes of new flow that datapath should
                                 send to the controller. */
+    uint8_t    egress_table_id; /* ID of the first egress table,
+                                   or OFPTT_ALL if no egress table. */
 };
 
 struct ofl_async_config {
