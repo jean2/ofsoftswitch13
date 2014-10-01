@@ -60,6 +60,9 @@ pipeline_create(struct datapath *dp);
 /* Processes a packet in the pipeline. */
 void
 pipeline_process_packet(struct pipeline *pl, struct packet *pkt);
+/* Egress stage of the processing pipeline. */
+void
+pipeline_process_egress_packet(struct packet *pkt, uint32_t out_port, uint16_t out_max_len);
 
 
 /* Handles a flow_mod message. */

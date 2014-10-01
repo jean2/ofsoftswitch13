@@ -60,6 +60,7 @@ packet_create(struct datapath *dp, uint32_t in_port,
     pkt->out_port         = OFPP_ANY;
     pkt->out_port_max_len = 0;
     pkt->out_queue        = 0;
+    pkt->egress_count     = 0;
     pkt->buffer_id        = NO_BUFFER;
     pkt->table_id         = 0;
 
@@ -87,6 +88,7 @@ packet_clone(struct packet *pkt) {
     clone->out_port         = OFPP_ANY;
     clone->out_port_max_len = 0;
     clone->out_queue        = 0;
+    clone->egress_count     = 0;
     clone->buffer_id        = NO_BUFFER; // the original is saved in buffer,
                                          // but this buffer is a copy of that,
                                          // and might be altered later

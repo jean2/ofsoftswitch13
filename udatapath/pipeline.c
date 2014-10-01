@@ -55,7 +55,7 @@
 
 #define LOG_MODULE VLM_pipeline
 
-static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(60, 60);
+static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(300, 60);
 
 static void
 execute_entry(struct pipeline *pl, struct flow_entry *entry,
@@ -118,7 +118,7 @@ send_packet_to_controller(struct pipeline *pl, struct packet *pkt, uint8_t table
     ofl_structs_free_match((struct ofl_match_header* ) m, NULL);
 }
 
-/* Pass the packet through the flow tables.
+/* Pass the packet through the ingress flow tables (first stage of pipeline).
  * This function takes ownership of the packet and will destroy it. */
 void
 pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
@@ -175,7 +175,7 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
                /* Cookie field is set 0xffffffffffffffff
                 because we cannot associate it to any
                 particular flow */
-                action_set_execute(pkt->action_set, pkt, 0xffffffffffffffff);
+                action_set_execute(pkt->action_set, pkt, 0xffffffffffffffff, false);
                 return;
             }
 
@@ -187,6 +187,80 @@ pipeline_process_packet(struct pipeline *pl, struct packet *pkt) {
         }
     }
     VLOG_WARN_RL(LOG_MODULE, &rl, "Reached outside of pipeline processing cycle.");
+}
+
+/* Optional second stage of processing with the egress tables.
+ * The first stage (ingress tables - just above) output to a port,
+ * and we catch it here.
+ * This function takes ownership of the packet and will destroy it.
+ * Jean II */
+void
+pipeline_process_egress_packet(struct packet *pkt, uint32_t out_port, uint16_t out_max_len) {
+    struct pipeline *pl = pkt->dp->pipeline;
+    struct flow_table *table, *next_table;
+    struct ofl_action_output output_action = {{.type = OFPAT_OUTPUT, .len=16},
+					      .port    = out_port,
+					      .max_len = out_max_len};
+    struct ofl_action_header *action_array[1] = { &(output_action.header) };
+
+    /* Increase egress_count and check for recursive loops. Jean II */
+    if (pkt->egress_count > 2) {
+        VLOG_WARN_RL(LOG_MODULE, &rl, "Too much recursion in egress tables.");
+	/* Supress output or group action leading to this. */
+        return;
+    }
+    pkt->egress_count++;
+
+    /* The action set start with a single action, which output to the port. */
+    action_set_write_actions(pkt->action_set, 1, action_array);
+
+    /* We start at the first egress table and go on from there. Jean II */
+    next_table = pl->tables[pl->dp->config.egress_table_id];
+    while (next_table != NULL) {
+        struct flow_entry *entry;
+
+        //VLOG_DBG_RL(LOG_MODULE, &rl, "trying egress table %u.", next_table->stats->table_id);
+        VLOG_DBG(LOG_MODULE, "trying egress table %u.", next_table->stats->table_id);
+
+        pkt->table_id = next_table->stats->table_id;
+        table         = next_table;
+        next_table    = NULL;
+
+        // EEDBEH: additional printout to debug table lookup
+        if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
+            char *m = ofl_structs_match_to_string((struct ofl_match_header*)&(pkt->handle_std->match), pkt->dp->exp);
+            VLOG_DBG_RL(LOG_MODULE, &rl, "searching table entry for packet match: %s.", m);
+            free(m);
+        }
+        entry = flow_table_lookup(table, pkt);
+        if (entry != NULL) {
+	        if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
+                char *m = ofl_structs_flow_stats_to_string(entry->stats, pkt->dp->exp);
+                VLOG_DBG_RL(LOG_MODULE, &rl, "found matching entry: %s.", m);
+                free(m);
+            }
+            pkt->handle_std->table_miss = is_table_miss(entry);
+            execute_entry(pl, entry, &next_table, &pkt);
+            /* Packet could be destroyed by a meter instruction */
+            if (!pkt)
+                return;
+
+            if (next_table == NULL) {
+               /* Cookie field is set 0xffffffffffffffff
+                because we cannot associate it to any
+                particular flow */
+                action_set_execute(pkt->action_set, pkt, 0xffffffffffffffff, true);
+                return;
+            }
+
+        } else {
+			/* OpenFlow 1.3 default behavior on a table miss */
+			VLOG_DBG_RL(LOG_MODULE, &rl, "No matching entry found. Dropping packet.");
+			packet_destroy(pkt);
+			return;
+        }
+    }
+    VLOG_WARN_RL(LOG_MODULE, &rl, "Reached outside of egress pipeline processing cycle.");
 }
 
 static

@@ -33,6 +33,7 @@
 #include "dp_actions.h"
 #include "datapath.h"
 #include "packet.h"
+#include "pipeline.h"
 #include "oflib/ofl.h"
 #include "oflib/ofl-actions.h"
 #include "oflib/ofl-print.h"
@@ -204,7 +205,7 @@ action_set_clear_actions(struct action_set *set) {
 }
 
 void
-action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie) {
+action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie, bool in_egress) {
     struct action_set_entry *entry, *next;
 
     LIST_FOR_EACH_SAFE(entry, next, struct action_set_entry, node, &set->actions) {
@@ -218,8 +219,9 @@ action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie) 
     action_set_clear_actions(pkt->action_set);
 
         /* According to the spec. if there was a group action, the output
-         * port action should be ignored */
-        if (pkt->out_group != OFPG_ANY) {
+         * port action should be ignored. On the other hand, the egress
+	 * action-set does not support the group action. */
+        if ((pkt->out_group != OFPG_ANY) && (in_egress == false)) {
             uint32_t group_id = pkt->out_group;
             pkt->out_group = OFPG_ANY;
 
@@ -233,10 +235,21 @@ action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie) 
             uint16_t max_len = pkt->out_port_max_len;
             pkt->out_port = OFPP_ANY;
             pkt->out_port_max_len = 0;
-            pkt->out_queue = 0;
 
-            dp_actions_output_port(pkt, port_id, queue_id, max_len, cookie);
-            packet_destroy(pkt);
+            /* Check if we need to return to egress tables. */
+            if ((in_egress == false)
+                && (pkt->dp->config.egress_table_id != OFPTT_ALL)
+                && (pkt->dp->config.egress_table_id != 0)) {
+                /* In ingress or in group: process packet with egress tables.
+                 * Make sure queue-id is not clobbered. Jean II */
+                pipeline_process_egress_packet(pkt, port_id, max_len);
+            } else {
+                /* In egress action-set, or no egress tables : send to port.
+                 * This assumes that groups are not used in egress. Jean II */
+                pkt->out_queue = 0;
+                dp_actions_output_port(pkt, port_id, queue_id, max_len, cookie);
+                packet_destroy(pkt);
+	    }
             return;
         }
 

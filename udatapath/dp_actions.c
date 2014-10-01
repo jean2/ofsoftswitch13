@@ -999,9 +999,22 @@ dp_execute_action_list(struct packet *pkt,
             uint16_t max_len = pkt->out_port_max_len;
             pkt->out_port = OFPP_ANY;
             pkt->out_port_max_len = 0;
-            pkt->out_queue = 0;
-            VLOG_DBG_RL(LOG_MODULE, &rl, "Port action; sending to port (%u).", port);
-            dp_actions_output_port(pkt, port, queue, max_len, cookie);
+            /* Check if egress tables are enabled. */
+            if ((pkt->dp->config.egress_table_id != OFPTT_ALL)
+                && (pkt->dp->config.egress_table_id != 0)) {
+                struct packet *pkt_clone;
+                /* Egress table exist: process packet with egress tables.
+                 * Make sure queue-id is not clobbered. Jean II */
+                VLOG_DBG_RL(LOG_MODULE, &rl, "Port action; sending to egress (%u).", port);
+		/* Send a clone of the packet to the egress pipeline. */
+                pkt_clone = packet_clone(pkt);
+                pipeline_process_egress_packet(pkt_clone, port, max_len);
+            } else {
+                /* No egress table : send to port. */
+                pkt->out_queue = 0;
+                VLOG_DBG_RL(LOG_MODULE, &rl, "Port action; sending to port (%u).", port);
+                dp_actions_output_port(pkt, port, queue, max_len, cookie);
+	    }
         }
 
     }
