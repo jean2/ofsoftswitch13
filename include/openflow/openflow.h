@@ -151,6 +151,8 @@ enum ofp_port_no {
     /* Maximum number of physical and logical switch ports. */
     OFPP_MAX = 0xffffff00, 
     /* Reserved OpenFlow Port (fake output "ports"). */
+    OFPP_UNSET     = 0xfffffff7,  /* Output port not set in action-set.
+                                     used only in OXM_OF_ACTSET_OUTPUT. */
     OFPP_IN_PORT = 0xfffffff8,    /* Send the packet out the input port. This
                                      reserved port must be explicitly used
                                      in order to send back out of the input
@@ -327,7 +329,10 @@ enum oxm_ofb_match_fields {
     OFPXMT_OFB_MPLS_BOS = 36,       /* MPLS BoS bit. */
     OFPXMT_OFB_PBB_ISID = 37,       /* PBB I-SID. */
     OFPXMT_OFB_TUNNEL_ID = 38,      /* Logical Port Metadata. */
-    OFPXMT_OFB_IPV6_EXTHDR = 39     /* IPv6 Extension Header pseudo-field */
+    OFPXMT_OFB_IPV6_EXTHDR = 39,    /* IPv6 Extension Header pseudo-field */
+    OFPXMT_OFB_RESERVED = 40,       /* Reserved for future use. */
+    OFPXMT_OFB_PBB_UCA = 41,        /* PBB UCA header field. */
+    OFPXMT_OFB_ACTSET_OUTPUT = 42,  /* Output port from action set metadata. */
 };
 
 /* The VLAN id is 12-bits, so we can use the entire 16 bits to indicate

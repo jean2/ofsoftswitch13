@@ -73,6 +73,8 @@ packet_handle_std_validate(struct packet_handle_std *handle) {
      * need to save the metadata value in the packet structure. Jean II */
     /*Add metadata value to the hash_map */
     ofl_structs_match_put64(&handle->match,  OXM_OF_METADATA, 0x0000000000000000);
+    /*Add actset_output value to the hash_map */
+    ofl_structs_match_put32(&handle->match,  OXM_OF_ACTSET_OUTPUT, handle->pkt->actset_output);
     return;
 }
 

@@ -1555,7 +1555,16 @@ parse_match(char *str, struct ofl_match_header **match) {
             else ofl_structs_match_put16(m, OXM_OF_IPV6_EXTHDR, ext_hdr);
             continue;
         }
-        ofp_fatal(0, "Error parsing match arg: %s.", token);
+        if (strncmp(token, MATCH_ACTSET_OUTPUT KEY_VAL, strlen(MATCH_ACTSET_OUTPUT KEY_VAL)) == 0) {
+            uint32_t out_port;
+            if (parse_port(token + strlen(MATCH_ACTSET_OUTPUT KEY_VAL), &out_port)) {
+                ofp_fatal(0, "Error parsing actset_output port: %s.", token);
+            }
+            else ofl_structs_match_put32(m,OXM_OF_ACTSET_OUTPUT,out_port);
+            continue;
+        }
+
+         ofp_fatal(0, "Error parsing match arg: %s.", token);
     }
     
     (*match) = (struct ofl_match_header *)m;

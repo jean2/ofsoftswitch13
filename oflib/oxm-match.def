@@ -101,5 +101,8 @@ DEFINE_FIELD    (OF_IPV6_ND_TARGET, OXM_DL_IPV6,     IPPROTO_ICMPV6, false)
 DEFINE_FIELD    (OF_IPV6_ND_SLL,    OXM_DL_IPV6,     IPPROTO_ICMPV6, false)
 DEFINE_FIELD    (OF_IPV6_ND_TLL,    OXM_DL_IPV6,     IPPROTO_ICMPV6, false)
 DEFINE_FIELD_M  (OF_TUNNEL_ID,      OXM_DL_NONE,     0,              true)
+DEFINE_FIELD    (OF_RESERVED,       OXM_DL_NONE,      0,             false)
+DEFINE_FIELD    (OF_PBB_UCA,        OXM_DL_PBB,       0,             false)
+DEFINE_FIELD    (OF_ACTSET_OUTPUT,  OXM_DL_NONE,      0,             false)
 
 #undef DEFINE_FIELD

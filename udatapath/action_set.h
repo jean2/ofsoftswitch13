@@ -43,6 +43,7 @@
 struct action_set;
 struct datapath;
 struct packet;
+struct packet_handle_std;
 
 
 /****************************************************************************
@@ -66,7 +67,8 @@ action_set_clone(struct action_set *set);
 void
 action_set_write_actions(struct action_set *set,
                          size_t actions_num,
-                         struct ofl_action_header **actions);
+                         struct ofl_action_header **actions,
+                         struct packet_handle_std *handle);
 
 
 /* Clears the actions from the set. */

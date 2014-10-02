@@ -63,6 +63,7 @@ struct packet {
     uint32_t            buffer_id; /* if packet is stored in buffer, buffer_id;
                                       otherwise 0xffffffff */
     uint32_t            egress_count;   /* Number of time in egress */
+    uint32_t            actset_output;  /* output action from action set */
 
     struct packet_handle_std  *handle_std; /* handler for standard match structure */
 };

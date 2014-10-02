@@ -37,9 +37,11 @@
 #include "oflib/ofl.h"
 #include "oflib/ofl-actions.h"
 #include "oflib/ofl-print.h"
+#include "oflib/oxm-match.h"
 #include "packet.h"
 #include "list.h"
 #include "util.h"
+#include "hash.h"
 #include "vlog.h"
 
 #define LOG_MODULE VLM_action_set
@@ -143,8 +145,26 @@ action_set_clone(struct action_set *set) {
  * in the specification. */
 static void
 action_set_write_action(struct action_set *set,
-                        struct ofl_action_header *act) {
+                        struct ofl_action_header *act,
+                        struct packet_handle_std *handle) {
     struct action_set_entry *entry, *new_entry;
+
+    /* Update actset_output field as needed. Jean II */
+    if ((act->type == OFPAT_OUTPUT) || (act->type == OFPAT_GROUP)) {
+        struct  ofl_match_tlv *f;
+        if (act->type == OFPAT_OUTPUT) {
+            struct ofl_action_output *outact = (struct ofl_action_output *) act;
+            handle->pkt->actset_output = outact->port;
+        } else
+            handle->pkt->actset_output = OFPP_UNSET;
+        /* It's quicker to update the handle than unvalidate it. Jean II */
+        HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv,
+                                hmap_node, hash_int(OXM_OF_ACTSET_OUTPUT, 0),
+                                &handle->match.match_fields) {
+            uint32_t *out_p = (uint32_t*) f->value;
+            *out_p = handle->pkt->actset_output;
+        }
+    }
 
     new_entry = action_set_create_entry(act);
 
@@ -183,11 +203,12 @@ action_set_write_action(struct action_set *set,
 void
 action_set_write_actions(struct action_set *set,
                          size_t actions_num,
-                         struct ofl_action_header **actions) {
+                         struct ofl_action_header **actions,
+                         struct packet_handle_std *handle) {
     size_t i;
     VLOG_DBG_RL(LOG_MODULE, &rl, "Writing to action set.");
     for (i=0; i<actions_num; i++) {
-        action_set_write_action(set, actions[i]);
+      action_set_write_action(set, actions[i], handle);
     }
     VLOG_DBG_RL(LOG_MODULE, &rl, action_set_to_string(set));
 }

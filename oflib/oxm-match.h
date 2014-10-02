@@ -224,6 +224,12 @@
 #define OXM_OF_IPV6_EXTHDR  OXM_HEADER      (0x8000, 39, 2)
 #define OXM_OF_IPV6_EXTHDR_W  OXM_HEADER_W  (0x8000, 39, 2)
 
+#define OXM_OF_RESERVED OXM_HEADER       (0x8000, 40, 1)
+
+#define OXM_OF_PBB_UCA OXM_HEADER        (0x8000, 41, 1)
+
+#define OXM_OF_ACTSET_OUTPUT  OXM_HEADER    (0x8000, 42, 4)
+
 /* ## ------------------------------- ## */
 /* ## IPv6 compatible fields. ## */
 /* ## ------------------------------- ## */
@@ -284,7 +290,7 @@ enum oxm_field_index {
 #define DEFINE_FIELD(HEADER,DL_TYPES, NW_PROTO, MASKABLE) \
         OFI_OXM_##HEADER,
 #include "oxm-match.def"
-    NUM_OXM_FIELDS = 56
+    NUM_OXM_FIELDS = 59
 };
 
 struct oxm_field {

@@ -212,7 +212,7 @@ pipeline_process_egress_packet(struct packet *pkt, uint32_t out_port, uint16_t o
     pkt->egress_count++;
 
     /* The action set start with a single action, which output to the port. */
-    action_set_write_actions(pkt->action_set, 1, action_array);
+    action_set_write_actions(pkt->action_set, 1, action_array, pkt->handle_std);
 
     /* We start at the first egress table and go on from there. Jean II */
     next_table = pl->tables[pl->dp->config.egress_table_id];
@@ -697,7 +697,7 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
             }
             case OFPIT_WRITE_ACTIONS: {
                 struct ofl_instruction_actions *wa = (struct ofl_instruction_actions *)inst;
-                action_set_write_actions((*pkt)->action_set, wa->actions_num, wa->actions);
+                action_set_write_actions((*pkt)->action_set, wa->actions_num, wa->actions, (*pkt)->handle_std);
                 break;
             }
             case OFPIT_APPLY_ACTIONS: {

@@ -164,7 +164,7 @@ execute_all(struct group_entry *entry, struct packet *pkt) {
             free(b);
         }
 
-        action_set_write_actions(p->action_set, bucket->actions_num, bucket->actions);
+        action_set_write_actions(p->action_set, bucket->actions_num, bucket->actions, p->handle_std);
 
         entry->stats->byte_count += p->buffer->size;
         entry->stats->packet_count++;
@@ -195,7 +195,7 @@ execute_select(struct group_entry *entry, struct packet *pkt) {
             free(b);
         }
 
-        action_set_write_actions(pkt->action_set, bucket->actions_num, bucket->actions);
+        action_set_write_actions(pkt->action_set, bucket->actions_num, bucket->actions, pkt->handle_std);
 
         entry->stats->byte_count += pkt->buffer->size;
         entry->stats->packet_count++;
@@ -224,7 +224,7 @@ execute_indirect(struct group_entry *entry, struct packet *pkt) {
             free(b);
         }
 
-        action_set_write_actions(pkt->action_set, bucket->actions_num, bucket->actions);
+        action_set_write_actions(pkt->action_set, bucket->actions_num, bucket->actions, pkt->handle_std);
 
         entry->stats->byte_count += pkt->buffer->size;
         entry->stats->packet_count++;
@@ -254,7 +254,7 @@ execute_ff(struct group_entry *entry, struct packet *pkt) {
             free(b);
         }
 
-        action_set_write_actions(pkt->action_set, bucket->actions_num, bucket->actions);
+        action_set_write_actions(pkt->action_set, bucket->actions_num, bucket->actions, pkt->handle_std);
 
         entry->stats->byte_count += pkt->buffer->size;
         entry->stats->packet_count++;

@@ -215,6 +215,7 @@ static struct names16 band_names[] = {
 #define MATCH_PBB_ISID       "pbb_isid"
 #define MATCH_TUNNEL_ID      "tunn_id"    
 #define MATCH_EXT_HDR        "ext_hdr"
+#define MATCH_ACTSET_OUTPUT  "actset_output"
 
 #define GROUP_MOD_COMMAND "cmd"
 #define GROUP_MOD_TYPE    "type"
