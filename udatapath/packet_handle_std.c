@@ -67,6 +67,10 @@ packet_handle_std_validate(struct packet_handle_std *handle) {
 
     /* Add in_port value to the hash_map */
     ofl_structs_match_put32(&handle->match, OXM_OF_IN_PORT, handle->pkt->in_port);
+    /* I think the following is wrong. A packet modification in apply-action
+     * would cause the metadata value to be reset. Either we need to read
+     * the current metadata before freeing it, or OFPIT_WRITE_METADATA would
+     * need to save the metadata value in the packet structure. Jean II */
     /*Add metadata value to the hash_map */
     ofl_structs_match_put64(&handle->match,  OXM_OF_METADATA, 0x0000000000000000);
     return;
