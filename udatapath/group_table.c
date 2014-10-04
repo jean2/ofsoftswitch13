@@ -192,7 +192,7 @@ group_table_handle_group_mod(struct group_table *table, struct ofl_msg_group_mod
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
 
     for (i=0; i< mod->buckets_num; i++) {
-        error = dp_actions_validate(table->dp, mod->buckets[i]->actions_num, mod->buckets[i]->actions);
+        error = dp_actions_validate(table->dp, mod->buckets[i]->actions_num, mod->buckets[i]->actions, false);
         if (error) {
             return error;
         }

@@ -299,8 +299,9 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
         if (msg->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
             msg->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
             struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)msg->instructions[i];
+            bool no_output = (msg->table_id >= pl->dp->config.egress_table_id) && (msg->instructions[i]->type == OFPIT_WRITE_ACTIONS);
 
-            error = dp_actions_validate(pl->dp, ia->actions_num, ia->actions);
+            error = dp_actions_validate(pl->dp, ia->actions_num, ia->actions, no_output);
             if (error) {
                 return error;
             }

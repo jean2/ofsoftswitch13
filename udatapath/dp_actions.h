@@ -68,7 +68,7 @@ dp_actions_list_has_out_group(size_t actions_num, struct ofl_action_header **act
 /* Validates the set of actions based on the available ports and groups. Returns an OpenFlow
  * error if the actions are invalid. */
 ofl_err
-dp_actions_validate(struct datapath *dp, size_t actions_num, struct ofl_action_header **actions);
+dp_actions_validate(struct datapath *dp, size_t actions_num, struct ofl_action_header **actions, bool no_output);
 
 /* Validates the set of set_field actions, checking if the pre requisites are present in the match. Returns and Openlow
  * error if the actions are invalid. */

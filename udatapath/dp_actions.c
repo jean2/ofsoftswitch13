@@ -1118,13 +1118,16 @@ dp_actions_list_has_out_group(size_t actions_num, struct ofl_action_header **act
 }
 
 ofl_err
-dp_actions_validate(struct datapath *dp, size_t actions_num, struct ofl_action_header **actions) {
+dp_actions_validate(struct datapath *dp, size_t actions_num, struct ofl_action_header **actions, bool no_output) {
     size_t i;
 
     for (i=0; i < actions_num; i++) {
         if (actions[i]->type == OFPAT_OUTPUT) {
             struct ofl_action_output *ao = (struct ofl_action_output *)actions[i];
 
+            if (no_output) {
+                return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_TYPE);
+            }
             if (ao->port <= OFPP_MAX && dp_ports_lookup(dp, ao->port) == NULL) {
                 VLOG_WARN_RL(LOG_MODULE, &rl, "Output action for invalid port (%u).", ao->port);
                 return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT);
@@ -1133,6 +1136,9 @@ dp_actions_validate(struct datapath *dp, size_t actions_num, struct ofl_action_h
         if (actions[i]->type == OFPAT_GROUP) {
             struct ofl_action_group *ag = (struct ofl_action_group *)actions[i];
 
+            if (no_output) {
+                return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_TYPE);
+            }
             if (ag->group_id <= OFPG_MAX && group_table_find(dp->groups, ag->group_id) == NULL) {
                 VLOG_WARN_RL(LOG_MODULE, &rl, "Group action for invalid group (%u).", ag->group_id);
                 return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_OUT_GROUP);

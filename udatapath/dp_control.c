@@ -135,7 +135,7 @@ handle_control_packet_out(struct datapath *dp, struct ofl_msg_packet_out *msg,
     if(sender->remote->role == OFPCR_ROLE_SLAVE)
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE);
 
-    error = dp_actions_validate(dp, msg->actions_num, msg->actions);
+    error = dp_actions_validate(dp, msg->actions_num, msg->actions, false);
     if (error) {
         return error;
     }
