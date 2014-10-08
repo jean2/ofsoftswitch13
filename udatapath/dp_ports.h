@@ -143,6 +143,8 @@ dp_ports_output(struct datapath *dp, struct ofpbuf *buffer, uint32_t out_port,
  * packet is not sent out on ports with flooding disabled. */
 int
 dp_ports_output_all(struct datapath *dp, struct ofpbuf *buffer, int in_port, bool flood);
+void
+dp_ports_egress_all(struct packet *pkt, uint32_t out_port, uint16_t out_max_len);
 
 /* Handles a port mod message. */
 ofl_err

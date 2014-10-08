@@ -662,6 +662,30 @@ dp_ports_output_all(struct datapath *dp, struct ofpbuf *buffer, int in_port, boo
     return 0;
 }
 
+void
+dp_ports_egress_all(struct packet *pkt, uint32_t out_port, uint16_t out_max_len)
+{
+    struct sw_port *p;
+    uint32_t in_port = pkt->in_port;
+    bool flood = out_port == OFPP_FLOOD;
+
+    LIST_FOR_EACH (p, struct sw_port, node, &pkt->dp->port_list) {
+        struct packet *pkt_clone;
+
+        if (p->stats->port_no == in_port) {
+            continue;
+        }
+        if (flood && p->conf->config & OFPPC_NO_FWD) {
+            continue;
+        }
+
+        pkt_clone = packet_clone(pkt);
+        pipeline_process_egress_packet(pkt_clone, p->stats->port_no, out_max_len);
+    }
+
+    return;
+}
+
 ofl_err
 dp_ports_handle_port_mod(struct datapath *dp, struct ofl_msg_port_mod *msg,
                                                 const struct sender *sender) {

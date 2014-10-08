@@ -1006,9 +1006,14 @@ dp_execute_action_list(struct packet *pkt,
                 /* Egress table exist: process packet with egress tables.
                  * Make sure queue-id is not clobbered. Jean II */
                 VLOG_DBG_RL(LOG_MODULE, &rl, "Port action; sending to egress (%u).", port);
-		/* Send a clone of the packet to the egress pipeline. */
-                pkt_clone = packet_clone(pkt);
-                pipeline_process_egress_packet(pkt_clone, port, max_len);
+                if ((port == OFPP_ALL) || (port == OFPP_FLOOD)) {
+                    /* Cloning done inside for each valid port. */
+                    dp_ports_egress_all(pkt, port, max_len);
+                } else {
+                    /* Send a clone of the packet to the egress pipeline. */
+                    pkt_clone = packet_clone(pkt);
+                    pipeline_process_egress_packet(pkt_clone, port, max_len);
+		}
             } else {
                 /* No egress table : send to port. */
                 pkt->out_queue = 0;

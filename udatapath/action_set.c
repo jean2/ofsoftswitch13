@@ -263,7 +263,12 @@ action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie, 
                 && (pkt->dp->config.egress_table_id != 0)) {
                 /* In ingress or in group: process packet with egress tables.
                  * Make sure queue-id is not clobbered. Jean II */
-                pipeline_process_egress_packet(pkt, port_id, max_len);
+                if ((port_id == OFPP_ALL) || (port_id == OFPP_FLOOD)) {
+                    dp_ports_egress_all(pkt, port_id, max_len);
+                    packet_destroy(pkt);
+                } else {
+                    pipeline_process_egress_packet(pkt, port_id, max_len);
+		}
             } else {
                 /* In egress action-set, or no egress tables : send to port.
                  * This assumes that groups are not used in egress. Jean II */
