@@ -707,7 +707,7 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
                 break;
             }
             case OFPIT_CLEAR_ACTIONS: {
-                action_set_clear_actions((*pkt)->action_set);
+                action_set_clear_actions((*pkt)->action_set, (*pkt)->handle_std);
                 break;
             }
             case OFPIT_METER: {

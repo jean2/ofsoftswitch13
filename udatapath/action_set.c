@@ -107,8 +107,9 @@ action_set_create(struct ofl_exp *exp) {
     return set;
 }
 
-void action_set_destroy(struct action_set *set) {
-    action_set_clear_actions(set);
+void action_set_destroy(struct action_set *set,
+                        struct packet_handle_std *handle) {
+    action_set_clear_actions(set, handle);
     free(set);
 }
 
@@ -139,6 +140,23 @@ action_set_clone(struct action_set *set) {
     return s;
 }
 
+/* Helper function to update the Action Set Output Port match field. Jean II */
+static void
+action_set_update_actset_output(struct packet_handle_std *handle,
+                                uint32_t outport)
+{
+    struct  ofl_match_tlv *f;
+
+    handle->pkt->actset_output = outport;
+
+    /* It's quicker to update the handle than unvalidate it. Jean II */
+    HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv,
+                            hmap_node, hash_int(OXM_OF_ACTSET_OUTPUT, 0),
+                            &handle->match.match_fields) {
+         uint32_t *out_p = (uint32_t*) f->value;
+         *out_p = outport;
+    }
+}
 
 /* Writes a single action to the action set. Overwrites existing actions with
  * the same type in the set. The list order is based on the precedence defined
@@ -151,19 +169,13 @@ action_set_write_action(struct action_set *set,
 
     /* Update actset_output field as needed. Jean II */
     if ((act->type == OFPAT_OUTPUT) || (act->type == OFPAT_GROUP)) {
-        struct  ofl_match_tlv *f;
+        uint32_t outport;
         if (act->type == OFPAT_OUTPUT) {
             struct ofl_action_output *outact = (struct ofl_action_output *) act;
-            handle->pkt->actset_output = outact->port;
+            outport = outact->port;
         } else
-            handle->pkt->actset_output = OFPP_UNSET;
-        /* It's quicker to update the handle than unvalidate it. Jean II */
-        HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv,
-                                hmap_node, hash_int(OXM_OF_ACTSET_OUTPUT, 0),
-                                &handle->match.match_fields) {
-            uint32_t *out_p = (uint32_t*) f->value;
-            *out_p = handle->pkt->actset_output;
-        }
+            outport = OFPP_UNSET;
+        action_set_update_actset_output(handle, outport);
     }
 
     new_entry = action_set_create_entry(act);
@@ -208,13 +220,14 @@ action_set_write_actions(struct action_set *set,
     size_t i;
     VLOG_DBG_RL(LOG_MODULE, &rl, "Writing to action set.");
     for (i=0; i<actions_num; i++) {
-      action_set_write_action(set, actions[i], handle);
+        action_set_write_action(set, actions[i], handle);
     }
     VLOG_DBG_RL(LOG_MODULE, &rl, action_set_to_string(set));
 }
 
 void
-action_set_clear_actions(struct action_set *set) {
+action_set_clear_actions(struct action_set *set,
+                         struct packet_handle_std *handle) {
     struct action_set_entry *entry, *next;
 
     LIST_FOR_EACH_SAFE(entry, next, struct action_set_entry, node, &set->actions) {
@@ -223,6 +236,9 @@ action_set_clear_actions(struct action_set *set) {
         //       which added the action to the set
         free(entry);
     }
+
+    /* Clear actset_output field. Jean II */
+    action_set_update_actset_output(handle, OFPP_UNSET);
 }
 
 void
@@ -237,7 +253,7 @@ action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie, 
 
     /* Clear the action set in any case. Group processing depend on
      * a clean action-set. Jean II */
-    action_set_clear_actions(pkt->action_set);
+    action_set_clear_actions(pkt->action_set, pkt->handle_std);
 
         /* According to the spec. if there was a group action, the output
          * port action should be ignored. On the other hand, the egress

@@ -114,7 +114,7 @@ packet_destroy(struct packet *pkt) {
         }
     }
 
-    action_set_destroy(pkt->action_set);
+    action_set_destroy(pkt->action_set, pkt->handle_std);
     ofpbuf_delete(pkt->buffer);
     packet_handle_std_destroy(pkt->handle_std);
     free(pkt);

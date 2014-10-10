@@ -55,7 +55,8 @@ action_set_create(struct ofl_exp *exp);
 
 /* Destroys an action set */
 void
-action_set_destroy(struct action_set *set);
+action_set_destroy(struct action_set *set,
+                   struct packet_handle_std *handle);
 
 /* Creates a clone of an action set. Used when cloning a datapath packet in
  * groups. */
@@ -73,7 +74,8 @@ action_set_write_actions(struct action_set *set,
 
 /* Clears the actions from the set. */
 void
-action_set_clear_actions(struct action_set *set);
+action_set_clear_actions(struct action_set *set,
+                         struct packet_handle_std *handle);
 
 /* Executes the actions in the set on the packet. Packet is the owner of the
  * action set right now, but this might be changed in the future. */
