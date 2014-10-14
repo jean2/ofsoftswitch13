@@ -901,82 +901,82 @@ dec_nw_ttl(struct packet *pkt, struct ofl_action_header *act UNUSED) {
 
 
 void
-dp_execute_action(struct packet *pkt,
+dp_execute_action(struct packet **pkt_p,
                struct ofl_action_header *action) {
 
     if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
-        char *a = ofl_action_to_string(action, pkt->dp->exp);
+        char *a = ofl_action_to_string(action, (*pkt_p)->dp->exp);
         VLOG_DBG_RL(LOG_MODULE, &rl, "executing action %s.", a);
         free(a);
     }
 
     switch (action->type) {
         case (OFPAT_SET_FIELD): {
-            set_field(pkt,(struct ofl_action_set_field*) action);
+            set_field((*pkt_p), (struct ofl_action_set_field*) action);
             break;
         }
          case (OFPAT_OUTPUT): {
-            output(pkt, (struct ofl_action_output *)action);
+            output((*pkt_p), (struct ofl_action_output *)action);
             break;
         }
         case (OFPAT_COPY_TTL_OUT): {
-            copy_ttl_out(pkt, action);
+            copy_ttl_out((*pkt_p), action);
             break;
         }
         case (OFPAT_COPY_TTL_IN): {
-            copy_ttl_in(pkt, action);
+            copy_ttl_in((*pkt_p), action);
             break;
         }
         case (OFPAT_SET_MPLS_TTL): {
-            set_mpls_ttl(pkt, (struct ofl_action_mpls_ttl *)action);
+            set_mpls_ttl((*pkt_p), (struct ofl_action_mpls_ttl *)action);
             break;
         }
         case (OFPAT_DEC_MPLS_TTL): {
-            dec_mpls_ttl(pkt, action);
+            dec_mpls_ttl((*pkt_p), action);
             break;
         }
         case (OFPAT_PUSH_VLAN): {
-            push_vlan(pkt, (struct ofl_action_push *)action);
+            push_vlan((*pkt_p), (struct ofl_action_push *)action);
             break;
         }
         case (OFPAT_POP_VLAN): {
-            pop_vlan(pkt, action);
+            pop_vlan((*pkt_p), action);
             break;
         }
         case (OFPAT_PUSH_MPLS): {
-            push_mpls(pkt, (struct ofl_action_push *)action);
+            push_mpls((*pkt_p), (struct ofl_action_push *)action);
             break;
         }
         case (OFPAT_POP_MPLS): {
-            pop_mpls(pkt, (struct ofl_action_pop_mpls *)action);
+            pop_mpls((*pkt_p), (struct ofl_action_pop_mpls *)action);
             break;
         }
         case (OFPAT_SET_QUEUE): {
-            set_queue(pkt, (struct ofl_action_set_queue *)action);
+            set_queue((*pkt_p), (struct ofl_action_set_queue *)action);
             break;
         }
         case (OFPAT_GROUP): {
-            group(pkt, (struct ofl_action_group *)action);
+            group((*pkt_p), (struct ofl_action_group *)action);
             break;
         }
         case (OFPAT_SET_NW_TTL): {
-            set_nw_ttl(pkt, (struct ofl_action_set_nw_ttl *)action);
+            set_nw_ttl((*pkt_p), (struct ofl_action_set_nw_ttl *)action);
             break;
         }
         case (OFPAT_DEC_NW_TTL): {
-            dec_nw_ttl(pkt, action);
+            dec_nw_ttl((*pkt_p), action);
             break;
         }
         case (OFPAT_PUSH_PBB):{
-            push_pbb(pkt, (struct ofl_action_push*)action);
+            push_pbb((*pkt_p), (struct ofl_action_push*)action);
             break;
         }
         case (OFPAT_POP_PBB):{
-            pop_pbb(pkt, action);
+            pop_pbb((*pkt_p), action);
             break;
         }
         case (OFPAT_EXPERIMENTER): {
-        	dp_exp_action(pkt, (struct ofl_action_experimenter *)action);
+        	dp_exp_action((*pkt_p), (struct ofl_action_experimenter *)action);
             break;
         }
 
@@ -984,8 +984,8 @@ dp_execute_action(struct packet *pkt,
             VLOG_WARN_RL(LOG_MODULE, &rl, "Trying to execute unknown action type (%u).", action->type);
         }
     }
-    if (VLOG_IS_DBG_ENABLED(LOG_MODULE)) {
-        char *p = packet_to_string(pkt);
+    if (VLOG_IS_DBG_ENABLED(LOG_MODULE) && (*pkt_p != NULL)) {
+        char *p = packet_to_string((*pkt_p));
         VLOG_DBG_RL(LOG_MODULE, &rl, "action result: %s", p);
         free(p);
     }
@@ -995,37 +995,41 @@ dp_execute_action(struct packet *pkt,
 
 
 void
-dp_execute_action_list(struct packet *pkt,
+dp_execute_action_list(struct packet **pkt_p,
                 size_t actions_num, struct ofl_action_header **actions, uint64_t cookie) {
     size_t i;
 
     VLOG_DBG_RL(LOG_MODULE, &rl, "Executing action list.");
 
     for (i=0; i < actions_num; i++) {
-        dp_execute_action(pkt, actions[i]);
+        dp_execute_action(pkt_p, actions[i]);
 
-        if (pkt->out_group != OFPG_ANY) {
+        /* Packet could be destroyed by a meter action */
+        if(*pkt_p == NULL){
+            return;
+        }
+        if ((*pkt_p)->out_group != OFPG_ANY) {
             struct packet *pkt_clone;
-            uint32_t group = pkt->out_group;
-            pkt->out_group = OFPG_ANY;
+            uint32_t group = (*pkt_p)->out_group;
+            (*pkt_p)->out_group = OFPG_ANY;
             VLOG_DBG_RL(LOG_MODULE, &rl, "Group action; executing group (%u).", group);
             /* The group must process a copy of the packet in the current state,
              * so that when we return we continue processing an unmodified
              * version of the packet. The group must also ignore the current
 	     * action-set. We need to clone the packet with an empty
              * action-set. Jean II */
-            pkt_clone = packet_clone(pkt);
+            pkt_clone = packet_clone(*pkt_p);
             group_table_execute(pkt_clone->dp->groups, pkt_clone, group);
 
-        } else if (pkt->out_port != OFPP_ANY) {
-            uint32_t port = pkt->out_port;
-            uint32_t queue = pkt->out_queue;
-            uint16_t max_len = pkt->out_port_max_len;
-            pkt->out_port = OFPP_ANY;
-            pkt->out_port_max_len = 0;
-            pkt->out_queue = 0;
+        } else if ((*pkt_p)->out_port != OFPP_ANY) {
+            uint32_t port = (*pkt_p)->out_port;
+            uint32_t queue = (*pkt_p)->out_queue;
+            uint16_t max_len = (*pkt_p)->out_port_max_len;
+            (*pkt_p)->out_port = OFPP_ANY;
+            (*pkt_p)->out_port_max_len = 0;
+            (*pkt_p)->out_queue = 0;
             VLOG_DBG_RL(LOG_MODULE, &rl, "Port action; sending to port (%u).", port);
-            dp_actions_output_port(pkt, port, queue, max_len, cookie);
+            dp_actions_output_port((*pkt_p), port, queue, max_len, cookie);
         }
 
     }

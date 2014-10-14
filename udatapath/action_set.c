@@ -208,7 +208,12 @@ action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie) 
     struct action_set_entry *entry, *next;
 
     LIST_FOR_EACH_SAFE(entry, next, struct action_set_entry, node, &set->actions) {
-        dp_execute_action(pkt, entry->action);
+        dp_execute_action(&pkt, entry->action);
+
+        /* Packet and actgion-set could be destroyed by a meter action */
+        if (!pkt)
+            return;
+
         list_remove(&entry->node);
         free(entry);
     }

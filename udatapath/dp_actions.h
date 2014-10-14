@@ -44,13 +44,13 @@
 
 /* Executes the action on the given packet. */
 void
-dp_execute_action(struct packet *pkt,
+dp_execute_action(struct packet **pkt_p,
                   struct ofl_action_header *action);
 
 
 /* Executes the list of action on the given packet. */
 void
-dp_execute_action_list(struct packet *pkt,
+dp_execute_action_list(struct packet **pkt_p,
                 size_t actions_num, struct ofl_action_header **actions, uint64_t cookie);
 
 /* Outputs the packet on the given port and queue. */

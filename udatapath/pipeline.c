@@ -577,7 +577,7 @@ pipeline_timeout(struct pipeline *pl) {
 /* Executes the instructions associated with a flow entry */
 static void
 execute_entry(struct pipeline *pl, struct flow_entry *entry,
-              struct flow_table **next_table, struct packet **pkt) {
+              struct flow_table **next_table, struct packet **pkt_p) {
     /* NOTE: instructions, when present, will be executed in
             the following order:
             Meter
@@ -593,7 +593,7 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
     for (i=0; i < entry->stats->instructions_num; i++) {
         /*Packet was dropped by some instruction or action*/
 
-        if(!(*pkt)){
+        if(!(*pkt_p)){
             return;
         }
 
@@ -611,10 +611,10 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
 
                 /* NOTE: Hackish solution. If packet had multiple handles, metadata
                  *       should be updated in all. */
-                packet_handle_std_validate((*pkt)->handle_std);
+                packet_handle_std_validate((*pkt_p)->handle_std);
                 /* Search field on the description of the packet. */
                 HMAP_FOR_EACH_WITH_HASH(f, struct ofl_match_tlv,
-                    hmap_node, hash_int(OXM_OF_METADATA,0), &(*pkt)->handle_std->match.match_fields){
+                    hmap_node, hash_int(OXM_OF_METADATA,0), &(*pkt_p)->handle_std->match.match_fields){
                     uint64_t *metadata = (uint64_t*) f->value;
                     *metadata = (*metadata & ~wi->metadata_mask) | (wi->metadata & wi->metadata_mask);
                     VLOG_DBG_RL(LOG_MODULE, &rl, "Executing write metadata: %"PRIx64"", *metadata);
@@ -623,25 +623,25 @@ execute_entry(struct pipeline *pl, struct flow_entry *entry,
             }
             case OFPIT_WRITE_ACTIONS: {
                 struct ofl_instruction_actions *wa = (struct ofl_instruction_actions *)inst;
-                action_set_write_actions((*pkt)->action_set, wa->actions_num, wa->actions);
+                action_set_write_actions((*pkt_p)->action_set, wa->actions_num, wa->actions);
                 break;
             }
             case OFPIT_APPLY_ACTIONS: {
                 struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)inst;
-                dp_execute_action_list((*pkt), ia->actions_num, ia->actions, entry->stats->cookie);
+                dp_execute_action_list(pkt_p, ia->actions_num, ia->actions, entry->stats->cookie);
                 break;
             }
             case OFPIT_CLEAR_ACTIONS: {
-                action_set_clear_actions((*pkt)->action_set);
+                action_set_clear_actions((*pkt_p)->action_set);
                 break;
             }
             case OFPIT_METER: {
             	struct ofl_instruction_meter *im = (struct ofl_instruction_meter *)inst;
-                meter_table_apply(pl->dp->meters, pkt , im->meter_id);
+                meter_table_apply(pl->dp->meters, pkt_p , im->meter_id);
                 break;
             }
             case OFPIT_EXPERIMENTER: {
-                dp_exp_inst((*pkt), (struct ofl_instruction_experimenter *)inst);
+                dp_exp_inst((*pkt_p), (struct ofl_instruction_experimenter *)inst);
                 break;
             }
         }
