@@ -203,6 +203,7 @@ ofl_action_type_print(FILE *stream, uint16_t type) {
         case OFPAT_PUSH_MPLS: {      fprintf(stream, "mpls_psh"); return; }
         case OFPAT_POP_MPLS: {       fprintf(stream, "mpls_pop"); return; }
         case OFPAT_SET_QUEUE: {      fprintf(stream, "queue"); return; }
+        case OFPAT_METER: {          fprintf(stream, "meter"); return; }
         case OFPAT_GROUP: {          fprintf(stream, "group"); return; }
         case OFPAT_PUSH_PBB:  {      fprintf(stream, "pbb_psh"); return; }
         case OFPAT_POP_PBB:   {      fprintf(stream, "pbb_pop"); return; }

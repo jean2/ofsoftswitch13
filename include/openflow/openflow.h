@@ -452,6 +452,7 @@ enum ofp_action_type {
     OFPAT_SET_FIELD = 25,    /* Set a header field using OXM TLV format. */
     OFPAT_PUSH_PBB = 26,     /*Push a new PBB service tag (I-TAG) */
     OFPAT_POP_PBB = 27,      /* Pop the outer PBB service tag (I-TAG) */
+    OFPAT_METER        = 28, /* Apply meter (rate limiter) */
     OFPAT_EXPERIMENTER = 0xffff
 };
 
@@ -544,6 +545,14 @@ struct ofp_action_set_field {
 	uint8_t field[4]; /* OXM TLV - Make compiler happy */
 };
 OFP_ASSERT(sizeof(struct ofp_action_set_field) == 8);
+
+/* Action structure for OFPAT_METER */
+struct ofp_action_meter {
+    uint16_t type;                /* OFPAT_METER */
+    uint16_t len;                 /* Length is 8. */
+    uint32_t meter_id;            /* Meter instance. */
+};
+OFP_ASSERT(sizeof(struct ofp_action_meter) == 8);
 
 /* Action header for OFPAT_EXPERIMENTER.
 * The rest of the body is experimenter-defined. */
@@ -1326,6 +1335,13 @@ struct ofp_meter_config {
 };
 OFP_ASSERT(sizeof(struct ofp_meter_config) == 8);
 
+/* Meter feature flags */
+enum ofp_meter_feature_flags {
+    OFPMFF_ACTION_SET   = 1 << 0, /* Support meter action in action set. */
+    OFPMFF_ANY_POSITION = 1 << 1, /* Support any position in action list. */
+    OFPMFF_MULTI_LIST   = 1 << 2, /* Support multiple actions in action list. */
+};
+
 /* Body of reply to OFPMP_METER_FEATURES request. Meter features. */
 struct ofp_meter_features {
     uint32_t max_meter; /* Maximum number of meters. */
@@ -1334,8 +1350,10 @@ struct ofp_meter_features {
     uint8_t max_bands; /* Maximum bands per meters */
     uint8_t max_color; /* Maximum color value */
     uint8_t pad[2];
+    uint32_t    features;     /* Bitmaps of "ofp_meter_feature_flags". */
+    uint8_t     pad2[4];
 };
-OFP_ASSERT(sizeof(struct ofp_meter_features) == 16);
+OFP_ASSERT(sizeof(struct ofp_meter_features) == 24);
 
 
 /* Body for ofp_multipart_request/reply of type OFPMP_EXPERIMENTER. */

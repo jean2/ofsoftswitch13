@@ -839,6 +839,7 @@ ofl_msg_pack_multipart_reply_meter_features(struct ofl_msg_multipart_reply_meter
     feat->capabilities = htonl(msg->features->capabilities);
     feat->max_bands = msg->features->max_bands;
     feat->max_color = msg->features->max_color;
+    feat->features = htonl(msg->features->features);
     memset(feat->pad, 0x0, 2);
     return 0;
 }

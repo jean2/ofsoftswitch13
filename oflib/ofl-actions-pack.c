@@ -70,6 +70,8 @@ ofl_actions_ofp_len(struct ofl_action_header *action, struct ofl_exp *exp) {
             return sizeof(struct ofp_action_pop_mpls);
         case OFPAT_SET_QUEUE:
             return sizeof(struct ofp_action_set_queue);
+        case OFPAT_METER:
+            return sizeof(struct ofp_action_meter);
         case OFPAT_GROUP:
             return sizeof(struct ofp_action_group);
         case OFPAT_SET_NW_TTL:
@@ -172,6 +174,14 @@ ofl_actions_pack(struct ofl_action_header *src, struct ofp_action_header *dst, u
             da->len =      htons(sizeof(struct ofp_action_set_queue));
             da->queue_id = htonl(sa->queue_id);
             return sizeof(struct ofp_action_set_queue);
+        }
+        case OFPAT_METER: {
+            struct ofl_action_meter *sa = (struct ofl_action_meter *)src;
+            struct ofp_action_meter *da = (struct ofp_action_meter *)dst;
+
+            da->len =      htons(sizeof(struct ofp_action_meter));
+            da->meter_id = htonl(sa->meter_id);
+            return sizeof(struct ofp_action_meter);
         }
         case OFPAT_GROUP: {
             struct ofl_action_group *sa = (struct ofl_action_group *)src;

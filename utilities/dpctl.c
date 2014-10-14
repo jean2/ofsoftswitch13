@@ -1969,6 +1969,14 @@ parse_action(uint16_t type, char *str, struct ofl_action_header **act) {
             (*act) = (struct ofl_action_header *)a;
             break;
         }
+        case (OFPAT_METER): {
+            struct ofl_action_meter *a = xmalloc(sizeof(struct ofl_action_meter));
+            if (parse_meter(str, &(a->meter_id))) {
+                ofp_fatal(0, "Error parsing meter in meter action: %s.", str);
+            }
+            (*act) = (struct ofl_action_header *)a;
+            break;
+        }
         case (OFPAT_GROUP): {
             struct ofl_action_group *a = xmalloc(sizeof(struct ofl_action_group));
             if (parse_group(str, &(a->group_id))) {

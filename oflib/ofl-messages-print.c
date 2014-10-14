@@ -522,7 +522,7 @@ static void ofl_msg_print_stats_reply_group_features(struct ofl_msg_multipart_re
             ofl_action_type_print(stream, OFPAT_COPY_TTL_IN);
             fprintf(stream, "/");      
         }
-        for(j = OFPAT_SET_MPLS_TTL; j < OFPAT_POP_PBB; j++){
+        for(j = OFPAT_SET_MPLS_TTL; j < OFPAT_METER; j++){
             if (msg->actions[i] & j){
                 ofl_action_type_print(stream, j);
                 fprintf(stream, "/");

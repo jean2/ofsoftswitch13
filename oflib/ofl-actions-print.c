@@ -126,6 +126,14 @@ ofl_action_print(FILE *stream, struct ofl_action_header *act, struct ofl_exp *ex
             fprintf(stream, "\"}");
             break;
         }
+        case OFPAT_METER: {
+            struct ofl_action_meter *a = (struct ofl_action_meter *)act;
+
+            fprintf(stream, "{m=\"");
+            ofl_queue_print(stream, a->meter_id);
+            fprintf(stream, "\"}");
+            break;
+        }
         case OFPAT_GROUP: {
             struct ofl_action_group *a = (struct ofl_action_group *)act;
 

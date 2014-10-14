@@ -146,6 +146,7 @@ static struct names16 action_names[] = {
         {OFPAT_PUSH_MPLS,      "push_mpls"},
         {OFPAT_POP_MPLS,       "pop_mpls"},
         {OFPAT_SET_QUEUE,      "queue"},
+        {OFPAT_METER,          "meter"},
         {OFPAT_GROUP,          "group"},
         {OFPAT_SET_NW_TTL,     "nw_ttl"},
         {OFPAT_DEC_NW_TTL,     "nw_dec"},

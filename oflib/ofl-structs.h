@@ -395,6 +395,7 @@ struct ofl_meter_features {
     uint32_t max_meter; /* Maximum number of meters. */
     uint32_t band_types; /* Bitmaps of OFPMBT_* values supported. */
     uint32_t capabilities; /* Bitmaps of "ofp_meter_flags". */
+    uint32_t features;     /* Bitmaps of "ofp_meter_feature_flags". */
     uint8_t max_bands; /* Maximum bands per meters */
     uint8_t max_color; /* Maximum color value */
 };

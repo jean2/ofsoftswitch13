@@ -1394,6 +1394,7 @@ ofl_msg_unpack_multipart_reply_meter_features(struct ofp_multipart_reply *os, si
     dst->features->capabilities = ntohl(src->capabilities);
     dst->features->max_bands = src->max_bands;
     dst->features->max_color =  src->max_color;
+    dst->features->features = ntohl(src->features);
 
     *msg = (struct ofl_msg_header*) dst;
     return 0;

@@ -216,6 +216,25 @@ ofl_actions_unpack(struct ofp_action_header *src, size_t *len, struct ofl_action
             break;
         }
 
+        case OFPAT_METER: {
+            struct ofp_action_meter *sa;
+            struct ofl_action_meter *da;
+
+            if (*len < sizeof(struct ofp_action_meter)) {
+                OFL_LOG_WARN(LOG_MODULE, "Received METER action has invalid length (%zu).", *len);
+                return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
+            }
+
+            sa = (struct ofp_action_meter *)src;
+
+            da = (struct ofl_action_meter *)malloc(sizeof(struct ofl_action_meter));
+            da->meter_id = ntohl(sa->meter_id);
+
+            *len -= sizeof(struct ofp_action_meter);
+            *dst = (struct ofl_action_header *)da;
+            break;
+        }
+
         case OFPAT_GROUP: {
             struct ofp_action_group *sa;
             struct ofl_action_group *da;

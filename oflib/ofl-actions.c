@@ -62,6 +62,7 @@ ofl_actions_free(struct ofl_action_header *act, struct ofl_exp *exp) {
         case OFPAT_PUSH_PBB:
         case OFPAT_POP_PBB:
         case OFPAT_SET_QUEUE:
+        case OFPAT_METER:
         case OFPAT_GROUP:
         case OFPAT_SET_NW_TTL:
         case OFPAT_DEC_NW_TTL: {

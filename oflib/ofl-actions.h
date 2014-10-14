@@ -84,6 +84,12 @@ struct ofl_action_set_queue {
     uint32_t   queue_id;
 };
 
+struct ofl_action_meter {
+    struct ofl_action_header   header; /* OFPAT_METER. */
+
+    uint32_t   meter_id;
+};
+
 struct ofl_action_group {
     struct ofl_action_header   header; /* OFPAT_GROUP. */
 
