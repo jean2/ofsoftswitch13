@@ -64,6 +64,7 @@ meter_table_create(struct datapath *dp) {
 	table->features->capabilities = OFPMF_KBPS | OFPMF_BURST | OFPMF_STATS;  /* Rate value in kb/s (kilo-bit per second).
 																				Do burst size. Collect statistics.*/
 	table->features->band_types = 1;
+	table->features->capabilities = OFPMFF_ACTION_SET | OFPMFF_ANY_POSITION | OFPMFF_MULTI_LIST;
 
     return table;
 }

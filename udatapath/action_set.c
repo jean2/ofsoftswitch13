@@ -84,6 +84,7 @@ action_set_order(struct ofl_action_header *act) {
         case (OFPAT_PUSH_MPLS):      return 30;
         case (OFPAT_POP_MPLS):       return 20;
         case (OFPAT_SET_QUEUE):      return 70;
+        case (OFPAT_METER):          return 70;
         case (OFPAT_GROUP):          return 80;
         case (OFPAT_SET_NW_TTL):     return 60;
         case (OFPAT_DEC_NW_TTL):     return 50;

@@ -37,6 +37,7 @@
 #include "dp_actions.h"
 #include "dp_buffers.h"
 #include "datapath.h"
+#include "meter_table.h"
 #include "oflib/ofl.h"
 #include "oflib/ofl-actions.h"
 #include "oflib/ofl-log.h"
@@ -845,6 +846,12 @@ set_queue(struct packet *pkt UNUSED, struct ofl_action_set_queue *act) {
     pkt->out_queue = act->queue_id;
 }
 
+/* Executes meter action. */
+static void
+meter(struct packet **pkt_p, struct ofl_action_meter *act) {
+    meter_table_apply((*pkt_p)->dp->meters, pkt_p , act->meter_id);
+}
+
 /* Executes group action. */
 static void
 group(struct packet *pkt, struct ofl_action_group *act) {
@@ -953,6 +960,11 @@ dp_execute_action(struct packet **pkt_p,
         }
         case (OFPAT_SET_QUEUE): {
             set_queue((*pkt_p), (struct ofl_action_set_queue *)action);
+            break;
+        }
+        case (OFPAT_METER): {
+            meter(pkt_p, (struct ofl_action_meter *)action);
+	    /* Packet may get destroyed above. Jean II */
             break;
         }
         case (OFPAT_GROUP): {
