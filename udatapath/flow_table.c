@@ -398,6 +398,7 @@ flow_table_create(struct datapath *dp, uint8_t table_id) {
     table->features->metadata_match = 0xffffffffffffffff; 
     table->features->metadata_write = 0xffffffffffffffff;
     table->features->config        = OFPTC_TABLE_MISS_CONTROLLER;
+    table->features->features      = (table_id ? OFPTFF_INGRESS_TABLE | OFPTFF_EGRESS_TABLE : OFPTFF_INGRESS_TABLE);
     table->features->max_entries   = FLOW_TABLE_MAX_ENTRIES;
     table->features->properties_num = flow_table_features(table->features);
 

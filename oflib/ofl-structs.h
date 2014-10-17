@@ -214,7 +214,8 @@ struct ofl_table_features {
     uint16_t length;  /* Length is padded to 64 bits. */
     uint8_t table_id; /* Identifier of table. Lower numbered tables
                          are consulted first. */
-    uint8_t pad[5];   /* Align to 64-bits. */
+    uint8_t pad[1];          /* Align to 64-bits. */
+    uint32_t features;       /* Bitmap of OFPTFF_* values. */
     char *name;
     uint64_t metadata_match; /* Bits of metadata table can match. */
     uint64_t metadata_write; /* Bits of metadata table can write. */

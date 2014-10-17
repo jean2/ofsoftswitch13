@@ -388,6 +388,7 @@ ofl_structs_table_features_unpack(struct ofp_table_features *src,size_t *len, st
     feat->metadata_match = ntoh64(src->metadata_match); 
     feat->metadata_write =  ntoh64(src->metadata_write);
     feat->config = ntohl(src->config);
+    feat->features = ntohl(src->features);
     feat->max_entries = ntohl(src->max_entries);
     
     plen = ntohs(src->length) - sizeof(struct ofp_table_features);

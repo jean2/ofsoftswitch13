@@ -1065,13 +1065,20 @@ struct ofp_table_feature_prop_header{
 };
 OFP_ASSERT(sizeof(struct ofp_table_feature_prop_header) == 4);
 
+/* Flags of features supported by the table. */
+enum ofp_table_feature_flag {
+    OFPTFF_INGRESS_TABLE     = 1 << 0, /* Can be configured as ingress table. */
+    OFPTFF_EGRESS_TABLE      = 1 << 1, /* Can be configured as egress table. */
+};
+
 /* Body for ofp_multipart_request of type OFPMP_TABLE_FEATURES./
 * Body of reply to OFPMP_TABLE_FEATURES request. */
 struct ofp_table_features {
     uint16_t length;  /* Length is padded to 64 bits. */
     uint8_t table_id; /* Identifier of table. Lower numbered tables
                          are consulted first. */
-    uint8_t pad[5];   /* Align to 64-bits. */
+    uint8_t pad[1];          /* Align to 64-bits. */
+    uint32_t features;       /* Bitmap of OFPTFF_* values. */
     char name[OFP_MAX_TABLE_NAME_LEN];
     uint64_t metadata_match; /* Bits of metadata table can match. */
     uint64_t metadata_write; /* Bits of metadata table can write. */
