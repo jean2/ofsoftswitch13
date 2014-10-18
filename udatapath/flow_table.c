@@ -394,6 +394,7 @@ flow_table_create(struct datapath *dp, uint8_t table_id) {
     /* Init Table features */
     table->features = xmalloc(sizeof(struct ofl_table_features));
     table->features->table_id = table_id;
+    table->features->command = 0;
     table->features->name          = ds_cstr(&string);
     table->features->metadata_match = 0xffffffffffffffff; 
     table->features->metadata_write = 0xffffffffffffffff;

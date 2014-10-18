@@ -441,12 +441,12 @@ ofl_structs_table_features_pack(struct ofl_table_features *src, struct ofp_table
 
     total_len = sizeof(struct ofp_table_features) + ofl_structs_table_features_properties_ofp_total_len(src->properties,src->properties_num,exp);
     dst->table_id = src->table_id;
-    memset(dst->pad, 0x0,5);
+    dst->command = src->command;
+    dst->features = htonl(src->features);
     strncpy(dst->name,src->name, OFP_MAX_TABLE_NAME_LEN);
     dst->metadata_match = hton64(src->metadata_match);
     dst->metadata_write = hton64(src->metadata_write);
     dst->config = htonl(src->config);
-    dst->features = htonl(src->features);
     dst->max_entries = htonl(src->max_entries);
 
     ptr = (uint8_t*) (data + sizeof(struct ofp_table_features));

@@ -1069,6 +1069,15 @@ OFP_ASSERT(sizeof(struct ofp_table_feature_prop_header) == 4);
 enum ofp_table_feature_flag {
     OFPTFF_INGRESS_TABLE     = 1 << 0, /* Can be configured as ingress table. */
     OFPTFF_EGRESS_TABLE      = 1 << 1, /* Can be configured as egress table. */
+    OFPTFF_FIRST_EGRESS      = 1 << 4, /* Is the first egress table. */
+};
+
+/* Table Features request commands */
+enum ofp_table_features_command {
+    OFPTFC_REPLACE = 0,       /* Replace full pipeline with set of tables. */
+    OFPTFC_ENABLE  = 1,       /* Enable set of tables in the pipeline. */
+    OFPTFC_MODIFY  = 2,       /* Modify set of tables. */
+    OFPTFC_DISABLE = 3,       /* Disable set of tables in pipeline. */
 };
 
 /* Body for ofp_multipart_request of type OFPMP_TABLE_FEATURES./
@@ -1077,7 +1086,7 @@ struct ofp_table_features {
     uint16_t length;  /* Length is padded to 64 bits. */
     uint8_t table_id; /* Identifier of table. Lower numbered tables
                          are consulted first. */
-    uint8_t pad[1];          /* Align to 64-bits. */
+    uint8_t command;         /* One of OFPTFC_*. */
     uint32_t features;       /* Bitmap of OFPTFF_* values. */
     char name[OFP_MAX_TABLE_NAME_LEN];
     uint64_t metadata_match; /* Bits of metadata table can match. */
@@ -1742,6 +1751,10 @@ enum ofp_table_features_failed_code {
     OFPTFFC_BAD_LEN = 3,      /* Length problem in properties. */
     OFPTFFC_BAD_ARGUMENT = 4, /* Unsupported property value. */
     OFPTFFC_EPERM = 5,        /* Permissions error. */
+    OFPTFFC_BAD_CAPA     = 6,      /* Invalid capability field. */
+    OFPTFFC_BAD_MAX_ENT  = 7,      /* Invalid max_entries field. */
+    OFPTFFC_BAD_FEATURES = 8,      /* Invalid features field. */
+    OFPTFFC_BAD_COMMAND  = 9,      /* Invalid command. */
 };
 
 /* OFPET_EXPERIMENTER: Error message (datapath -> controller). */

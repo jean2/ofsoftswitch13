@@ -516,6 +516,10 @@ ofl_error_code_print(FILE *stream, uint16_t type, uint16_t code) {
                 case (OFPTFFC_BAD_LEN) :   { fprintf(stream, "BAD_LEN"); return; }
                 case (OFPTFFC_BAD_ARGUMENT) :   { fprintf(stream, "BAD_ARGUMENT"); return; }
                 case (OFPTFFC_EPERM) :   { fprintf(stream, "EPERM"); return; }
+                case (OFPTFFC_BAD_CAPA) : { fprintf(stream, "BAD_CAPA"); return; }
+                case (OFPTFFC_BAD_MAX_ENT) : { fprintf(stream, "BAD_MAX_ENT"); return; }
+                case (OFPTFFC_BAD_FEATURES) : { fprintf(stream, "BAD_FEATURES"); return; }
+                case (OFPTFFC_BAD_COMMAND) : { fprintf(stream, "BAD_COMMAND"); return; }
             }
             break;
         }

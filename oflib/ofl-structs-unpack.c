@@ -379,6 +379,11 @@ ofl_structs_table_features_unpack(struct ofp_table_features *src,size_t *len, st
         return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_LEN);
     }
     
+    if (src->command > OFPTFC_DISABLE) {
+        OFL_LOG_WARN(LOG_MODULE, "Received TABLE_FEATURE structure with invalid command (%u).", src->command);
+        return ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_COMMAND);
+    }
+
     feat = (struct ofl_table_features*) malloc(sizeof(struct ofl_table_features));
 
     feat->length = ntohs(src->length);
@@ -389,6 +394,7 @@ ofl_structs_table_features_unpack(struct ofp_table_features *src,size_t *len, st
     feat->metadata_write =  ntoh64(src->metadata_write);
     feat->config = ntohl(src->config);
     feat->features = ntohl(src->features);
+    feat->command = src->command;
     feat->max_entries = ntohl(src->max_entries);
     
     plen = ntohs(src->length) - sizeof(struct ofp_table_features);

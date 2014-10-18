@@ -535,41 +535,69 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
     /* Should check merge->tables_num instead. Jean II */
     if(feat->table_features != NULL){
         int last_table_id = 0;
+        uint8_t command = feat->table_features[0]->command;
 
-	/* Check that the table features make sense. */
-        for(i = 0; i < feat->tables_num; i++){
-            /* Table-IDs must be in ascending order. */
-            table_id = feat->table_features[i]->table_id;
-            if(table_id < last_table_id) {
-                error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_TABLE);
-		break;
-            }
-            /* Can't go over out internal max-entries. */
-            if (feat->table_features[i]->max_entries > FLOW_TABLE_MAX_ENTRIES) {
-                error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_ARGUMENT);
-		break;
+        if ((command == OFPTFC_REPLACE) || (command == OFPTFC_MODIFY)) {
+            /* Check that the table features make sense. */
+            for(i = 0; i < feat->tables_num; i++){
+                /* Table-IDs must be in ascending order. */
+                table_id = feat->table_features[i]->table_id;
+                if(table_id < last_table_id) {
+                    error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_TABLE);
+		    break;
+                }
+                /* Can't go over out internal max-entries. */
+                if (feat->table_features[i]->max_entries > FLOW_TABLE_MAX_ENTRIES) {
+                    error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_ARGUMENT);
+                    break;
+                }
             }
         }
 
         if (error == 0) {
 
-            /* Disable all tables, they will be selectively re-enabled. */
-            for(table_id = 0; table_id < PIPELINE_TABLES; table_id++){
-	        pl->tables[table_id]->disabled = true;
+            if (command == OFPTFC_REPLACE) {
+                /* Disable all tables, they will be selectively re-enabled. */
+                for(table_id = 0; table_id < PIPELINE_TABLES; table_id++){
+	           pl->tables[table_id]->disabled = true;
+                }
             }
+
             /* Change tables configuration
                TODO: Remove flows*/
             VLOG_DBG(LOG_MODULE, "pipeline_handle_stats_request_table_features_request: updating features");
             for(i = 0; i < feat->tables_num; i++){
                 table_id = feat->table_features[i]->table_id;
 
-                /* Replace whole table feature. */
-                ofl_structs_free_table_features(pl->tables[table_id]->features, pl->dp->exp);
-                pl->tables[table_id]->features = feat->table_features[i];
-                feat->table_features[i] = NULL;
+                if ((command == OFPTFC_REPLACE) || (command == OFPTFC_MODIFY)) {
+                    /* Clear command field. */
+                    feat->table_features[i]->command = 0;
 
-                /* Re-enable table. */
-                pl->tables[table_id]->disabled = false;
+                    /* Check if properties are provided. */
+                    if (feat->table_features[i]->properties_num != 0) {
+                        /* Replace whole table feature. */
+                        ofl_structs_free_table_features(pl->tables[table_id]->features, pl->dp->exp);
+                        pl->tables[table_id]->features = feat->table_features[i];
+                        feat->table_features[i] = NULL;
+                    } else {
+                        struct ofl_table_features *s = feat->table_features[i];
+                        struct ofl_table_features *d = pl->tables[table_id]->features;
+                        /* Replace top level fields only. */
+                        d->features = s->features;
+                        memcpy(d->name, s->name, OFP_MAX_TABLE_NAME_LEN);
+                        d->metadata_match = s->metadata_match;
+                        d->metadata_write = s->metadata_write;
+                        d->config = s->config;
+                        d->max_entries = s->max_entries;
+                    }
+                }
+
+                /* Check if table need to be enabled or disabled. */
+                if ((command == OFPTFC_REPLACE) || (command == OFPTFC_ENABLE)) {
+                    pl->tables[table_id]->disabled = false;
+                } else if (command == OFPTFC_DISABLE) {
+                    pl->tables[table_id]->disabled = true;
+                }
             }
         }
     }
