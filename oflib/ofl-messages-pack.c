@@ -122,7 +122,6 @@ ofl_msg_pack_get_config_reply(struct ofl_msg_get_config_reply *msg, uint8_t **bu
     config = (struct ofp_switch_config *)(*buf);
     config->flags         = htons(msg->config->flags);
     config->miss_send_len = htons(msg->config->miss_send_len);
-    config->egress_table_id = msg->config->egress_table_id;
 
     return 0;
 }
@@ -137,7 +136,6 @@ ofl_msg_pack_set_config(struct ofl_msg_set_config *msg, uint8_t **buf, size_t *b
     config = (struct ofp_switch_config *)(*buf);
     config->miss_send_len = htons(msg->config->miss_send_len);
     config->flags = htons(msg->config->flags);
-    config->egress_table_id = msg->config->egress_table_id;
 
     return 0;
 }

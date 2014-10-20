@@ -593,7 +593,6 @@ set_config(struct vconn *vconn, int argc UNUSED, char *argv[]) {
     msg.config = xmalloc(sizeof(struct ofl_config));
     msg.config->flags = OFPC_FRAG_NORMAL;
     msg.config->miss_send_len = OFP_DEFAULT_MISS_SEND_LEN;
-    msg.config->egress_table_id = OFPTT_ALL;
 
     parse_config(argv[0], msg.config);
 
@@ -2423,12 +2422,6 @@ parse_config(char *str, struct ofl_config *c) {
         if (strncmp(token, CONFIG_MISS KEY_VAL, strlen(CONFIG_MISS KEY_VAL)) == 0) {
             if (parse16(token + strlen(CONFIG_MISS KEY_VAL), NULL, 0, UINT16_MAX - sizeof(struct ofp_packet_in), &c->miss_send_len)) {
                 ofp_fatal(0, "Error parsing config miss send len: %s.", token);
-            }
-            continue;
-        }
-        if (strncmp(token, CONFIG_EGRESS KEY_VAL, strlen(CONFIG_EGRESS KEY_VAL)) == 0) {
-            if (parse8(token + strlen(CONFIG_EGRESS KEY_VAL), table_names, NUM_ELEMS(table_names), UINT8_MAX,  &c->egress_table_id)) {
-                ofp_fatal(0, "Error parsing config egress table id: %s.", token);
             }
             continue;
         }

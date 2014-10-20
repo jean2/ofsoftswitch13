@@ -598,11 +598,8 @@ struct ofp_switch_config {
 	uint16_t miss_send_len; /* Max bytes of new flow that datapath
                                should send to the controller. See
                                ofp_controller_max_len for valid values.*/
-        uint8_t egress_table_id; /* ID of the first egress table,
-                                    or OFPTT_ALL if no egress table. */
-	uint8_t pad[3];           /* Align to 64-bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_switch_config) == 16);
+OFP_ASSERT(sizeof(struct ofp_switch_config) == 12);
 
 enum ofp_config_flags {
     /* Handling of IP fragments. */
@@ -1709,7 +1706,6 @@ enum ofp_switch_config_failed_code {
     OFPSCFC_BAD_FLAGS = 0, /* Specified flags is invalid. */
     OFPSCFC_BAD_LEN = 1,   /* Specified len is invalid. */
     OFPQCFC_EPERM = 2,     /* Permissions error. */
-    OFPSCFC_BAD_TABLE_ID = 3,   /* Specified first egress table is invalid. */
 };
 
 /* ofp_error_msg ’code’ values for OFPET_ROLE_REQUEST_FAILED. ’data’ contains

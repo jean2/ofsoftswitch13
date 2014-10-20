@@ -107,10 +107,6 @@ handle_control_set_config(struct datapath *dp, struct ofl_msg_set_config *msg,
                                                 const struct sender *sender UNUSED) {
     uint16_t flags;
 
-    if ((msg->config->egress_table_id <= 0)
-	|| (msg->config->egress_table_id > PIPELINE_TABLES))
-        return ofl_error(OFPET_SWITCH_CONFIG_FAILED, OFPSCFC_BAD_TABLE_ID);
-
     flags = msg->config->flags & OFPC_FRAG_MASK;
     if ((flags & OFPC_FRAG_MASK) != OFPC_FRAG_NORMAL
         && (flags & OFPC_FRAG_MASK) != OFPC_FRAG_DROP) {
@@ -119,7 +115,6 @@ handle_control_set_config(struct datapath *dp, struct ofl_msg_set_config *msg,
 
     dp->config.flags = flags;
     dp->config.miss_send_len = msg->config->miss_send_len;
-    dp->config.egress_table_id = msg->config->egress_table_id;
 
     ofl_msg_free((struct ofl_msg_header *)msg, dp->exp);
     return 0;

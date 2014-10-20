@@ -444,8 +444,8 @@ ofl_structs_config_to_string(struct ofl_config *c) {
 
 void
 ofl_structs_config_print(FILE *stream, struct ofl_config *c) {
-    fprintf(stream, "{flags=\"0x%"PRIx16"\", mlen=\"%u\", egress=\"%u\"}",
-            c->flags, c->miss_send_len, c->egress_table_id);
+    fprintf(stream, "{flags=\"0x%"PRIx16"\", mlen=\"%u\"}",
+                  c->flags, c->miss_send_len);
 }
 
 char *

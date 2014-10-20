@@ -504,7 +504,6 @@ ofl_error_code_print(FILE *stream, uint16_t type, uint16_t code) {
             switch (code) {
                 case (OFPSCFC_BAD_FLAGS) : { fprintf(stream, "BAD_FLAGS"); return; }
                 case (OFPSCFC_BAD_LEN) :   { fprintf(stream, "BAD_LEN"); return; }
-                case (OFPSCFC_BAD_TABLE_ID) : { fprintf(stream, "BAD_TABLE_ID"); return; }
             }
             break;
         }
