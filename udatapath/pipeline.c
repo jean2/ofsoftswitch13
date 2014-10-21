@@ -557,6 +557,11 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
                     error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_FEATURES);
                     break;
                 }
+                /* Can't set first egress on table that are not capable. */
+                if ((feat->table_features[i]->features & OFPTFF_FIRST_EGRESS) && ((feat->table_features[i]->features & OFPTFF_EGRESS_TABLE) == 0)) {
+                    error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_FEATURES);
+                    break;
+                }
             }
         }
 

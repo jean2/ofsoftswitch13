@@ -1071,10 +1071,10 @@ enum ofp_table_feature_flag {
 
 /* Table Features request commands */
 enum ofp_table_features_command {
-    OFPTFC_REPLACE = 0,       /* Replace full pipeline with set of tables. */
-    OFPTFC_ENABLE  = 1,       /* Enable set of tables in the pipeline. */
-    OFPTFC_MODIFY  = 2,       /* Modify set of tables. */
-    OFPTFC_DISABLE = 3,       /* Disable set of tables in pipeline. */
+    OFPTFC_REPLACE = 0,       /* Replace full pipeline. */
+    OFPTFC_MODIFY  = 1,       /* Modify flow tables capabilities. */
+    OFPTFC_ENABLE  = 2,       /* Enable flow tables in the pipeline. */
+    OFPTFC_DISABLE = 3,       /* Disable flow tables in pipeline. */
 };
 
 /* Body for ofp_multipart_request of type OFPMP_TABLE_FEATURES./
