@@ -196,6 +196,9 @@ set_table_features_toggle(struct vconn *vconn, int argc, char *argv[]);
 static void
 set_table_features_max_entries(struct vconn *vconn, int argc, char *argv[]);
 
+static void
+set_table_features_first_egress(struct vconn *vconn, int argc, char *argv[]);
+
 static struct ofl_exp_msg dpctl_exp_msg =
         {.pack      = ofl_exp_msg_pack,
          .unpack    = ofl_exp_msg_unpack,
@@ -940,6 +943,7 @@ static struct command all_commands[] = {
     {"set-table-match", 0, 2, set_table_features_match},
     {"set-table-toggle", 2, 2, set_table_features_toggle},
     {"set-table-max-entries", 2, 2, set_table_features_max_entries},
+    {"set-table-first-egress", 1, 1, set_table_features_first_egress},
 
     {"queue-mod", 3, 3, queue_mod},
     {"queue-del", 2, 2, queue_del}
@@ -3037,6 +3041,85 @@ set_table_features_max_entries(struct vconn *vconn, int argc, char *argv[]) {
     table_feature.metadata_write = feat_reply->table_features[t]->metadata_write;
     table_feature.config = feat_reply->table_features[t]->config;
     table_feature.max_entries = max_entries;
+
+    feat_request.header.flags = 0;
+    dpctl_transact_and_print(vconn, (struct ofl_msg_header *) &feat_request, NULL);
+}
+ 
+static void
+set_table_features_first_egress(struct vconn *vconn, int argc, char *argv[]) {
+    struct ofl_msg_multipart_request_table_features feat_request_init =
+        {{{.type = OFPT_MULTIPART_REQUEST},
+              .type = OFPMP_TABLE_FEATURES, .flags = 0x0000},
+             .tables_num = 0,
+             .table_features = NULL,
+          };
+    struct ofl_msg_header *reply;
+    struct ofl_msg_multipart_request_table_features *feat_reply;
+    char table_name[OFP_MAX_TABLE_NAME_LEN];
+    struct ofl_table_features table_feature = 
+        { .length = sizeof(struct ofl_table_features),
+          .command = OFPTFC_MODIFY,
+	  .name = table_name,
+          .properties_num = 0,
+          .properties = NULL
+        };
+    struct ofl_table_features *feat_array[1] = { &table_feature };
+    struct ofl_msg_multipart_request_table_features feat_request =
+        {{{.type = OFPT_MULTIPART_REQUEST},
+              .type = OFPMP_TABLE_FEATURES, .flags = 0x0000},
+             .tables_num = 1,
+             .table_features = feat_array,
+          };
+    int t;
+    uint8_t table_id;
+    uint32_t repl_xid;
+
+    /* Get table-id. */
+    if (argc != 1) {
+        ofp_fatal(0, "Error missing arguments: table-id enable/disable.");
+    }
+    if (parse8(argv[0], table_names, NUM_ELEMS(table_names), OFPTT_ALL, &table_id)) {
+        ofp_fatal(0, "Error parsing table-id: %s.", argv[0]);
+    }
+
+    /* Extract current table features */
+    dpctl_transact(vconn, (struct ofl_msg_header *)&feat_request_init, &reply, &repl_xid);
+    feat_reply = (struct ofl_msg_multipart_request_table_features *) reply;
+
+    /* Try to find our table. */
+    if (table_id == OFPTT_ALL) {
+      for(t = 0; t < feat_reply->tables_num; t++) {
+	if(feat_reply->table_features[t]->features & OFPTFF_FIRST_EGRESS)
+	  break;
+      }
+      /* If we can't find our table, error. */
+      if(t == feat_reply->tables_num) {
+	ofp_fatal(0, "Can't find any egress table.");
+      }
+    } else {
+      for(t = 0; t < feat_reply->tables_num; t++) {
+	if(feat_reply->table_features[t]->table_id == table_id)
+	  break;
+      }
+      /* If we can't find our table, error. */
+      if(t == feat_reply->tables_num) {
+	ofp_fatal(0, "Can't find table-id %d, please enable it.", table_id);
+      }
+    }
+
+    /* Create the request. */
+    table_feature.table_id = feat_reply->table_features[t]->table_id;
+    table_feature.features = feat_reply->table_features[t]->features;
+    if (table_id == OFPTT_ALL)
+      table_feature.features &= ~OFPTFF_FIRST_EGRESS;
+    else
+      table_feature.features |= OFPTFF_FIRST_EGRESS;
+    memcpy(table_feature.name, feat_reply->table_features[t]->name, OFP_MAX_TABLE_NAME_LEN);
+    table_feature.metadata_match = feat_reply->table_features[t]->metadata_match;
+    table_feature.metadata_write = feat_reply->table_features[t]->metadata_write;
+    table_feature.config = feat_reply->table_features[t]->config;
+    table_feature.max_entries = feat_reply->table_features[t]->max_entries;
 
     feat_request.header.flags = 0;
     dpctl_transact_and_print(vconn, (struct ofl_msg_header *) &feat_request, NULL);

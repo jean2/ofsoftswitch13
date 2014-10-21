@@ -1000,8 +1000,8 @@ dp_execute_action_list(struct packet *pkt,
             pkt->out_port = OFPP_ANY;
             pkt->out_port_max_len = 0;
             /* Check if egress tables are enabled. */
-            if ((pkt->dp->config.egress_table_id != OFPTT_ALL)
-                && (pkt->dp->config.egress_table_id != 0)) {
+            if ((pkt->dp->pipeline->egress_table_id != OFPTT_ALL)
+                && (pkt->dp->pipeline->egress_table_id != 0)) {
                 struct packet *pkt_clone;
                 /* Egress table exist: process packet with egress tables.
                  * Make sure queue-id is not clobbered. Jean II */

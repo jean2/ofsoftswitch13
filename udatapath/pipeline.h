@@ -50,6 +50,8 @@ struct sender;
 struct pipeline {
     struct datapath    *dp;
     struct flow_table  *tables[PIPELINE_TABLES];
+    uint8_t egress_table_id; /* ID of the first egress table,
+                                or OFPTT_ALL if no egress table. */
 };
 
 

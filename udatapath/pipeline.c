@@ -71,6 +71,7 @@ pipeline_create(struct datapath *dp) {
         pl->tables[i] = flow_table_create(dp, i);
     }
     pl->dp = dp;
+    pl->egress_table_id = OFPTT_ALL;
 
     nblink_initialize();
 
@@ -215,7 +216,7 @@ pipeline_process_egress_packet(struct packet *pkt, uint32_t out_port, uint16_t o
     action_set_write_actions(pkt->action_set, 1, action_array, pkt->handle_std);
 
     /* We start at the first egress table and go on from there. Jean II */
-    next_table = pl->tables[pl->dp->config.egress_table_id];
+    next_table = pl->tables[pl->egress_table_id];
     while (next_table != NULL) {
         struct flow_entry *entry;
 
@@ -299,7 +300,7 @@ pipeline_handle_flow_mod(struct pipeline *pl, struct ofl_msg_flow_mod *msg,
         if (msg->instructions[i]->type == OFPIT_APPLY_ACTIONS ||
             msg->instructions[i]->type == OFPIT_WRITE_ACTIONS) {
             struct ofl_instruction_actions *ia = (struct ofl_instruction_actions *)msg->instructions[i];
-            bool no_output = (msg->table_id >= pl->dp->config.egress_table_id) && (msg->instructions[i]->type == OFPIT_WRITE_ACTIONS);
+            bool no_output = (msg->table_id >= pl->egress_table_id) && (msg->instructions[i]->type == OFPIT_WRITE_ACTIONS);
 
             error = dp_actions_validate(pl->dp, ia->actions_num, ia->actions, no_output);
             if (error) {
@@ -548,7 +549,12 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
                 }
                 /* Can't go over out internal max-entries. */
                 if (feat->table_features[i]->max_entries > FLOW_TABLE_MAX_ENTRIES) {
-                    error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_ARGUMENT);
+                    error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_MAX_ENT);
+                    break;
+                }
+                /* Can't change ingress/egress capabilities. */
+                if ((feat->table_features[i]->features & 0xF) != (pl->tables[table_id]->features->features & 0xF)) {
+                    error = ofl_error(OFPET_TABLE_FEATURES_FAILED, OFPTFFC_BAD_FEATURES);
                     break;
                 }
             }
@@ -589,6 +595,20 @@ pipeline_handle_stats_request_table_features_request(struct pipeline *pl,
                         d->metadata_write = s->metadata_write;
                         d->config = s->config;
                         d->max_entries = s->max_entries;
+                    }
+                    /* Check if must set first egress table. */
+                    if ((table_id != pl->egress_table_id) && (feat->table_features[i]->features & OFPTFF_FIRST_EGRESS)) {
+                        /* Disable old table as first egress table. */
+                        if (pl->egress_table_id != OFPTT_ALL) {
+                            pl->tables[pl->egress_table_id]->features->features &= ~OFPTFF_FIRST_EGRESS;
+                        }
+                        /* Use this table as first egress table. */
+                        pl->egress_table_id = table_id;
+                    }
+                    /* Check if must unset first egress table. */
+                    if ((table_id == pl->egress_table_id) && ((feat->table_features[i]->features & OFPTFF_FIRST_EGRESS) == 0)) {
+                        /* Don't use this table as first egress table. */
+                        pl->egress_table_id = OFPTT_ALL;
                     }
                 }
 

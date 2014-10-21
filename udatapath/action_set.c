@@ -275,8 +275,8 @@ action_set_execute(struct action_set *set, struct packet *pkt, uint64_t cookie, 
 
             /* Check if we need to return to egress tables. */
             if ((in_egress == false)
-                && (pkt->dp->config.egress_table_id != OFPTT_ALL)
-                && (pkt->dp->config.egress_table_id != 0)) {
+                && (pkt->dp->pipeline->egress_table_id != OFPTT_ALL)
+                && (pkt->dp->pipeline->egress_table_id != 0)) {
                 /* In ingress or in group: process packet with egress tables.
                  * Make sure queue-id is not clobbered. Jean II */
                 if ((port_id == OFPP_ALL) || (port_id == OFPP_FLOOD)) {
