@@ -742,11 +742,11 @@ stats_meter(struct vconn *vconn, int argc UNUSED, char *argv[]){
 }
 
 static void
-meter_config(struct vconn *vconn, int argc UNUSED, char *argv[]){
+meter_desc(struct vconn *vconn, int argc UNUSED, char *argv[]){
 
     struct ofl_msg_multipart_meter_request req =
             {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_METER_CONFIG, .flags = 0x0000},
+              .type = OFPMP_METER_DESC, .flags = 0x0000},
              .meter_id = OFPM_ALL};
 
     if (argc > 0 && parse_meter(argv[0], &req.meter_id)) {
@@ -920,7 +920,7 @@ static struct command all_commands[] = {
     {"stats-group", 0, 1, stats_group },
     {"stats-group-desc", 0, 1, stats_group_desc },
     {"stats-meter", 0, 1, stats_meter},
-    {"meter-config", 0, 1, meter_config},
+    {"meter-desc", 0, 1, meter_desc},
     {"port-desc", 0, 0, port_desc},
     {"set-config", 1, 1, set_config},
     {"flow-mod", 1, 8/*+1 for each inst type*/, flow_mod },

@@ -688,17 +688,17 @@ ofl_structs_meter_stats_print(FILE *stream, struct ofl_meter_stats* s){
 }
 
 char* 
-ofl_structs_meter_config_to_string(struct ofl_meter_config* s){
+ofl_structs_meter_desc_to_string(struct ofl_meter_desc* s){
     char *str;
     size_t str_size;
     FILE *stream = open_memstream(&str, &str_size);
-    ofl_structs_meter_config_print(stream, s);
+    ofl_structs_meter_desc_print(stream, s);
     fclose(stream);
     return str;
 }
 
 void
-ofl_structs_meter_config_print(FILE *stream, struct ofl_meter_config* s){
+ofl_structs_meter_desc_print(FILE *stream, struct ofl_meter_desc* s){
     size_t i;
     
     fprintf(stream, "{meter= %x\"", s->meter_id);

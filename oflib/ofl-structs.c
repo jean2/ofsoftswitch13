@@ -350,16 +350,16 @@ ofl_utils_count_ofp_meter_band_stats(void *data, size_t data_len, size_t *count)
 }
 
 ofl_err
-ofl_utils_count_ofp_meter_config(void *data, size_t data_len, size_t *count){
-    struct ofp_meter_config *config;
+ofl_utils_count_ofp_meter_desc(void *data, size_t data_len, size_t *count){
+    struct ofp_meter_desc *config;
     uint8_t *d;
 
     d = (uint8_t *)data;
     (*count) = 0;
 
-    while (data_len >= sizeof(struct ofp_meter_config)) {
-        config = (struct ofp_meter_config *)d;
-        if (data_len < ntohs(config->length) || ntohs(config->length) < sizeof(struct ofp_meter_config)) {
+    while (data_len >= sizeof(struct ofp_meter_desc)) {
+        config = (struct ofp_meter_desc *)d;
+        if (data_len < ntohs(config->length) || ntohs(config->length) < sizeof(struct ofp_meter_desc)) {
             OFL_LOG_WARN(LOG_MODULE, "Received meter stat has invalid length.");
             return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
         }
@@ -422,7 +422,7 @@ ofl_structs_free_meter_stats(struct ofl_meter_stats *stats){
 }
 
 void
-ofl_structs_free_meter_config(struct ofl_meter_config *conf){
+ofl_structs_free_meter_desc(struct ofl_meter_desc *conf){
     OFL_UTILS_FREE_ARR_FUN(conf->bands, conf->meter_bands_num,
                             ofl_structs_free_meter_bands);
     free(conf);

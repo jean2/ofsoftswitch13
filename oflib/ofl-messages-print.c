@@ -351,7 +351,7 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
             break;
         }
         case OFPMP_METER_STATS:
-        case OFPMP_METER_CONFIG:{
+        case OFPMP_METER_DESC:{
             ofl_msg_print_meter_stats_request((struct ofl_msg_multipart_meter_request*)msg, stream);
             break;
         }
@@ -465,13 +465,13 @@ ofl_msg_print_stats_reply_meter(struct ofl_msg_multipart_reply_meter *msg, FILE 
 }
 
 static void
-ofl_msg_print_stats_reply_meter_conf(struct ofl_msg_multipart_reply_meter_conf *msg, FILE *stream) {
+ofl_msg_print_stats_reply_meter_desc(struct ofl_msg_multipart_reply_meter_desc *msg, FILE *stream) {
     size_t i;
 
     fprintf(stream, ", stats=[");
 
     for (i=0; i<msg->stats_num; i++) {
-        ofl_structs_meter_config_print(stream, msg->stats[i]);
+        ofl_structs_meter_desc_print(stream, msg->stats[i]);
         if (i < msg->stats_num - 1) { fprintf(stream, ", "); };
     }
 
@@ -628,8 +628,8 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             ofl_msg_print_stats_reply_meter((struct ofl_msg_multipart_reply_meter*)msg, stream);
             break;
         }
-        case OFPMP_METER_CONFIG:{
-            ofl_msg_print_stats_reply_meter_conf((struct ofl_msg_multipart_reply_meter_conf*)msg, stream);
+        case OFPMP_METER_DESC:{
+            ofl_msg_print_stats_reply_meter_desc((struct ofl_msg_multipart_reply_meter_desc*)msg, stream);
             break;            
         }
         case OFPMP_METER_FEATURES:{

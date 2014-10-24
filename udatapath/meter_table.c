@@ -273,7 +273,7 @@ meter_table_handle_stats_request_meter(struct meter_table *table,
 }
 
 ofl_err
-meter_table_handle_stats_request_meter_conf(struct meter_table *table,
+meter_table_handle_stats_request_meter_desc(struct meter_table *table,
                                   struct ofl_msg_multipart_meter_request *msg UNUSED,
                                   const struct sender *sender) {
     struct meter_entry *entry;
@@ -288,11 +288,11 @@ meter_table_handle_stats_request_meter_conf(struct meter_table *table,
         }
     }
 
-    struct ofl_msg_multipart_reply_meter_conf reply =
+    struct ofl_msg_multipart_reply_meter_desc reply =
             {{{.type = OFPT_MULTIPART_REPLY},
-              .type = OFPMP_METER_CONFIG, .flags = 0x0000},
+              .type = OFPMP_METER_DESC, .flags = 0x0000},
              .stats_num = table->entries_num,
-             .stats     = xmalloc(sizeof(struct ofl_meter_config *) * (msg->meter_id == OFPM_ALL ? table->entries_num : 1))
+             .stats     = xmalloc(sizeof(struct ofl_meter_desc *) * (msg->meter_id == OFPM_ALL ? table->entries_num : 1))
             };
 
     if (msg->meter_id == OFPM_ALL) {

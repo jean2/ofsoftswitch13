@@ -712,14 +712,14 @@ ofl_structs_meter_stats_unpack(struct ofp_meter_stats *src, size_t *len, struct 
 }
 
 ofl_err
-ofl_structs_meter_config_unpack(struct ofp_meter_config *src, size_t *len, struct ofl_meter_config **dst) {
-    struct ofl_meter_config *s;
+ofl_structs_meter_desc_unpack(struct ofp_meter_desc *src, size_t *len, struct ofl_meter_desc **dst) {
+    struct ofl_meter_desc *s;
     struct ofp_meter_band_header *b;
     ofl_err error;
     size_t slen;
     size_t i;
 
-    if (*len < sizeof(struct ofp_meter_config)) {
+    if (*len < sizeof(struct ofp_meter_desc)) {
         OFL_LOG_WARN(LOG_MODULE, "Received meter config reply is too short (%zu).", *len);
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
@@ -729,9 +729,9 @@ ofl_structs_meter_config_unpack(struct ofp_meter_config *src, size_t *len, struc
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
 
-    slen = ntohs(src->length) - sizeof(struct ofp_meter_config);
+    slen = ntohs(src->length) - sizeof(struct ofp_meter_desc);
 
-    s = (struct ofl_meter_config *) malloc(sizeof(struct ofl_meter_config));
+    s = (struct ofl_meter_desc *) malloc(sizeof(struct ofl_meter_desc));
     s->meter_id = ntohl(src->meter_id);
     s->length = ntohs(src->length);
     

@@ -381,8 +381,8 @@ struct ofl_meter_stats {
                                                   inferred from the length field. */
 };
 
-/* Body of reply to OFPMP_METER_CONFIG request. Meter configuration. */
-struct ofl_meter_config {
+/* Body of reply to OFPMP_METER_DESC request. Meter configuration. */
+struct ofl_meter_desc {
     uint16_t length; /* Length of this entry. */
     uint16_t flags; /* All OFPMC_* that apply. */
     uint32_t meter_id; /* Meter instance. */
@@ -463,7 +463,7 @@ size_t
 ofl_structs_meter_band_pack(struct ofl_meter_band_header *src, struct ofp_meter_band_header *dst);
 
 size_t
-ofl_structs_meter_conf_pack(struct ofl_meter_config *src, struct ofp_meter_config *dst, uint8_t* data);
+ofl_structs_meter_desc_pack(struct ofl_meter_desc *src, struct ofp_meter_desc *dst, uint8_t* data);
 
 size_t
 ofl_structs_meter_stats_pack(struct ofl_meter_stats *src, struct ofp_meter_stats *dst);
@@ -564,7 +564,7 @@ ofl_err
 ofl_structs_meter_stats_unpack(struct ofp_meter_stats *src, size_t *len, struct ofl_meter_stats **dst);
 
 ofl_err
-ofl_structs_meter_config_unpack(struct ofp_meter_config *src, size_t *len, struct ofl_meter_config **dst);
+ofl_structs_meter_desc_unpack(struct ofp_meter_desc *src, size_t *len, struct ofl_meter_desc **dst);
 
 /****************************************************************************
  * Functions for freeing action structures
@@ -607,7 +607,7 @@ void
 ofl_structs_free_meter_stats(struct ofl_meter_stats *stats);
 
 void
-ofl_structs_free_meter_config(struct ofl_meter_config *conf);
+ofl_structs_free_meter_desc(struct ofl_meter_desc *conf);
 
 void
 ofl_structs_free_table_features(struct ofl_table_features* features, struct ofl_exp *exp);
@@ -674,7 +674,7 @@ ofl_err
 ofl_utils_count_ofp_meter_band_stats(void *data, size_t data_len, size_t *count);
 
 ofl_err
-ofl_utils_count_ofp_meter_config(void *data, size_t data_len, size_t *count);
+ofl_utils_count_ofp_meter_desc(void *data, size_t data_len, size_t *count);
 
 size_t
 ofl_structs_instructions_ofp_total_len(struct ofl_instruction_header **instructions, size_t instructions_num, struct ofl_exp *exp);
@@ -745,10 +745,10 @@ size_t
 ofl_structs_pack_band_stats(struct ofl_meter_band_stats *src, struct ofp_meter_band_stats *dst);
 
 size_t
-ofl_structs_meter_conf_ofp_total_len(struct ofl_meter_config **meter_conf, size_t stats_num);
+ofl_structs_meter_desc_ofp_total_len(struct ofl_meter_desc **meter_desc, size_t stats_num);
 
 size_t
-ofl_structs_meter_conf_ofp_len(struct ofl_meter_config * meter_conf);
+ofl_structs_meter_desc_ofp_len(struct ofl_meter_desc * meter_desc);
 
 
 
@@ -889,10 +889,10 @@ void
 ofl_structs_meter_stats_print(FILE *stream, struct ofl_meter_stats* s);
 
 char*
-ofl_structs_meter_config_to_string(struct ofl_meter_config* s);
+ofl_structs_meter_desc_to_string(struct ofl_meter_desc* s);
 
 void
-ofl_structs_meter_config_print(FILE *stream, struct ofl_meter_config* s);
+ofl_structs_meter_desc_print(FILE *stream, struct ofl_meter_desc* s);
 
 char *
 ofl_structs_async_config_to_string(struct ofl_async_config *s);

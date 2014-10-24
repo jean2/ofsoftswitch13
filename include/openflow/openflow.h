@@ -931,8 +931,8 @@ enum ofp_multipart_types {
     OFPMP_METER_STATS = 9,
     /* Meter configuration.
     * The request body is struct ofp_meter_multipart_requests.
-    * The reply body is an array of struct ofp_meter_config. */
-    OFPMP_METER_CONFIG = 10,
+    * The reply body is an array of struct ofp_meter_desc. */
+    OFPMP_METER_DESC = 10,
     /* Meter features.
     * The request body is empty.
     * The reply body is struct ofp_meter_features. */
@@ -1286,7 +1286,7 @@ enum ofp_group_capabilities {
     OFPGFC_CHAINING_CHECKS = 1 << 3, /* Check chaining for loops and delete */
 };
 
-/* Body of OFPMP_METER_STATS and OFPMP_METER_CONFIG requests. */
+/* Body of OFPMP_METER_STATS and OFPMP_METER_DESC requests. */
 struct ofp_meter_multipart_request {
     uint32_t meter_id; /* Meter instance, or OFPM_ALL. */
     uint8_t pad[4]; /* Align to 64 bits. */
@@ -1316,15 +1316,15 @@ struct ofp_meter_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_meter_stats) == 40);
 
-/* Body of reply to OFPMP_METER_CONFIG request. Meter configuration. */
-struct ofp_meter_config {
+/* Body of reply to OFPMP_METER_DESC request. Meter configuration. */
+struct ofp_meter_desc {
     uint16_t length; /* Length of this entry. */
     uint16_t flags; /* All OFPMC_* that apply. */
     uint32_t meter_id; /* Meter instance. */
     struct ofp_meter_band_header bands[0]; /* The bands length is
                                               inferred from the length field. */
 };
-OFP_ASSERT(sizeof(struct ofp_meter_config) == 8);
+OFP_ASSERT(sizeof(struct ofp_meter_desc) == 8);
 
 /* Body of reply to OFPMP_METER_FEATURES request. Meter features. */
 struct ofp_meter_features {

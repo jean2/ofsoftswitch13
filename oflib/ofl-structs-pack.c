@@ -650,25 +650,25 @@ ofl_structs_meter_stats_pack(struct ofl_meter_stats *src, struct ofp_meter_stats
 }
 
 size_t
-ofl_structs_meter_conf_ofp_len(struct ofl_meter_config * meter_conf){
-    return sizeof(struct ofp_meter_config) +
-        ofl_structs_meter_bands_ofp_total_len(meter_conf->bands, meter_conf->meter_bands_num);
+ofl_structs_meter_desc_ofp_len(struct ofl_meter_desc * meter_desc){
+    return sizeof(struct ofp_meter_desc) +
+        ofl_structs_meter_bands_ofp_total_len(meter_desc->bands, meter_desc->meter_bands_num);
 }
 
 size_t
-ofl_structs_meter_conf_ofp_total_len(struct ofl_meter_config **meter_conf, size_t stats_num){
+ofl_structs_meter_desc_ofp_total_len(struct ofl_meter_desc **meter_desc, size_t stats_num){
     size_t sum;
-    OFL_UTILS_SUM_ARR_FUN(sum, meter_conf, stats_num,
-            ofl_structs_meter_conf_ofp_len);
+    OFL_UTILS_SUM_ARR_FUN(sum, meter_desc, stats_num,
+            ofl_structs_meter_desc_ofp_len);
     return sum;
 }
 
 size_t
-ofl_structs_meter_conf_pack(struct ofl_meter_config *src, struct ofp_meter_config *dst, uint8_t* data){
+ofl_structs_meter_desc_pack(struct ofl_meter_desc *src, struct ofp_meter_desc *dst, uint8_t* data){
     size_t total_len, len;
     int i;
 
-    total_len = sizeof(struct ofp_meter_config) +
+    total_len = sizeof(struct ofp_meter_desc) +
         ofl_structs_meter_bands_ofp_total_len(src->bands, src->meter_bands_num);
 
     dst->length = ntohs(total_len);

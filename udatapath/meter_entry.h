@@ -61,7 +61,7 @@ struct meter_entry {
 	struct meter_table			*table;			/* The meter table */
 
 	struct ofl_meter_stats		*stats;			/* Meter statistics */
-	struct ofl_meter_config		*config;		/* Meter configuration */
+	struct ofl_meter_desc		*config;		/* Meter configuration */
 
     uint64_t                    created;  /* time the entry was created at. */
     	

@@ -218,8 +218,8 @@ handle_control_stats_request(struct datapath *dp,
         case (OFPMP_METER_STATS):{
         	return meter_table_handle_stats_request_meter(dp->meters,(struct ofl_msg_multipart_meter_request*)msg, sender);
         }
-        case (OFPMP_METER_CONFIG):{
-            return meter_table_handle_stats_request_meter_conf(dp->meters,(struct ofl_msg_multipart_meter_request*)msg, sender);        
+        case (OFPMP_METER_DESC):{
+            return meter_table_handle_stats_request_meter_desc(dp->meters,(struct ofl_msg_multipart_meter_request*)msg, sender);        
         }
         case OFPMP_METER_FEATURES:{
             return meter_table_handle_features_request(dp->meters, msg, sender);

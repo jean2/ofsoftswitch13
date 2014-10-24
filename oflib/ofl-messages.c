@@ -72,7 +72,7 @@ ofl_msg_free_multipart_request(struct ofl_msg_multipart_request_header *msg, str
         case OFPMP_GROUP_DESC:
         case OFPMP_GROUP_FEATURES:
         case OFPMP_METER_STATS:
-        case OFPMP_METER_CONFIG:
+        case OFPMP_METER_DESC:
         case OFPMP_METER_FEATURES:
             break;
         case OFPMP_TABLE_FEATURES:{
@@ -150,10 +150,10 @@ ofl_msg_free_multipart_reply(struct ofl_msg_multipart_reply_header *msg, struct 
                                    ofl_structs_free_meter_stats);            
             break;
         }
-        case OFPMP_METER_CONFIG:{
-            struct ofl_msg_multipart_reply_meter_conf *conf = (struct ofl_msg_multipart_reply_meter_conf *)msg;
+        case OFPMP_METER_DESC:{
+            struct ofl_msg_multipart_reply_meter_desc *conf = (struct ofl_msg_multipart_reply_meter_desc *)msg;
             OFL_UTILS_FREE_ARR_FUN(conf->stats, conf->stats_num,
-                                   ofl_structs_free_meter_config);             
+                                   ofl_structs_free_meter_desc);             
             break;
         }
         case OFPMP_METER_FEATURES:{

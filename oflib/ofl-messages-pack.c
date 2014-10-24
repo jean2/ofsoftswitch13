@@ -534,7 +534,7 @@ ofl_msg_pack_multipart_request(struct ofl_msg_multipart_request_header *msg, uin
         break;
     }
    case OFPMP_METER_STATS:
-   case OFPMP_METER_CONFIG:{
+   case OFPMP_METER_DESC:{
         error = ofl_msg_pack_meter_multipart_request((struct ofl_msg_multipart_meter_request*)msg, buf, buf_len);
         break;
    }
@@ -788,19 +788,19 @@ ofl_msg_pack_multipart_reply_meter_stats(struct ofl_msg_multipart_reply_meter *m
 }
 
 static int
-ofl_msg_pack_multipart_reply_meter_conf(struct ofl_msg_multipart_reply_meter_conf *msg, uint8_t **buf, size_t *buf_len) {
+ofl_msg_pack_multipart_reply_meter_desc(struct ofl_msg_multipart_reply_meter_desc *msg, uint8_t **buf, size_t *buf_len) {
     struct ofp_multipart_reply *resp;
     size_t i;
     uint8_t *data;
 
-    *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_meter_conf_ofp_total_len(msg->stats, msg->stats_num);
+    *buf_len = sizeof(struct ofp_multipart_reply) + ofl_structs_meter_desc_ofp_total_len(msg->stats, msg->stats_num);
     *buf     = (uint8_t *)malloc(*buf_len);
 
     resp = (struct ofp_multipart_reply *)(*buf);
     data = (uint8_t *)resp->body;
 
     for (i=0; i<msg->stats_num; i++) {
-        data += ofl_structs_meter_conf_pack(msg->stats[i], (struct ofp_meter_config *)data, data);
+        data += ofl_structs_meter_desc_pack(msg->stats[i], (struct ofp_meter_desc *)data, data);
     }
 
     return 0;
@@ -894,8 +894,8 @@ ofl_msg_pack_multipart_reply(struct ofl_msg_multipart_reply_header *msg, uint8_t
             error = ofl_msg_pack_multipart_reply_meter_stats((struct ofl_msg_multipart_reply_meter*)msg, buf, buf_len);
             break;
         }
-        case OFPMP_METER_CONFIG:{
-            error = ofl_msg_pack_multipart_reply_meter_conf((struct ofl_msg_multipart_reply_meter_conf*)msg, buf, buf_len);
+        case OFPMP_METER_DESC:{
+            error = ofl_msg_pack_multipart_reply_meter_desc((struct ofl_msg_multipart_reply_meter_desc*)msg, buf, buf_len);
             break;
         }
         case OFPMP_METER_FEATURES:{

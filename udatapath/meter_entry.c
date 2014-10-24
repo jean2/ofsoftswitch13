@@ -74,7 +74,7 @@ meter_entry_create(struct datapath *dp, struct meter_table *table, struct ofl_ms
     entry->table       = table;
 
 
-    entry->config = xmalloc(sizeof(struct ofl_meter_config));
+    entry->config = xmalloc(sizeof(struct ofl_meter_desc));
     entry->config->meter_id =  mod->meter_id;
     entry->config->flags =    mod->flags;
     entry->config->meter_bands_num = mod->meter_bands_num;

@@ -90,7 +90,7 @@ meter_table_handle_stats_request_meter(struct meter_table *table,
 
 /* Handles a meter config request message. */
 ofl_err
-meter_table_handle_stats_request_meter_conf(struct meter_table *table,
+meter_table_handle_stats_request_meter_desc(struct meter_table *table,
                                   struct ofl_msg_multipart_meter_request *msg UNUSED,
                                   const struct sender *sender);
 

@@ -931,7 +931,7 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             break;    
         }
         case OFPMP_METER_STATS:
-        case OFPMP_METER_CONFIG:{
+        case OFPMP_METER_DESC:{
             error = ofl_msg_unpack_meter_multipart_request(os, len, msg);
             break;
         }
@@ -1311,32 +1311,32 @@ ofl_msg_unpack_multipart_reply_meter_stats(struct ofp_multipart_reply *os, size_
 }
 
 static ofl_err
-ofl_msg_unpack_multipart_reply_meter_config(struct ofp_multipart_reply *os, size_t *len, struct ofl_msg_header **msg){
-    struct ofp_meter_config *conf;
-    struct ofl_msg_multipart_reply_meter_conf *dm;
+ofl_msg_unpack_multipart_reply_meter_desc(struct ofp_multipart_reply *os, size_t *len, struct ofl_msg_header **msg){
+    struct ofp_meter_desc *conf;
+    struct ofl_msg_multipart_reply_meter_desc *dm;
     ofl_err error;
     size_t i;
     
-    conf = (struct ofp_meter_config*) os->body;
-    dm =  (struct ofl_msg_multipart_reply_meter_conf *) malloc(sizeof(struct ofl_msg_multipart_reply_meter_conf));
+    conf = (struct ofp_meter_desc*) os->body;
+    dm =  (struct ofl_msg_multipart_reply_meter_desc *) malloc(sizeof(struct ofl_msg_multipart_reply_meter_desc));
    
-    error = ofl_utils_count_ofp_meter_config(conf, *len, &dm->stats_num);
+    error = ofl_utils_count_ofp_meter_desc(conf, *len, &dm->stats_num);
     if (error) {
         free(dm);
         return error;
     }    
     
-    dm->stats = (struct ofl_meter_config **)malloc(dm->stats_num * sizeof(struct ofl_meter_config *));
+    dm->stats = (struct ofl_meter_desc **)malloc(dm->stats_num * sizeof(struct ofl_meter_desc *));
     
     for (i = 0; i < dm->stats_num; i++) {
-        error = ofl_structs_meter_config_unpack(conf, len, &(dm->stats[i]));
+        error = ofl_structs_meter_desc_unpack(conf, len, &(dm->stats[i]));
         if (error) {
             OFL_UTILS_FREE_ARR_FUN(dm->stats, i,
-                                   ofl_structs_free_meter_config);
+                                   ofl_structs_free_meter_desc);
             free (dm);
             return error;
         }
-        conf = (struct ofp_meter_config *)((uint8_t *)conf + ntohs(conf->length));
+        conf = (struct ofp_meter_desc *)((uint8_t *)conf + ntohs(conf->length));
     }
     
     
@@ -1456,8 +1456,8 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_multipart_reply_meter_stats(os, len, msg);
             break;
         }    
-        case OFPMP_METER_CONFIG:{
-            error = ofl_msg_unpack_multipart_reply_meter_config(os, len, msg);
+        case OFPMP_METER_DESC:{
+            error = ofl_msg_unpack_multipart_reply_meter_desc(os, len, msg);
             break;
         }
         case OFPMP_METER_FEATURES:{

@@ -426,11 +426,11 @@ struct ofl_msg_multipart_reply_meter_features {
     struct ofl_meter_features *features;   
 };
 
-struct ofl_msg_multipart_reply_meter_conf {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_METER_CONFIG */
+struct ofl_msg_multipart_reply_meter_desc {
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_METER_DESC */
 
     size_t                        stats_num;
-    struct ofl_meter_config **stats;
+    struct ofl_meter_desc **stats;
 };
 
 struct ofl_msg_multipart_reply_port_desc {
