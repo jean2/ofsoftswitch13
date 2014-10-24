@@ -896,15 +896,15 @@ enum ofp_multipart_types {
     /* Individual flow statistics.
     * The request body is struct ofp_flow_multipart_request.
     * The reply body is an array of struct ofp_flow_stats. */
-    OFPMP_FLOW = 1,
+    OFPMP_FLOW_STATS = 1,
     /* Aggregate flow statistics.
     * The request body is struct ofp_aggregate_stats_request.
     * The reply body is struct ofp_aggregate_stats_reply. */
-    OFPMP_AGGREGATE = 2,
+    OFPMP_AGGREGATE_STATS = 2,
     /* Flow table statistics.
     * The request body is empty.
     * The reply body is an array of struct ofp_table_stats. */
-    OFPMP_TABLE = 3,
+    OFPMP_TABLE_STATS = 3,
     /* Port statistics.
     * The request body is struct ofp_port_stats_request.
     * The reply body is an array of struct ofp_port_stats. */
@@ -916,7 +916,7 @@ enum ofp_multipart_types {
     /* Group counter statistics.
     * The request body is struct ofp_group_stats_request.
     * The reply is an array of struct ofp_group_stats. */
-    OFPMP_GROUP = 6,
+    OFPMP_GROUP_STATS = 6,
     /* Group description statistics.
     * The request body is empty.
     * The reply body is an array of struct ofp_group_desc_stats. */
@@ -928,7 +928,7 @@ enum ofp_multipart_types {
     /* Meter statistics.
      * The request body is struct ofp_meter_multipart_requests.
      * The reply body is an array of struct ofp_meter_stats. */
-    OFPMP_METER = 9,
+    OFPMP_METER_STATS = 9,
     /* Meter configuration.
     * The request body is struct ofp_meter_multipart_requests.
     * The reply body is an array of struct ofp_meter_config. */
@@ -968,7 +968,7 @@ struct ofp_desc {
 };
 OFP_ASSERT(sizeof(struct ofp_desc) == 1056);
 
-/* Body for ofp_multipart_request of type OFPMP_FLOW. */
+/* Body for ofp_multipart_request of type OFPMP_FLOW_STATS. */
 struct ofp_flow_stats_request {
 	uint8_t table_id;       /* ID of table to read (from ofp_table_stats),
                                OFPTT_ALL for all tables. */
@@ -989,7 +989,7 @@ struct ofp_flow_stats_request {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 40);
 
-/* Body of reply to OFPMP_FLOW request. */
+/* Body of reply to OFPMP_FLOW_STATS request. */
 struct ofp_flow_stats {
 	uint16_t length;        /* Length of this entry. */
 	uint8_t table_id;       /* ID of table flow came from. */
@@ -1009,7 +1009,7 @@ struct ofp_flow_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats) == 56);
 
-/* Body for ofp_multipart_request of type OFPMP_AGGREGATE. */
+/* Body for ofp_multipart_request of type OFPMP_AGGREGATE_STATS. */
 struct ofp_aggregate_stats_request {
 	uint8_t table_id;       /* ID of table to read (from ofp_table_stats)
                                OFPTT_ALL for all tables. */
@@ -1030,7 +1030,7 @@ struct ofp_aggregate_stats_request {
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 40);
 
-/* Body of reply to OFPMP_AGGREGATE request. */
+/* Body of reply to OFPMP_AGGREGATE_STATS request. */
 struct ofp_aggregate_stats_reply {
 	uint64_t packet_count; /* Number of packets in flows. */
 	uint64_t byte_count;   /* Number of bytes in flows. */
@@ -1039,7 +1039,7 @@ struct ofp_aggregate_stats_reply {
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
 
-/* Body of reply to OFPMP_TABLE request. */
+/* Body of reply to OFPMP_TABLE_STATS request. */
 struct ofp_table_stats {
     uint8_t table_id;       /* Identifier of table. Lower numbered tables
                                are consulted first. */
@@ -1227,7 +1227,7 @@ struct ofp_queue_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_queue_stats) == 40);
 
-/* Body of OFPMP_GROUP request. */
+/* Body of OFPMP_GROUP_STATS request. */
 struct ofp_group_stats_request {
 	uint32_t group_id; /* All groups if OFPG_ALL. */
 	uint8_t pad[4];    /* Align to 64 bits. */
@@ -1241,7 +1241,7 @@ struct ofp_bucket_counter {
 };
 OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
 
-/* Body of reply to OFPMP_GROUP request. */
+/* Body of reply to OFPMP_GROUP_STATS request. */
 struct ofp_group_stats {
 	uint16_t length;       /* Length of this entry. */
 	uint8_t pad[2];        /* Align to 64 bits. */
@@ -1286,7 +1286,7 @@ enum ofp_group_capabilities {
     OFPGFC_CHAINING_CHECKS = 1 << 3, /* Check chaining for loops and delete */
 };
 
-/* Body of OFPMP_METER and OFPMP_METER_CONFIG requests. */
+/* Body of OFPMP_METER_STATS and OFPMP_METER_CONFIG requests. */
 struct ofp_meter_multipart_request {
     uint32_t meter_id; /* Meter instance, or OFPM_ALL. */
     uint8_t pad[4]; /* Align to 64 bits. */
@@ -1300,7 +1300,7 @@ struct ofp_meter_band_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_meter_band_stats) == 16);
 
-/* Body of reply to OFPMP_METER request. Meter statistics. */
+/* Body of reply to OFPMP_METER_STATS request. Meter statistics. */
 struct ofp_meter_stats {
     uint32_t meter_id; /* Meter instance. */
     uint16_t len;             /* Length in bytes of this stats. */

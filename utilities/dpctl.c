@@ -458,7 +458,7 @@ static void
 stats_flow(struct vconn *vconn, int argc, char *argv[]) {
     struct ofl_msg_multipart_request_flow req =
             {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_FLOW, .flags = 0x0000},
+              .type = OFPMP_FLOW_STATS, .flags = 0x0000},
              .cookie = 0x0000000000000000ULL,
              .cookie_mask = 0x0000000000000000ULL,
              .table_id = 0xff,
@@ -481,7 +481,7 @@ static void
 stats_aggr(struct vconn *vconn, int argc, char *argv[]) {
     struct ofl_msg_multipart_request_flow req =
             {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_AGGREGATE, .flags = 0x0000},
+              .type = OFPMP_AGGREGATE_STATS, .flags = 0x0000},
              .cookie = 0x0000000000000000ULL,
              .cookie_mask = 0x0000000000000000ULL,
              .table_id = 0xff,
@@ -505,7 +505,7 @@ static void
 stats_table(struct vconn *vconn, int argc UNUSED, char *argv[] UNUSED) {
     struct ofl_msg_multipart_request_header req =
             {{.type = OFPT_MULTIPART_REQUEST},
-             .type = OFPMP_TABLE, .flags = 0x0000};
+             .type = OFPMP_TABLE_STATS, .flags = 0x0000};
 
     dpctl_transact_and_print(vconn, (struct ofl_msg_header *)&req, NULL);
 }
@@ -552,7 +552,7 @@ static void
 stats_group(struct vconn *vconn, int argc, char *argv[]) {
     struct ofl_msg_multipart_request_group req =
             {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_GROUP, .flags = 0x0000},
+              .type = OFPMP_GROUP_STATS, .flags = 0x0000},
              .group_id = OFPG_ALL};
 
     if (argc > 0 && parse_group(argv[0], &req.group_id)) {
@@ -730,7 +730,7 @@ stats_meter(struct vconn *vconn, int argc UNUSED, char *argv[]){
 
     struct ofl_msg_multipart_meter_request req =
             {{{.type = OFPT_MULTIPART_REQUEST},
-              .type = OFPMP_METER, .flags = 0x0000},
+              .type = OFPMP_METER_STATS, .flags = 0x0000},
              .meter_id = OFPM_ALL};
 
     if (argc > 0 && parse_meter(argv[0], &req.meter_id)) {

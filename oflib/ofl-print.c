@@ -789,16 +789,16 @@ void
 ofl_stats_type_print(FILE *stream, uint16_t type) {
     switch (type) {
         case (OFPMP_DESC):          { fprintf(stream, "desc"); return; }
-        case (OFPMP_FLOW):          { fprintf(stream, "flow"); return; }
-        case (OFPMP_AGGREGATE):     { fprintf(stream, "aggr"); return; }
-        case (OFPMP_TABLE):         { fprintf(stream, "table"); return; }
+        case (OFPMP_FLOW_STATS):    { fprintf(stream, "flow"); return; }
+        case (OFPMP_AGGREGATE_STATS): { fprintf(stream, "aggr"); return; }
+        case (OFPMP_TABLE_STATS):   { fprintf(stream, "table"); return; }
         case (OFPMP_TABLE_FEATURES):{ fprintf(stream, "table-features"); return; }
         case (OFPMP_PORT_STATS):    { fprintf(stream, "port"); return; }
         case (OFPMP_QUEUE):         { fprintf(stream, "queue"); return; }
-        case (OFPMP_GROUP):         { fprintf(stream, "grp"); return; }
+        case (OFPMP_GROUP_STATS):   { fprintf(stream, "grp"); return; }
         case (OFPMP_GROUP_FEATURES):{ fprintf(stream, "grp_features"); return; }
         case (OFPMP_GROUP_DESC):    { fprintf(stream, "gdesc"); return; }
-        case (OFPMP_METER):         { fprintf(stream, "mstats"); return; }
+        case (OFPMP_METER_STATS):   { fprintf(stream, "mstats"); return; }
         case (OFPMP_METER_CONFIG):  { fprintf(stream, "mconf"); return; }
         case (OFPMP_METER_FEATURES):{ fprintf(stream, "mfeat"); return; }
         case (OFPMP_PORT_DESC):     { fprintf(stream, "port-desc"); return; }   

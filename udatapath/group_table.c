@@ -233,7 +233,7 @@ group_table_handle_stats_request_group(struct group_table *table,
     {
         struct ofl_msg_multipart_reply_group reply =
                 {{{.type = OFPT_MULTIPART_REPLY},
-                  .type = OFPMP_GROUP, .flags = 0x0000},
+                  .type = OFPMP_GROUP_STATS, .flags = 0x0000},
                  .stats_num = msg->group_id == OFPG_ALL ? table->entries_num : 1,
                  .stats     = xmalloc(sizeof(struct ofl_group_stats *) * (msg->group_id == OFPG_ALL ? table->entries_num : 1))
                 };

@@ -328,7 +328,7 @@ pipeline_handle_stats_request_flow(struct pipeline *pl,
     {
         struct ofl_msg_multipart_reply_flow reply =
                 {{{.type = OFPT_MULTIPART_REPLY},
-                  .type = OFPMP_FLOW, .flags = 0x0000},
+                  .type = OFPMP_FLOW_STATS, .flags = 0x0000},
                  .stats     = stats,
                  .stats_num = stats_num
                 };
@@ -357,7 +357,7 @@ pipeline_handle_stats_request_table(struct pipeline *pl,
     {
         struct ofl_msg_multipart_reply_table reply =
                 {{{.type = OFPT_MULTIPART_REPLY},
-                  .type = OFPMP_TABLE, .flags = 0x0000},
+                  .type = OFPMP_TABLE_STATS, .flags = 0x0000},
                  .stats     = stats,
                  .stats_num = PIPELINE_TABLES};
 
@@ -524,7 +524,7 @@ pipeline_handle_stats_request_aggregate(struct pipeline *pl,
                                   const struct sender *sender) {
     struct ofl_msg_multipart_reply_aggregate reply =
             {{{.type = OFPT_MULTIPART_REPLY},
-              .type = OFPMP_AGGREGATE, .flags = 0x0000},
+              .type = OFPMP_AGGREGATE_STATS, .flags = 0x0000},
               .packet_count = 0,
               .byte_count   = 0,
               .flow_count   = 0};

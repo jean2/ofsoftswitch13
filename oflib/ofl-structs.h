@@ -366,7 +366,7 @@ struct ofl_meter_band_stats {
     uint64_t tokens;
 };
 
-/* Body of reply to OFPMP_METER request. Meter statistics. */
+/* Body of reply to OFPMP_METER_STATS request. Meter statistics. */
 struct ofl_meter_stats {
     uint32_t meter_id; /* Meter instance. */
     uint16_t len;             /* Length in bytes of this stats. */

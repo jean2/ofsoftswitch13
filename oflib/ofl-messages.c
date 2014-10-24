@@ -60,18 +60,18 @@ ofl_msg_free_multipart_request(struct ofl_msg_multipart_request_header *msg, str
         case OFPMP_DESC: {
             break;
         }
-        case OFPMP_FLOW:
-        case OFPMP_AGGREGATE: {
+        case OFPMP_FLOW_STATS:
+        case OFPMP_AGGREGATE_STATS: {
             ofl_structs_free_match(((struct ofl_msg_multipart_request_flow *)msg)->match, exp);
             break;
         }
-        case OFPMP_TABLE:
+        case OFPMP_TABLE_STATS:
         case OFPMP_PORT_STATS :
         case OFPMP_QUEUE:
-        case OFPMP_GROUP:
+        case OFPMP_GROUP_STATS:
         case OFPMP_GROUP_DESC:
         case OFPMP_GROUP_FEATURES:
-        case OFPMP_METER:
+        case OFPMP_METER_STATS:
         case OFPMP_METER_CONFIG:
         case OFPMP_METER_FEATURES:
             break;
@@ -114,15 +114,15 @@ ofl_msg_free_multipart_reply(struct ofl_msg_multipart_reply_header *msg, struct 
             free(stat->dp_desc);
             break;
         }
-        case OFPMP_FLOW: {
+        case OFPMP_FLOW_STATS: {
             struct ofl_msg_multipart_reply_flow *stat = (struct ofl_msg_multipart_reply_flow *)msg;
             OFL_UTILS_FREE_ARR_FUN2(stat->stats, stat->stats_num,
                                     ofl_structs_free_flow_stats, exp);
         }
-        case OFPMP_AGGREGATE: {
+        case OFPMP_AGGREGATE_STATS: {
             break;
         }
-        case OFPMP_TABLE: {
+        case OFPMP_TABLE_STATS: {
             struct ofl_msg_multipart_reply_table *stat = (struct ofl_msg_multipart_reply_table *)msg;
             OFL_UTILS_FREE_ARR_FUN(stat->stats, stat->stats_num,
                                    ofl_structs_free_table_stats);
@@ -138,13 +138,13 @@ ofl_msg_free_multipart_reply(struct ofl_msg_multipart_reply_header *msg, struct 
             OFL_UTILS_FREE_ARR(stat->stats, stat->stats_num);
             break;
         }
-        case OFPMP_GROUP: {
+        case OFPMP_GROUP_STATS: {
             struct ofl_msg_multipart_reply_group *stat = (struct ofl_msg_multipart_reply_group *)msg;
             OFL_UTILS_FREE_ARR_FUN(stat->stats, stat->stats_num,
                                    ofl_structs_free_group_stats);
             break;
         }
-        case OFPMP_METER:{
+        case OFPMP_METER_STATS:{
             struct ofl_msg_multipart_reply_meter *stat = (struct ofl_msg_multipart_reply_meter*)msg;
             OFL_UTILS_FREE_ARR_FUN(stat->stats, stat->stats_num,
                                    ofl_structs_free_meter_stats);            

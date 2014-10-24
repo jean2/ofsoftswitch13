@@ -188,13 +188,13 @@ handle_control_stats_request(struct datapath *dp,
         case (OFPMP_DESC): {
             return handle_control_stats_request_desc(dp, msg, sender);
         }
-        case (OFPMP_FLOW): {
+        case (OFPMP_FLOW_STATS): {
             return pipeline_handle_stats_request_flow(dp->pipeline, (struct ofl_msg_multipart_request_flow *)msg, sender);
         }
-        case (OFPMP_AGGREGATE): {
+        case (OFPMP_AGGREGATE_STATS): {
             return pipeline_handle_stats_request_aggregate(dp->pipeline, (struct ofl_msg_multipart_request_flow *)msg, sender);
         }
-        case (OFPMP_TABLE): {
+        case (OFPMP_TABLE_STATS): {
             return pipeline_handle_stats_request_table(dp->pipeline, msg, sender);
         }
         case (OFPMP_TABLE_FEATURES):{
@@ -206,7 +206,7 @@ handle_control_stats_request(struct datapath *dp,
         case (OFPMP_QUEUE): {
             return dp_ports_handle_stats_request_queue(dp, (struct ofl_msg_multipart_request_queue *)msg, sender);
         }
-        case (OFPMP_GROUP): {
+        case (OFPMP_GROUP_STATS): {
             return group_table_handle_stats_request_group(dp->groups, (struct ofl_msg_multipart_request_group *)msg, sender);
         }
         case (OFPMP_GROUP_DESC): {
@@ -215,7 +215,7 @@ handle_control_stats_request(struct datapath *dp,
 		case (OFPMP_GROUP_FEATURES):{
             return group_table_handle_stats_request_group_features(dp->groups, msg, sender);			
 		}		
-        case (OFPMP_METER):{
+        case (OFPMP_METER_STATS):{
         	return meter_table_handle_stats_request_meter(dp->meters,(struct ofl_msg_multipart_meter_request*)msg, sender);
         }
         case (OFPMP_METER_CONFIG):{

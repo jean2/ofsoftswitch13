@@ -897,12 +897,12 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             error = ofl_msg_unpack_multipart_request_empty(os, len, msg);
             break;
         }
-        case OFPMP_FLOW:
-        case OFPMP_AGGREGATE: {
+        case OFPMP_FLOW_STATS:
+        case OFPMP_AGGREGATE_STATS: {
             error = ofl_msg_unpack_multipart_request_flow(os,buf, len, msg, exp);
             break;
         }
-        case OFPMP_TABLE: {
+        case OFPMP_TABLE_STATS: {
             error = ofl_msg_unpack_multipart_request_empty(os, len, msg);
             break;
         }
@@ -918,7 +918,7 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             error = ofl_msg_unpack_multipart_request_queue(os, len, msg);
             break;
         }
-        case OFPMP_GROUP: {
+        case OFPMP_GROUP_STATS: {
             error = ofl_msg_unpack_multipart_request_group(os, len, msg);
             break;
         }
@@ -930,7 +930,7 @@ ofl_msg_unpack_multipart_request(struct ofp_header *src,uint8_t *buf, size_t *le
             error = ofl_msg_unpack_multipart_request_empty(os, len, msg);
             break;    
         }
-        case OFPMP_METER:
+        case OFPMP_METER_STATS:
         case OFPMP_METER_CONFIG:{
             error = ofl_msg_unpack_meter_multipart_request(os, len, msg);
             break;
@@ -1416,15 +1416,15 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_reply_desc(os, len, msg);
             break;
         }
-        case OFPMP_FLOW: {
+        case OFPMP_FLOW_STATS: {
             error = ofl_msg_unpack_multipart_reply_flow(os,buf, len, msg, exp);
             break;
         }
-        case OFPMP_AGGREGATE: {
+        case OFPMP_AGGREGATE_STATS: {
             error = ofl_msg_unpack_multipart_reply_aggregate(os, len, msg);
             break;
         }
-        case OFPMP_TABLE: {
+        case OFPMP_TABLE_STATS: {
             error = ofl_msg_unpack_multipart_reply_table(os, len, msg);
             break;
         }
@@ -1440,7 +1440,7 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_multipart_reply_queue(os, len, msg);
             break;
         }
-        case OFPMP_GROUP: {
+        case OFPMP_GROUP_STATS: {
             error = ofl_msg_unpack_multipart_reply_group(os, len, msg);
             break;
         }
@@ -1452,7 +1452,7 @@ ofl_msg_unpack_multipart_reply(struct ofp_header *src, uint8_t *buf, size_t *len
             error = ofl_msg_unpack_multipart_reply_group_features(os, len, msg);
             break;
         }
-        case OFPMP_METER:{
+        case OFPMP_METER_STATS:{
             error = ofl_msg_unpack_multipart_reply_meter_stats(os, len, msg);
             break;
         }    

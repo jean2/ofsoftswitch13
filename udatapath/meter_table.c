@@ -244,7 +244,7 @@ meter_table_handle_stats_request_meter(struct meter_table *table,
     {
         struct ofl_msg_multipart_reply_meter reply =
                 {{{.type = OFPT_MULTIPART_REPLY},
-                  .type = OFPMP_METER, .flags = 0x0000},
+                  .type = OFPMP_METER_STATS, .flags = 0x0000},
                  .stats_num = msg->meter_id == OFPM_ALL ? table->entries_num : 1,
                  .stats     = xmalloc(sizeof(struct ofl_meter_stats *) * (msg->meter_id == OFPM_ALL ? table->entries_num : 1))
                 };

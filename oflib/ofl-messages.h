@@ -273,7 +273,7 @@ struct ofl_msg_multipart_request_header {
 };
 
 struct ofl_msg_multipart_request_flow {
-    struct ofl_msg_multipart_request_header   header; /* OFPMP_FLOW/AGGREGATE */
+    struct ofl_msg_multipart_request_header   header; /* OFPMP_FLOW_STATS/AGGREGATE_STATS */
 
     uint8_t                  table_id; /* ID of table to read
                                            (from ofp_table_multipart), 0xff for all
@@ -307,7 +307,7 @@ struct ofl_msg_multipart_request_queue {
 };
 
 struct ofl_msg_multipart_request_group {
-    struct ofl_msg_multipart_request_header   header; /* OFPMP_GROUP */
+    struct ofl_msg_multipart_request_header   header; /* OFPMP_GROUP_STATS */
     uint32_t   group_id; /* All groups if OFPG_ALL. */
 };
 
@@ -318,7 +318,7 @@ struct ofl_msg_multipart_request_table_features{
 };
 
 struct ofl_msg_multipart_meter_request {
-    struct ofl_msg_multipart_request_header   header; /* OFPMP_METER */
+    struct ofl_msg_multipart_request_header   header; /* OFPMP_METER_STATS */
     
     uint32_t meter_id; /* Meter instance, or OFPM_ALL. */
 };
@@ -348,14 +348,14 @@ struct ofl_msg_reply_desc {
 };
 
 struct ofl_msg_multipart_reply_flow {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_FLOW */
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_FLOW_STATS */
 
     size_t                  stats_num;
     struct ofl_flow_stats **stats;
 };
 
 struct ofl_msg_multipart_reply_aggregate {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_AGGREGATE */
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_AGGREGATE_STATS */
 
     uint64_t   packet_count; /* Number of packets in flows. */
     uint64_t   byte_count;   /* Number of bytes in flows. */
@@ -363,7 +363,7 @@ struct ofl_msg_multipart_reply_aggregate {
 };
 
 struct ofl_msg_multipart_reply_table {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_TABLE */
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_TABLE_STATS */
 
     size_t                   stats_num;
     struct ofl_table_stats **stats;
@@ -391,7 +391,7 @@ struct ofl_msg_multipart_reply_queue {
 };
 
 struct ofl_msg_multipart_reply_group {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_GROUP */
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_GROUP_STATS */
 
     size_t                   stats_num;
     struct ofl_group_stats **stats;
@@ -414,7 +414,7 @@ struct ofl_msg_multipart_reply_group_features {
 };
 
 struct ofl_msg_multipart_reply_meter {
-    struct ofl_msg_multipart_reply_header   header; /* OFPMP_METER */
+    struct ofl_msg_multipart_reply_header   header; /* OFPMP_METER_STATS */
 
     size_t                   stats_num;
     struct ofl_meter_stats **stats;

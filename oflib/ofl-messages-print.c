@@ -320,12 +320,12 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
         case OFPMP_DESC: {
             break;
         }
-        case OFPMP_FLOW:
-        case OFPMP_AGGREGATE: {
+        case OFPMP_FLOW_STATS:
+        case OFPMP_AGGREGATE_STATS: {
             ofl_msg_print_stats_request_flow((struct ofl_msg_multipart_request_flow *)msg, stream, exp);
             break;
         }
-        case OFPMP_TABLE: {
+        case OFPMP_TABLE_STATS: {
             break;
         }
         case OFPMP_TABLE_FEATURES: {
@@ -340,7 +340,7 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
             ofl_msg_print_stats_request_queue((struct ofl_msg_multipart_request_queue *)msg, stream);
             break;
         }
-        case OFPMP_GROUP: {
+        case OFPMP_GROUP_STATS: {
             ofl_msg_print_stats_request_group((struct ofl_msg_multipart_request_group *)msg, stream);
             break;
         }
@@ -350,7 +350,7 @@ ofl_msg_print_multipart_request(struct ofl_msg_multipart_request_header *msg, FI
         case OFPMP_GROUP_FEATURES:{
             break;
         }
-        case OFPMP_METER:
+        case OFPMP_METER_STATS:
         case OFPMP_METER_CONFIG:{
             ofl_msg_print_meter_stats_request((struct ofl_msg_multipart_meter_request*)msg, stream);
             break;
@@ -588,15 +588,15 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             ofl_msg_print_stats_reply_desc((struct ofl_msg_reply_desc *)msg, stream);
             break;
         }
-        case (OFPMP_FLOW): {
+        case (OFPMP_FLOW_STATS): {
             ofl_msg_print_stats_reply_flow((struct ofl_msg_multipart_reply_flow *)msg, stream, exp);
             break;
         }
-        case OFPMP_AGGREGATE: {
+        case OFPMP_AGGREGATE_STATS: {
             ofl_msg_print_stats_reply_aggregate((struct ofl_msg_multipart_reply_aggregate *)msg, stream);
             break;
         }
-        case (OFPMP_TABLE): {
+        case (OFPMP_TABLE_STATS): {
             ofl_msg_print_stats_reply_table((struct ofl_msg_multipart_reply_table *)msg, stream);
             break;
         }
@@ -612,7 +612,7 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             ofl_msg_print_stats_reply_queue((struct ofl_msg_multipart_reply_queue *)msg, stream);
             break;
         }
-        case (OFPMP_GROUP): {
+        case (OFPMP_GROUP_STATS): {
             ofl_msg_print_stats_reply_group((struct ofl_msg_multipart_reply_group *)msg, stream);
             break;
         }
@@ -624,7 +624,7 @@ ofl_msg_print_multipart_reply(struct ofl_msg_multipart_reply_header *msg, FILE *
             ofl_msg_print_stats_reply_group_features((struct ofl_msg_multipart_reply_group_features *)msg, stream);
             break;
         }
-        case OFPMP_METER:{
+        case OFPMP_METER_STATS:{
             ofl_msg_print_stats_reply_meter((struct ofl_msg_multipart_reply_meter*)msg, stream);
             break;
         }
