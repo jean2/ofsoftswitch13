@@ -676,7 +676,7 @@ ofl_structs_meter_stats_unpack(struct ofp_meter_stats *src, size_t *len, struct 
     s->meter_id = ntohl(src->meter_id);
     s->len = ntohs(src->len);
     
-    s->flow_count = ntohl(src->flow_count);
+    s->ref_count = ntohl(src->ref_count);
     s->packet_in_count = ntoh64(src->packet_in_count);
     s->byte_in_count = ntoh64(src->byte_in_count);
     s->duration_sec =  htonl(src->duration_sec);

@@ -117,7 +117,7 @@ meter_entry_create(struct datapath *dp, struct meter_table *table, struct ofl_ms
     entry->stats = xmalloc(sizeof(struct ofl_meter_stats));
     entry->stats->meter_id      = mod->meter_id;
     entry->stats->byte_in_count = 0;
-    entry->stats->flow_count  = 0;
+    entry->stats->ref_count  = 0;
     entry->stats->packet_in_count  = 0;
     entry->stats->meter_bands_num    = mod->meter_bands_num;
     entry->stats->duration_nsec  = 0;
@@ -285,7 +285,7 @@ meter_entry_add_flow_ref(struct meter_entry *entry, struct flow_entry *fe) {
         struct flow_ref_entry *f = xmalloc(sizeof(struct flow_ref_entry));
         f->entry = fe;
         list_insert(&entry->flow_refs, &f->node);
-        entry->stats->flow_count++;
+        entry->stats->ref_count++;
     }
 }
 
@@ -297,7 +297,7 @@ meter_entry_del_flow_ref(struct meter_entry *entry, struct flow_entry *fe) {
         if (f->entry == fe) {
             list_remove(&f->node);
             free(f);
-            entry->stats->flow_count--;
+            entry->stats->ref_count--;
         }
     }
 }

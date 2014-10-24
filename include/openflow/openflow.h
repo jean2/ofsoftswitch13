@@ -1305,7 +1305,8 @@ struct ofp_meter_stats {
     uint32_t meter_id; /* Meter instance. */
     uint16_t len;             /* Length in bytes of this stats. */
     uint8_t pad[6];
-    uint32_t flow_count;      /* Number of flows bound to meter. */
+    uint32_t ref_count;       /* Number of flows or groups that
+                                 directly reference this meter. */
     uint64_t packet_in_count; /* Number of packets in input. */
     uint64_t byte_in_count;   /* Number of bytes in input. */
     uint32_t duration_sec;    /* Time meter has been alive in seconds. */

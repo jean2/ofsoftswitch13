@@ -674,9 +674,9 @@ ofl_structs_meter_stats_print(FILE *stream, struct ofl_meter_stats* s){
     size_t i;
 
     fprintf(stream, "{meter= %x\"", s->meter_id);
-    fprintf(stream, "\", flow_cnt=\"%u\", pkt_in_cnt=\"%"PRIu64"\", byte_in_cnt=\"%"PRIu64"\"" 
+    fprintf(stream, "\", ref_cnt=\"%u\", pkt_in_cnt=\"%"PRIu64"\", byte_in_cnt=\"%"PRIu64"\"" 
                     ", duration_sec=\"%"PRIu32"\", duration_nsec=\"%"PRIu32"\", bands=[",
-                  s->flow_count, s->packet_in_count, s->byte_in_count, 
+                  s->ref_count, s->packet_in_count, s->byte_in_count, 
                   s->duration_sec, s->duration_nsec);
   
     for (i=0; i<s->meter_bands_num; i++) {

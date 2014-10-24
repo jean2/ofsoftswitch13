@@ -635,7 +635,7 @@ ofl_structs_meter_stats_pack(struct ofl_meter_stats *src, struct ofp_meter_stats
     dst->meter_id = htonl(src->meter_id);
     dst->len =       htons( total_len);
     memset(dst->pad, 0x00, 6);
-    dst->flow_count =     htonl(src->flow_count);
+    dst->ref_count =     htonl(src->ref_count);
     dst->packet_in_count =    hton64( src->packet_in_count);
     dst->byte_in_count = hton64(src->byte_in_count);
     dst->duration_sec =  htonl(src->duration_sec);
