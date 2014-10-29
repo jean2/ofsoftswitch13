@@ -349,6 +349,7 @@ ofl_msg_unpack_packet_out(struct ofp_header *src, size_t *len, struct ofl_msg_he
     struct ofp_packet_out *sp;
     struct ofl_msg_packet_out *dp;
     struct ofp_action_header *act;
+    uint8_t *ptr;
     uint8_t *data;
     ofl_err error;
     size_t i, actions_num;
@@ -371,7 +372,7 @@ ofl_msg_unpack_packet_out(struct ofp_header *src, size_t *len, struct ofl_msg_he
     }*/
 
     if (ntohl(sp->buffer_id) != 0xffffffff &&
-        *len != sizeof(struct ofp_packet_out) + ntohs(sp->actions_len)) {
+        *len != sizeof(struct ofp_packet_out) + ntohs(sp->actions_len) + ntohs(sp->match.length) - 4) {
         if (OFL_LOG_IS_WARN_ENABLED(LOG_MODULE)) {
             char *bs = ofl_buffer_to_string(ntohl(sp->buffer_id));
             OFL_LOG_WARN(LOG_MODULE, "Received PACKET_OUT message with data and buffer_id (%s).", bs);
@@ -379,19 +380,27 @@ ofl_msg_unpack_packet_out(struct ofp_header *src, size_t *len, struct ofl_msg_he
         }
         return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
     }
-    *len -= sizeof(struct ofp_packet_out);
+
+    *len -= sizeof(struct ofp_packet_out) - sizeof(struct ofp_match);
+    if (*len < ntohs(sp->match.length)) {
+        OFL_LOG_WARN(LOG_MODULE, "Received PACKET_OUT message has invalid match length (%zu).", *len);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+    if (*len < ntohs(sp->actions_len) + ntohs(sp->match.length)) {
+        OFL_LOG_WARN(LOG_MODULE, "Received PACKET_OUT message has invalid action length (%zu).", *len);
+        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
 
     dp = (struct ofl_msg_packet_out *)malloc(sizeof(struct ofl_msg_packet_out));
 
     dp->buffer_id = ntohl(sp->buffer_id);
-    dp->in_port = ntohl(sp->in_port);	
-    if (*len < ntohs(sp->actions_len)) {
-        OFL_LOG_WARN(LOG_MODULE, "Received PACKET_OUT message has invalid action length (%zu).", *len);
-        free(dp);
-        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
-    }
 
-    error = ofl_utils_count_ofp_actions(&(sp->actions), ntohs(sp->actions_len), &actions_num);
+    ptr = ((uint8_t *) sp) + (sizeof(struct ofp_packet_out) - 4);
+    ofl_structs_match_unpack(&(sp->match), ptr, len, (struct ofl_match_header **) &(dp->match), NULL);
+    
+    ptr = ((uint8_t *) sp) + ROUND_UP(sizeof(struct ofp_packet_out) - 4 + dp->match->header.length, 8);
+
+    error = ofl_utils_count_ofp_actions((struct ofp_action_header *) ptr, ntohs(sp->actions_len), &actions_num);
     if (error) {
         free(dp);
         return error;
@@ -400,7 +409,7 @@ ofl_msg_unpack_packet_out(struct ofp_header *src, size_t *len, struct ofl_msg_he
     dp->actions = (struct ofl_action_header **)malloc(dp->actions_num * sizeof(struct ofp_action_header *));
 
     // TODO Zoltan: Output actions can contain OFPP_TABLE
-    act = sp->actions;
+    act = (struct ofp_action_header *) ptr;
     for (i = 0; i < dp->actions_num; i++) {
         error = ofl_actions_unpack(act, len, &(dp->actions[i]), exp);
         if (error) {
@@ -411,7 +420,7 @@ ofl_msg_unpack_packet_out(struct ofp_header *src, size_t *len, struct ofl_msg_he
         act = (struct ofp_action_header *)((uint8_t *)act + ntohs(act->len));
     }
 
-    data = ((uint8_t *)sp->actions) + ntohs(sp->actions_len);
+    data = ptr + ntohs(sp->actions_len);
     dp->data_length = *len;
     dp->data = *len > 0 ? (uint8_t *)memcpy(malloc(*len), data, *len) : NULL;
     *len = 0;

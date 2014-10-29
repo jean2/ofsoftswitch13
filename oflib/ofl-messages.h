@@ -173,8 +173,7 @@ struct ofl_msg_packet_out {
 
     uint32_t                   buffer_id;   /* ID assigned by datapath
                                               (0xffffffff if none). */
-    uint32_t                   in_port;     /* Packet's input port or
-                                              OFPP_CONTROLLER */
+    struct ofl_match          *match;       /* Pipeline fields. */
     uint32_t                   actions_num;
     struct ofl_action_header **actions;
 

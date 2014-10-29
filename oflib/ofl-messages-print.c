@@ -138,8 +138,8 @@ ofl_msg_print_packet_out(struct ofl_msg_packet_out *msg, FILE *stream, struct of
     size_t i;
     fprintf(stream, "{buffer=\"");
     ofl_buffer_print(stream, msg->buffer_id);
-    fprintf(stream, "\", port=\"");
-    ofl_port_print(stream, msg->in_port);
+    fprintf(stream, "\", match=\"");
+    ofl_structs_match_print(stream, (struct ofl_match_header *) msg->match, exp);
     fprintf(stream, "\", actions=[");
 
     for (i=0; i<msg->actions_num; i++) {

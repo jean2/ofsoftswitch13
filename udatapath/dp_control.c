@@ -42,6 +42,7 @@
 #include "oflib/ofl.h"
 #include "oflib/ofl-messages.h"
 #include "oflib/ofl-log.h"
+#include "oflib/oxm-match.h"
 #include "openflow/openflow.h"
 
 #include "vlog.h"
@@ -137,11 +138,19 @@ handle_control_packet_out(struct datapath *dp, struct ofl_msg_packet_out *msg,
 
     if (msg->buffer_id == NO_BUFFER) {
         struct ofpbuf *buf;
+	struct ofl_match_tlv   *f;
+	uint32_t in_port;
+	f = oxm_match_lookup(OXM_OF_IN_PORT, msg->match);
+	if (f == NULL)
+	        return ofl_error(OFPET_BAD_REQUEST, OFPBRC_BAD_PORT);
+	in_port = *((uint32_t*) f->value);
+
         /* NOTE: the created packet will take the ownership of data in msg. */
         buf = ofpbuf_new(0);
         ofpbuf_use(buf, msg->data, msg->data_length);
         ofpbuf_put_uninit(buf, msg->data_length);
-        pkt = packet_create(dp, msg->in_port, buf, true);
+
+        pkt = packet_create(dp, in_port, buf, true);
     } else {
         /* NOTE: in this case packet should not have data */
         pkt = dp_buffers_retrieve(dp->buffers, msg->buffer_id);

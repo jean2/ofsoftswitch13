@@ -214,21 +214,24 @@ static int
 ofl_msg_pack_packet_out(struct ofl_msg_packet_out *msg, uint8_t **buf, size_t *buf_len, struct ofl_exp *exp) {
     struct ofp_packet_out *packet_out;
     size_t act_len;
+    size_t match_len;
     uint8_t *ptr;
     int i;
 
+    match_len = ROUND_UP(msg->match->header.length - 4, 8);
     act_len = ofl_actions_ofp_total_len(msg->actions, msg->actions_num, exp);
 
-    *buf_len = sizeof(struct ofp_packet_out) + act_len + msg->data_length;
+    *buf_len = sizeof(struct ofp_packet_out) + match_len + act_len + msg->data_length;
     *buf     = (uint8_t *)malloc(*buf_len);
 
     packet_out = (struct ofp_packet_out *)(*buf);
     packet_out->buffer_id   = htonl(msg->buffer_id);
-    packet_out->in_port     = htonl(msg->in_port);
     packet_out->actions_len = htons(act_len);
-    memset(packet_out->pad, 0x00, 6);
+    memset(packet_out->pad, 0x00, 2);
 
-    ptr = (*buf) + sizeof(struct ofp_packet_out);
+    ptr = (*buf) + sizeof(struct ofp_packet_out) - 4;
+    ofl_structs_match_pack((struct ofl_match_header *) msg->match, &(packet_out->match), ptr, NULL);
+    ptr = (*buf) + ROUND_UP((sizeof(struct ofp_packet_out) - 4) + msg->match->header.length, 8);
 
     for (i=0; i<msg->actions_num; i++) {
         ptr += ofl_actions_pack(msg->actions[i], (struct ofp_action_header *)ptr,*buf, exp);

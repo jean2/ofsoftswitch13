@@ -288,16 +288,21 @@ make_packet_out(const struct ofpbuf *packet, uint32_t buffer_id,
 {
     size_t actions_len = n_actions * sizeof *actions;
     struct ofp_packet_out *opo;
-    size_t size = sizeof *opo + actions_len + (packet ? packet->size : 0);
+    size_t size = sizeof *opo + 8 + actions_len + (packet ? packet->size : 0);
     struct ofpbuf *out = ofpbuf_new(size);
+    uint32_t *oxm_array;
 
-    opo = ofpbuf_put_uninit(out, sizeof *opo);
+    opo = ofpbuf_put_uninit(out, sizeof *opo + 8);
     opo->header.version = OFP_VERSION;
     opo->header.type = OFPT_PACKET_OUT;
     opo->header.length = htons(size);
     opo->header.xid = htonl(0);
     opo->buffer_id = htonl(buffer_id);
-    opo->in_port = htonl(in_port);
+    opo->match.type = htons(OFPMT_OXM);
+    opo->match.length = htons(12);
+    oxm_array = (uint32_t *) (opo->match.oxm_fields);
+    oxm_array[0] = htonl(0x80000004 /* OXM_OF_IN_PORT */);
+    oxm_array[1] = htonl(in_port);
     opo->actions_len = htons(actions_len);
     ofpbuf_put(out, actions, actions_len);
     if (packet) {
@@ -494,9 +499,11 @@ check_ofp_packet_out(const struct ofp_header *oh, struct ofpbuf *data,
                      int *n_actionsp, int max_ports)
 {
     const struct ofp_packet_out *opo;
+    unsigned int match_len;
     unsigned int actions_len, n_actions;
     size_t extra;
     int error;
+    struct ofp_action_header *actions;
 
     *n_actionsp = 0;
     error = check_ofp_message_array(oh, OFPT_PACKET_OUT,
@@ -505,6 +512,16 @@ check_ofp_packet_out(const struct ofp_header *oh, struct ofpbuf *data,
         return error;
     }
     opo = (const struct ofp_packet_out *) oh;
+
+    match_len = ntohs(opo->match.length);
+    if ((match_len - 8) > extra) {
+        VLOG_WARN(LOG_MODULE, "packet-out claims %u bytes of match "
+                     "but message has room for only %zu bytes",
+                     actions_len, extra);
+        return ofp_mkerr(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN);
+    }
+    actions = (struct ofp_action_header *) (((char *) opo) + (((match_len + 7) / 8) * 8));
+    extra -= match_len - 8;
 
     actions_len = ntohs(opo->actions_len);
     if (actions_len > extra) {
@@ -521,13 +538,13 @@ check_ofp_packet_out(const struct ofp_header *oh, struct ofpbuf *data,
     }
 
     n_actions = actions_len / sizeof(union ofp_action);
-    error = validate_actions((const union ofp_action *) opo->actions,
+    error = validate_actions((const union ofp_action *) actions,
                              n_actions, max_ports, true);
     if (error) {
         return error;
     }
 
-    data->data = (void *) &opo->actions[n_actions];
+    data->data = (void *) &actions[n_actions];
     data->size = extra - actions_len;
     *n_actionsp = n_actions;
     return 0;

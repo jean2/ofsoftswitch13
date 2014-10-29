@@ -316,6 +316,7 @@ ofl_msg_free_packet_out(struct ofl_msg_packet_out *msg, bool with_data, struct o
     if (with_data) {
         free(msg->data);
     }
+    ofl_structs_free_match(msg->match, NULL);
     OFL_UTILS_FREE_ARR_FUN2(msg->actions, msg->actions_num,
                             ofl_actions_free, exp);
 

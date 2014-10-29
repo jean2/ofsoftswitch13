@@ -1369,16 +1369,18 @@ OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
 
 /* Send packet (controller -> datapath). */
 struct ofp_packet_out {
-	struct ofp_header header;
-	uint32_t buffer_id;                  /* ID assigned by datapath (OFP_NO_BUFFER
-                                            if none). */
-	uint32_t in_port;                    /* Packet’s input port or OFPP_CONTROLLER. */
-	uint16_t actions_len;                /* Size of action array in bytes. */
-	uint8_t pad[6];
-	struct ofp_action_header actions[0]; /* Action list. */
-	/* uint8_t data[0]; */ /* Packet data. The length is inferred
-	from the length field in the header.
-	(Only meaningful if buffer_id == -1.) */
+    struct ofp_header header;
+    uint32_t buffer_id;           /* ID assigned by datapath (OFP_NO_BUFFER
+                                     if none). */
+    uint16_t actions_len;         /* Size of action array in bytes. */
+    uint8_t pad[2];               /* Align to 64 bits. */
+    struct ofp_match match;       /* Packet pipeline fields. Variable size. */
+    /* The variable size and padded match is followed by the list of actions. */
+    /* struct ofp_action_header actions[0]; *//* Action list - 0 or more. */
+    /* The variable size action list is optionally followed by packet data.
+     * This data is only present and meaningful if buffer_id == -1. */
+    /* uint8_t data[0]; */        /* Packet data.  The length is inferred
+                                     from the length field in the header. */
 };
 OFP_ASSERT(sizeof(struct ofp_packet_out) == 24);
 
