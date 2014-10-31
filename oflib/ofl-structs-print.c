@@ -239,10 +239,14 @@ ofl_structs_oxm_tlv_print(FILE *stream, struct ofl_match_tlv *f)
 	switch (field) {
 
 		case OFPXMT_OFB_IN_PORT:
-			fprintf(stream, "in_port=\"%d\"", *((uint32_t*) f->value));
+			fprintf(stream, "in_port=\"");
+			ofl_port_print(stream, *((uint32_t*) f->value));
+			fprintf(stream, "\"");
 			break;
 		case OFPXMT_OFB_IN_PHY_PORT:
-			fprintf(stream, "in_phy_port=\"%d\"", *((uint32_t*) f->value));
+			fprintf(stream, "in_phy_port=\"");
+			ofl_port_print(stream, *((uint32_t*) f->value));
+			fprintf(stream, "\"");
 			break;
 		case OFPXMT_OFB_VLAN_VID: {
 			uint16_t v = *((uint16_t *) f->value);
