@@ -69,6 +69,12 @@ void
 ofl_group_print(FILE *stream, uint32_t group);
 
 char *
+ofl_meter_to_string(uint32_t meter);
+
+void
+ofl_meter_print(FILE *stream, uint32_t meter);
+
+char *
 ofl_table_to_string(uint8_t table);
 
 void

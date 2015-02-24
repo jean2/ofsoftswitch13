@@ -1165,6 +1165,14 @@ dp_actions_validate(struct datapath *dp, size_t actions_num, struct ofl_action_h
                 return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_OUT_GROUP);
             }
         }
+        if (actions[i]->type == OFPAT_METER) {
+            struct ofl_action_meter *am = (struct ofl_action_meter *)actions[i];
+
+            if (am->meter_id <= OFPG_MAX && meter_table_find(dp->meters, am->meter_id) == NULL) {
+                VLOG_WARN_RL(LOG_MODULE, &rl, "Meter action for invalid meter (%u).", am->meter_id);
+                return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_METER);
+            }
+        }
     }
 
     return 0;

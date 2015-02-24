@@ -1574,7 +1574,7 @@ enum ofp_bad_action_code {
     OFPBAC_EPERM = 6,               /* Permissions error. */
     OFPBAC_TOO_MANY = 7,            /* Can’t handle this many actions. */
     OFPBAC_BAD_QUEUE = 8,           /* Problem validating output queue. */
-    OFPBAC_BAD_OUT_GROUP = 9,       /* Invalid group id in forward action. */
+    OFPBAC_BAD_OUT_GROUP = 9,       /* Invalid group id in group action. */
     OFPBAC_MATCH_INCONSISTENT = 10, /* Action can’t apply for this match,
                                        or Set-Field missing prerequisite. */
     OFPBAC_UNSUPPORTED_ORDER = 11,  /* Action order is unsupported for the
@@ -1584,6 +1584,7 @@ enum ofp_bad_action_code {
     OFPBAC_BAD_SET_TYPE = 13,       /* Unsupported type in SET_FIELD action. */
     OFPBAC_BAD_SET_LEN = 14,        /* Length problem in SET_FIELD action. */
     OFPBAC_BAD_SET_ARGUMENT = 15,   /* Bad argument in SET_FIELD action. */
+    OFPBAC_BAD_METER = 17,          /* Invalid meter id in meter action. */
 };
 
 /* ofp_error_msg ’code’ values for OFPET_BAD_INSTRUCTION. ’data’ contains at least

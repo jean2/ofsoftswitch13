@@ -134,6 +134,28 @@ ofl_group_print(FILE *stream, uint32_t group) {
 }
 
 
+char *
+ofl_meter_to_string(uint32_t meter) {
+    char *str;
+    size_t str_size;
+    FILE *stream = open_memstream(&str, &str_size);
+
+    ofl_meter_print(stream, meter);
+    fclose(stream);
+    return str;
+}
+
+void
+ofl_meter_print(FILE *stream, uint32_t meter) {
+    switch (meter) {
+        case (OFPM_ALL): {        fprintf(stream, "all"); return; }
+        case (OFPM_SLOWPATH): {   fprintf(stream, "slowpath"); return; }
+        case (OFPM_CONTROLLER): { fprintf(stream, "controller"); return; }
+        default: {                fprintf(stream, "%u", meter); return; }
+    }
+}
+
+
 
 char *
 ofl_table_to_string(uint8_t table) {
@@ -407,6 +429,7 @@ ofl_error_code_print(FILE *stream, uint16_t type, uint16_t code) {
                 case (OFPBAC_BAD_SET_TYPE):           { fprintf(stream, "BAD_SET_TYPE"); return;}
                 case (OFPBAC_BAD_SET_LEN):            { fprintf(stream, "BAD_SET_LEN"); return;}
                 case (OFPBAC_BAD_SET_ARGUMENT):       { fprintf(stream, "BAD_SET_ARGUMENT"); return;}
+                case (OFPBAC_BAD_METER) :              { fprintf(stream, "BAD_METER"); return; }
             }
             break;
         }

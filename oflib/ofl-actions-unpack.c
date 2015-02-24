@@ -227,6 +227,15 @@ ofl_actions_unpack(struct ofp_action_header *src, size_t *len, struct ofl_action
 
             sa = (struct ofp_action_meter *)src;
 
+            if (ntohl(sa->meter_id) > OFPM_MAX) {
+                if (OFL_LOG_IS_WARN_ENABLED(LOG_MODULE)) {
+                    char *gs = ofl_meter_to_string(ntohl(sa->meter_id));
+                    OFL_LOG_WARN(LOG_MODULE, "Received METER action has invalid meter id (%s).", gs);
+                    free(gs);
+                }
+                return ofl_error(OFPET_BAD_ACTION, OFPBAC_BAD_METER);
+            }
+
             da = (struct ofl_action_meter *)malloc(sizeof(struct ofl_action_meter));
             da->meter_id = ntohl(sa->meter_id);
 
