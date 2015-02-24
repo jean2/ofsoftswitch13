@@ -2500,7 +2500,7 @@ parse_group(char *str, uint32_t *group) {
 
 static int
 parse_meter(char *str, uint32_t *meter) {
-    return parse32(str, NULL, 0, OFPM_MAX, meter);
+    return parse32(str, NULL, 0, OFPM_ALL, meter);
 }
 
 static int
