@@ -807,9 +807,9 @@ enum ofp_meter {
 
 /* Meter commands */
 enum ofp_meter_mod_command {
-    OFPMC_ADD,    /* New meter. */
-    OFPMC_MODIFY, /* Modify specified meter. */
-    OFPMC_DELETE, /* Delete specified meter. */
+    OFPMC_ADD    = 0,       /* New meter. */
+    OFPMC_MODIFY = 1,       /* Modify specified meter. */
+    OFPMC_DELETE = 2,       /* Delete specified meter. */
 };
 
 /* Meter configuration flags */
